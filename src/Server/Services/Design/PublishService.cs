@@ -301,7 +301,7 @@ internal static class PublishService
         return Path.Combine(Path.GetTempPath(), "AppBox", sessionName, "Service");
     }
 
-    internal static async Task UploadServiceAssembly(BytesPipeReader reader, string assemblyName, bool isFirst)
+    internal static async Task UploadServiceAssembly(PipeBytesReader reader, string assemblyName, bool isFirst)
     {
         var tempPath = GetUploadServicePath();
         if (isFirst)
@@ -328,7 +328,7 @@ internal static class PublishService
     /// <summary>
     /// 将客户端上传的编译且压缩好的AppAssembly保存至临时目录
     /// </summary>
-    internal static async Task UploadAppAssembly(BytesPipeReader reader, string assemblyName, bool isFirst)
+    internal static async Task UploadAppAssembly(PipeBytesReader reader, string assemblyName, bool isFirst)
     {
         var tempPath = GetUploadAppPath();
         if (isFirst)
@@ -347,7 +347,7 @@ internal static class PublishService
     /// <summary>
     /// 保存客户端上传的视图Assembly的依赖Map，并且开始保存App
     /// </summary>
-    internal static async Task UploadViewAssemblyMap(BytesPipeReader reader)
+    internal static async Task UploadViewAssemblyMap(PipeBytesReader reader)
     {
         //读取映射表
         var viewAssemblyMap = new List<MapItem>();

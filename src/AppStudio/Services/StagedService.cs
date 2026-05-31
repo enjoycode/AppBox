@@ -31,7 +31,7 @@ internal sealed class StagedService : IStagedService
 
     public Task SaveCodeAsync(ModelId modelId, Stream code)
     {
-        var pipeWriter = new BytesPipeWriter(w => w.CopyFromAsync(code));
+        var pipeWriter = new PipeBytesWriter(w => w.CopyFromAsync(code));
         return Channel.Upload("sys.DesignService.StageSaveCode", pipeWriter, (long)modelId);
     }
 

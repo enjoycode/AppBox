@@ -7,9 +7,9 @@ public interface IPublishService
 {
     Task PublishAsync(PublishPackage package, string commitMessage);
 
-    Task UploadServiceAssembly(BytesPipeWriter writer, string assemblyName, bool isFirst);
+    Task UploadServiceAssembly(PipeBytesWriter writer, string assemblyName, bool isFirst);
 
     Task UploadAppAssembly(Stream stream, string assemblyName, bool isFirst);
 
-    Task UploadViewAssemblyMap(BytesPipeWriter writer);
+    Task UploadViewAssemblyMap(PipeBytesWriter writer);
 }

@@ -10,5 +10,5 @@ public interface IChannel
     /// <remarks>
     /// 发送异常通知PipeWriter中止并通知挂起的请求异常
     /// </remarks>
-    void SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment);
+    void SendPipeSegment(PipeBytesWriter pipe, BytesSegment segment);
 }

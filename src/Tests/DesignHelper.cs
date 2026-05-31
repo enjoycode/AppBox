@@ -139,13 +139,13 @@ internal sealed class MockPublishService : IPublishService
     public Task PublishAsync(PublishPackage package, string commitMessage) =>
         AppBoxServer.Design.PublishService.PublishAsync(package, commitMessage);
 
-    public Task UploadServiceAssembly(BytesPipeWriter writer, string assemblyName, bool isFirst) =>
+    public Task UploadServiceAssembly(PipeBytesWriter writer, string assemblyName, bool isFirst) =>
         throw new NotImplementedException();
 
     public Task UploadAppAssembly(Stream stream, string assemblyName, bool isFirst) =>
         throw new NotImplementedException();
 
-    public Task UploadViewAssemblyMap(BytesPipeWriter writer) => throw new NotImplementedException();
+    public Task UploadViewAssemblyMap(PipeBytesWriter writer) => throw new NotImplementedException();
 }
 
 internal sealed class MockMetadataReferenceProvider : IMetadataReferenceProvider

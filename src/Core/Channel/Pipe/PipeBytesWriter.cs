@@ -2,9 +2,9 @@ using System.Buffers.Binary;
 
 namespace AppBoxCore.Channel;
 
-public sealed class BytesPipeWriter
+public sealed class PipeBytesWriter
 {
-    public BytesPipeWriter(Func<BytesWriter, Task> dataProvider)
+    public PipeBytesWriter(Func<BytesWriter, Task> dataProvider)
     {
         _dataProvider = dataProvider;
         _writer = new BytesWriter(this);
@@ -53,12 +53,12 @@ public sealed class BytesPipeWriter
     /// </summary>
     public sealed class BytesWriter
     {
-        internal BytesWriter(BytesPipeWriter owner)
+        internal BytesWriter(PipeBytesWriter owner)
         {
             _owner = owner;
         }
 
-        private readonly BytesPipeWriter _owner;
+        private readonly PipeBytesWriter _owner;
         private SegmentWriter _segmentWriter;
 
         internal void StartWrite(MessageType msgType, int msgId)
@@ -263,12 +263,12 @@ public sealed class BytesPipeWriter
 
 public sealed class PipeWriteStream : Stream
 {
-    public PipeWriteStream(BytesPipeWriter.BytesWriter writer)
+    public PipeWriteStream(PipeBytesWriter.BytesWriter writer)
     {
         _writer = writer;
     }
 
-    private readonly BytesPipeWriter.BytesWriter _writer;
+    private readonly PipeBytesWriter.BytesWriter _writer;
 
     public override void Flush() { }
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();

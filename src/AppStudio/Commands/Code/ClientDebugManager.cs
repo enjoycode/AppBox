@@ -22,7 +22,7 @@ internal static class ClientDebugManager
         var serviceName = serviceModel.Name;
 
         // 1.编译并上传服务模型
-        var pipeWriter = new BytesPipeWriter(async w =>
+        var pipeWriter = new PipeBytesWriter(async w =>
         {
             var stream = new PipeWriteStream(w);
             await PublishCommand.CompileServiceAsync(stream, hub, serviceModel, true);

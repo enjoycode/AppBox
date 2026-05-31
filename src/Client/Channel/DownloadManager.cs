@@ -6,14 +6,14 @@ namespace AppBoxClient;
 
 internal sealed class DownloadManager
 {
-    private readonly Dictionary<int, BytesPipeReader> _pendingDownloads = new();
+    private readonly Dictionary<int, PipeBytesReader> _pendingDownloads = new();
 
-    public void MakePendingDownload(int msgId, BytesPipeReader reader)
+    public void MakePendingDownload(int msgId, PipeBytesReader reader)
     {
         _pendingDownloads.Add(msgId, reader);
     }
 
-    public bool TryGetPending(int msgId, [MaybeNullWhen(returnValue: false)] out BytesPipeReader pending) =>
+    public bool TryGetPending(int msgId, [MaybeNullWhen(returnValue: false)] out PipeBytesReader pending) =>
         _pendingDownloads.TryGetValue(msgId, out pending);
 
     public void RemovePending(int msgId) => _pendingDownloads.Remove(msgId);

@@ -33,7 +33,7 @@ public class ChannelTest
     {
         var filePath = "/Users/rick/Desktop/测试模型/HelloService.dll";
         var fileStream = File.OpenRead(filePath);
-        var pipeWriter = new BytesPipeWriter(w => w.CopyFromAsync(fileStream));
+        var pipeWriter = new PipeBytesWriter(w => w.CopyFromAsync(fileStream));
         var assemblyFlag = await Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull,
             pipeWriter, "sys", "HelloService.dll");
         await fileStream.DisposeAsync();

@@ -10,7 +10,7 @@ public class BytesPipeTest
     public async Task TestUpload()
     {
         var channel = new MockPipeChannel();
-        var pipeWriter = new BytesPipeWriter(w =>
+        var pipeWriter = new PipeBytesWriter(w =>
         {
             for (var i = 0; i < 100; i++)
             {
@@ -20,7 +20,7 @@ public class BytesPipeTest
 
             return Task.CompletedTask;
         });
-        var pipeReader = new BytesPipeReader();
+        var pipeReader = new PipeBytesReader();
         channel.Writer = pipeWriter;
         channel.Reader = pipeReader;
 
@@ -39,10 +39,10 @@ public class BytesPipeTest
 
 internal sealed class MockPipeChannel : IChannel
 {
-    public BytesPipeWriter Writer { get; set; } = null!;
-    public BytesPipeReader Reader { get; set; } = null!;
+    public PipeBytesWriter Writer { get; set; } = null!;
+    public PipeBytesReader Reader { get; set; } = null!;
 
-    void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
+    void IChannel.SendPipeSegment(PipeBytesWriter pipe, BytesSegment segment)
     {
         Task.Run(async () =>
         {

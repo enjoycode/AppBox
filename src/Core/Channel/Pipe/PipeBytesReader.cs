@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AppBoxCore.Channel;
 
-public sealed class BytesPipeReader : IDisposable
+public sealed class PipeBytesReader : IDisposable
 {
     private readonly PooledTaskSource<int> _waitingTaskSource = new(false); //值为offset
 

@@ -22,7 +22,7 @@ internal static class DebugService
     /// </summary>
     /// <param name="reader"></param>
     /// <param name="asmName">eg: erp.OrderService</param>
-    internal static async Task UploadAssembly(BytesPipeReader reader, string asmName)
+    internal static async Task UploadAssembly(PipeBytesReader reader, string asmName)
     {
         var debugPath = GetDebugFolderPath();
         if (!Directory.Exists(debugPath))

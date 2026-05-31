@@ -115,7 +115,7 @@ public sealed class WebSocketChannel : IClientChannel
         throw new NotImplementedException();
     }
 
-    public async Task<AnyValue> Upload<T>(string service, BytesPipeWriter writer, T args) where T : struct, IAnyArgs
+    public async Task<AnyValue> Upload<T>(string service, PipeBytesWriter writer, T args) where T : struct, IAnyArgs
     {
         //add to wait list
         var msgId = MakePendingRequest(out var promise);
@@ -134,11 +134,11 @@ public sealed class WebSocketChannel : IClientChannel
         return DeserializeResponse(ref rs, null);
     }
 
-    public BytesPipeReader Download<T>(string service, T args) where T : struct, IAnyArgs
+    public PipeBytesReader Download<T>(string service, T args) where T : struct, IAnyArgs
     {
-        //下载请求不加入等待列表，由BytesPipeReader结束流程
+        //下载请求不加入等待列表，由PipeBytesReader结束流程
         var msgId = Interlocked.Increment(ref _msgIdIndex);
-        var reader = new BytesPipeReader();
+        var reader = new PipeBytesReader();
         _downloadManager ??= new DownloadManager();
         _downloadManager.MakePendingDownload(msgId, reader);
         reader.OnCompleted = _ => _downloadManager.RemovePending(msgId);
@@ -421,7 +421,7 @@ public sealed class WebSocketChannel : IClientChannel
         BytesSegment.ReturnAll(data);
     }
 
-    async void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
+    async void IChannel.SendPipeSegment(PipeBytesWriter pipe, BytesSegment segment)
     {
         //目前仅支持上传的数据块
         Debug.Assert((MessageType)segment.Buffer[0] == MessageType.UploadChunk);

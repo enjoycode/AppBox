@@ -128,25 +128,25 @@ public static class Channel
         AnyValue arg5, EntityFactory[]? entityFactories = null) where T : notnull =>
         (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4, arg5), entityFactories)).CastTo<T>();
 
-    public static Task Upload(string service, BytesPipeWriter writer) =>
+    public static Task Upload(string service, PipeBytesWriter writer) =>
         Provider.Upload(service, writer, AnyArgs.Empty);
 
-    public static Task Upload(string service, BytesPipeWriter writer, AnyValue arg) =>
+    public static Task Upload(string service, PipeBytesWriter writer, AnyValue arg) =>
         Provider.Upload(service, writer, AnyArgs.Make(arg));
 
-    public static Task Upload(string service, BytesPipeWriter writer, AnyValue arg1, AnyValue arg2) =>
+    public static Task Upload(string service, PipeBytesWriter writer, AnyValue arg1, AnyValue arg2) =>
         Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2));
 
-    public static async Task<T?> Upload<T>(string service, BytesPipeWriter writer, AnyValue arg1, AnyValue arg2)
+    public static async Task<T?> Upload<T>(string service, PipeBytesWriter writer, AnyValue arg1, AnyValue arg2)
         where T : notnull =>
         (await Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2))).CastTo<T>();
 
-    public static BytesPipeReader Download(string service) => Provider.Download(service, AnyArgs.Empty);
+    public static PipeBytesReader Download(string service) => Provider.Download(service, AnyArgs.Empty);
 
-    public static BytesPipeReader Download(string service, AnyValue arg) =>
+    public static PipeBytesReader Download(string service, AnyValue arg) =>
         Provider.Download(service, AnyArgs.Make(arg));
 
-    public static BytesPipeReader Download(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
+    public static PipeBytesReader Download(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3) =>
         Provider.Download(service, AnyArgs.Make(arg1, arg2, arg3));
 
     //暂时放在这里，待移至RuntimeContext内

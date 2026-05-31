@@ -70,7 +70,7 @@ internal sealed class PublishCommand : DesignCommand
             //以下重命名的已不需要加入待删除列表，保存模型时已处理
             if (item.Target is ServiceModel sm && sm.PersistentState != PersistentState.Deleted)
             {
-                var pipeWriter = new BytesPipeWriter(async w =>
+                var pipeWriter = new PipeBytesWriter(async w =>
                 {
                     var stream = new PipeWriteStream(w);
                     await CompileServiceAsync(stream, hub, sm, false);

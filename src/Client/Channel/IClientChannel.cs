@@ -19,7 +19,7 @@ public interface IClientChannel : IChannel
     Task<AnyValue> Invoke<TArgs>(string service, TArgs args, EntityFactory[]? entityFactories = null)
         where TArgs : struct, IAnyArgs;
 
-    Task<AnyValue> Upload<TArgs>(string service, BytesPipeWriter writer, TArgs args) where TArgs : struct, IAnyArgs;
+    Task<AnyValue> Upload<TArgs>(string service, PipeBytesWriter writer, TArgs args) where TArgs : struct, IAnyArgs;
 
-    BytesPipeReader Download<TArgs>(string service, TArgs args) where TArgs : struct, IAnyArgs;
+    PipeBytesReader Download<TArgs>(string service, TArgs args) where TArgs : struct, IAnyArgs;
 }

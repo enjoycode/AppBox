@@ -70,7 +70,7 @@ internal static class StagedService
     /// </summary>
     /// <param name="reader">未压缩的utf8字节</param>
     /// <param name="modelId"></param>
-    internal static async Task SaveCodeAsync(BytesPipeReader reader, ModelId modelId)
+    internal static async Task SaveCodeAsync(PipeBytesReader reader, ModelId modelId)
     {
         var inputTempFilePath = Path.GetTempFileName();
         var inputTempFileStream = File.Open(inputTempFilePath, FileMode.Create, FileAccess.ReadWrite);

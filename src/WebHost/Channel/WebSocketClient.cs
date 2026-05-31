@@ -233,18 +233,18 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
             return;
         }
 
-        //根据服务返回结果发送数据块，目前仅支持Stream和BytesPipeWriter
+        //根据服务返回结果发送数据块，目前仅支持Stream和PipeBytesWriter
         switch (result.BoxedValue)
         {
             case Stream stream:
                 await SendStreamToPipe(MessageType.DownloadChunk, msgId, stream).ConfigureAwait(false);
                 break;
-            case BytesPipeWriter pipeWriter:
+            case PipeBytesWriter pipeWriter:
                 pipeWriter.StartWrite(this, MessageType.DownloadChunk, msgId);
                 break;
             default:
                 await SendErrorResponse(msgId, MessageType.DownloadResponse, InvokeErrorCode.ServiceInnerError,
-                    "Download service return none Stream nore BytesPipeWriter").ConfigureAwait(false);
+                    "Download service return none Stream nore PipeBytesWriter").ConfigureAwait(false);
                 break;
         }
     }
@@ -404,7 +404,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         return SendMessage(data);
     }
 
-    async void IChannel.SendPipeSegment(BytesPipeWriter pipe, BytesSegment segment)
+    async void IChannel.SendPipeSegment(PipeBytesWriter pipe, BytesSegment segment)
     {
         //目前仅支持下载的数据块
         Debug.Assert((MessageType)segment.Buffer[0] == MessageType.DownloadChunk);

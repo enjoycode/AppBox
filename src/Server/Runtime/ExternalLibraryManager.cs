@@ -20,7 +20,7 @@ internal static class ExternalLibraryManager
     /// <summary>
     /// 上传第三方库, 注意：目前仅支持服务依赖的库
     /// </summary>
-    internal static async Task<byte> UploadLibrary(BytesPipeReader reader, string appName, string fileName)
+    internal static async Task<byte> UploadLibrary(PipeBytesReader reader, string appName, string fileName)
     {
         var folder = GetExternalLibraryPath(appName);
         var filePath = Path.Combine(folder, fileName);

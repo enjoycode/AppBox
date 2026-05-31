@@ -7,7 +7,7 @@ namespace AppBoxWebHost;
 
 internal struct UploadArgs<TStream> : IAnyArgs where TStream : struct, IInputStream
 {
-    internal UploadArgs(BytesPipeReader firstArg, TStream inputStream)
+    internal UploadArgs(PipeBytesReader firstArg, TStream inputStream)
     {
         _firstArg = firstArg;
         _streamArgs = new StreamArgs<TStream>(inputStream);
@@ -15,7 +15,7 @@ internal struct UploadArgs<TStream> : IAnyArgs where TStream : struct, IInputStr
     }
 
     private StreamArgs<TStream> _streamArgs;
-    private readonly BytesPipeReader _firstArg;
+    private readonly PipeBytesReader _firstArg;
     private bool _hasReadFirstArg;
 
     public void SetEntityFactories(EntityFactory[] factories) => _streamArgs.SetEntityFactories(factories);
@@ -60,16 +60,16 @@ internal struct UploadArgs<TStream> : IAnyArgs where TStream : struct, IInputStr
 /// </summary>
 internal sealed class UploadManager
 {
-    private readonly Dictionary<int, BytesPipeReader> _pendingUploads = new();
+    private readonly Dictionary<int, PipeBytesReader> _pendingUploads = new();
 
-    public BytesPipeReader MakePendingUpload(int msgId)
+    public PipeBytesReader MakePendingUpload(int msgId)
     {
-        var pending = new BytesPipeReader();
+        var pending = new PipeBytesReader();
         _pendingUploads.Add(msgId, pending);
         return pending;
     }
 
-    public bool TryGetPending(int msgId, [MaybeNullWhen(returnValue: false)] out BytesPipeReader pending) =>
+    public bool TryGetPending(int msgId, [MaybeNullWhen(returnValue: false)] out PipeBytesReader pending) =>
         _pendingUploads.TryGetValue(msgId, out pending);
 
     public void RemovePending(int msgId) => _pendingUploads.Remove(msgId);

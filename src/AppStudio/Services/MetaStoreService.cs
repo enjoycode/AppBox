@@ -57,7 +57,7 @@ internal sealed class MetaStoreService : IMetaStoreService
 
     public Task<byte> UploadExtLib(Stream input, string appName, string fileName)
     {
-        var pipeWriter = new BytesPipeWriter(w => w.CopyFromAsync(input));
+        var pipeWriter = new PipeBytesWriter(w => w.CopyFromAsync(input));
         return Channel.Upload<byte>(DesignMethods.UploadExtAssemblyFull, pipeWriter, appName, fileName);
     }
 }
