@@ -15,6 +15,7 @@ internal readonly struct StreamToPipeSegmentWriter
         buffer[0] = (byte)msgType;
         BinaryPrimitives.WriteInt32LittleEndian(buffer.AsSpan(1, 4), msgId);
         BinaryPrimitives.WriteInt32LittleEndian(buffer.AsSpan(5, 4), offset);
+        buffer[PipeSegmentHeader.FlagPosition] = 0;
     }
 
     public BytesSegment Segment { get; }

@@ -141,6 +141,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         var res = TryReadService(ref reader, out var service);
         if (res == InvokeErrorCode.None)
         {
+            Logger.Debug($"Invoke: {service}");
             var (result, errorCode) = await InvokeInternal(service, AnyArgs.From(reader));
             //发送响应
             await SendResponse(msgId, MessageType.InvokeResponse, errorCode, result);
@@ -168,6 +169,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
                 var res = TryReadService(ref reader, out var service);
                 if (res == InvokeErrorCode.None)
                 {
+                    Logger.Debug($"Upload: {service}");
                     var (result, errCode) = await InvokeInternal(service,
                         new UploadArgs<MessageReadStream>(pendingUpload, reader)).ConfigureAwait(false);
                     await SendResponse(msgId, MessageType.UploadResponse, errCode, result).ConfigureAwait(false);
@@ -225,6 +227,7 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
             return;
         }
 
+        Logger.Debug($"Download: {service}");
         var (result, errCode) = await InvokeInternal(service, AnyArgs.From(reader)).ConfigureAwait(false);
         //如果有错误直接发送响应
         if (errCode != InvokeErrorCode.None)
@@ -257,7 +260,6 @@ internal sealed class WebSocketClient(WebSocket webSocket) : IRemoteChannel
         try
         {
             service = rs.ReadString()!;
-            Logger.Debug($"Invoke service: {service}");
             return InvokeErrorCode.None;
         }
         catch (Exception e)
