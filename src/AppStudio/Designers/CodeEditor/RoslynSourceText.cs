@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PixUI.CodeEditor;
 using Microsoft.CodeAnalysis.Text;
 
@@ -6,31 +7,29 @@ namespace AppBoxDesign;
 /// <summary>
 /// 包装Roslyn的SourceText为ITextBuffer
 /// </summary>
-public sealed class RoslynSourceText : ITextBuffer
+internal sealed class RoslynSourceText : ITextBuffer
 {
-    public RoslynSourceText(ModelNode modelNode)
+    public RoslynSourceText(ModelWorkspace workspace, DocumentId documentId)
     {
-        _modelNode = modelNode;
-        _designContext = modelNode.DesignTree!.DesignHub;
+        _workspace = workspace;
+        _documentId = documentId;
     }
 
-    private readonly ModelNode _modelNode;
-    private readonly DesignHub _designContext;
+    private readonly ModelWorkspace _workspace;
+    private readonly DocumentId _documentId;
     private SourceText _sourceText = null!;
     public bool HasOpen => _sourceText != null!;
 
     internal Microsoft.CodeAnalysis.Document GetRoslynDocument() =>
-        _designContext.TypeSystem.Workspace.CurrentSolution.GetDocument(_modelNode.RoslynDocumentId)!;
+        _workspace.CurrentSolution.GetDocument(_documentId)!;
 
     public async Task Open()
     {
-        var typeSystem = _designContext.TypeSystem;
         //先判断是否已经打开，是则先关闭，主要用于签出后重新加载
-        var docId = _modelNode.RoslynDocumentId!;
-        if (typeSystem.Workspace.IsDocumentOpen(docId))
-            typeSystem.Workspace.CloseDocument(docId);
+        if (_workspace.IsDocumentOpen(_documentId))
+            _workspace.CloseDocument(_documentId);
 
-        await typeSystem.Workspace.OpenDocumentAsync(docId);
+        await _workspace.OpenDocumentAsync(_documentId);
 
         //从已加载的设计树对应的RoslynDocument中获取源码
         _sourceText = await GetRoslynDocument().GetTextAsync();
@@ -43,19 +42,19 @@ public sealed class RoslynSourceText : ITextBuffer
     public void Insert(int offset, string text)
     {
         _sourceText = _sourceText.Replace(offset, 0, text);
-        _designContext.TypeSystem.Workspace.OnDocumentChanged(_modelNode.RoslynDocumentId!, _sourceText);
+        _workspace.OnDocumentChanged(_documentId, _sourceText);
     }
 
     public void Remove(int offset, int length)
     {
         _sourceText = _sourceText.Replace(offset, length, string.Empty);
-        _designContext.TypeSystem.Workspace.OnDocumentChanged(_modelNode.RoslynDocumentId!, _sourceText);
+        _workspace.OnDocumentChanged(_documentId, _sourceText);
     }
 
     public void Replace(int offset, int length, string text)
     {
         _sourceText = _sourceText.Replace(offset, length, text);
-        _designContext.TypeSystem.Workspace.OnDocumentChanged(_modelNode.RoslynDocumentId!, _sourceText);
+        _workspace.OnDocumentChanged(_documentId, _sourceText);
     }
 
     public string GetText(int offset, int length) => _sourceText.ToString(new TextSpan(offset, length));

@@ -10,7 +10,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
     {
         _designContext = designContext;
         ModelNode = modelNode;
-        _textBuffer = new RoslynSourceText(modelNode);
+        _textBuffer = new RoslynSourceText(designContext.TypeSystem.Workspace, modelNode.RoslynDocumentId!);
         _previewController = new PreviewController(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
             new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.Id);

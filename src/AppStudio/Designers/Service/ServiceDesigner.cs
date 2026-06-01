@@ -14,7 +14,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     {
         ModelNode = modelNode;
         _designContext = designContext;
-        _textBuffer = new RoslynSourceText(modelNode);
+        _textBuffer = new RoslynSourceText(designContext.TypeSystem.Workspace, modelNode.RoslynDocumentId!);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
             new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.Id);
         _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designContext, e);
