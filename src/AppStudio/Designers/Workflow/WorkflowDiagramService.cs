@@ -26,11 +26,7 @@ internal sealed class WorkflowDiagramService : IDiagramService
 
         Surface = surface;
         Surface.ToolboxService.Toolbox = Toolbox;
-        Surface.RoutingService.Router = new OrgTreeRouter()
-        {
-            TreeLayoutType = TreeLayoutType.TreeRight,
-            ConnectionOuterSpacing = 20
-        };
+        Surface.RoutingService.Router = new AStarRouter(surface) { AvoidShapes = true };
         Surface.SelectionService.SelectionChanged += OnSelectionChanged;
     }
 
