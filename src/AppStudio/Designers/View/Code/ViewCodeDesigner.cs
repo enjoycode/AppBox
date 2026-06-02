@@ -13,7 +13,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
         _textBuffer = new RoslynSourceText(designContext.TypeSystem.Workspace, modelNode.RoslynDocumentId!);
         _previewController = new PreviewController(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
-            new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode);
+            new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.RoslynDocumentId);
         _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(designContext, e);
         //订阅代码变更事件
         _codeEditorController.Document.DocumentChanged += OnDocumentChanged;

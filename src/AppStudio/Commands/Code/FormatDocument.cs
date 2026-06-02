@@ -9,14 +9,8 @@ namespace AppBoxDesign;
 
 internal static class FormatDocument
 {
-    public static async Task<IList<TextChange>> Execute(DesignHub context, object? docTag)
+    public static async Task<IList<TextChange>> Execute(DesignHub context, DocumentId docId)
     {
-        DocumentId? docId = null;
-        if (docTag is ModelNode modelNode)
-            docId = modelNode.RoslynDocumentId;
-        else if (docTag is DocumentId documentId) //maybe in expression editor
-            docId = documentId;
-
         var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
             throw new Exception($"Can't find document: {docId}");

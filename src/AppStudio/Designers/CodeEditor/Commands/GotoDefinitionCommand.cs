@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PixUI.CodeEditor;
 
 namespace AppBoxDesign;
@@ -11,13 +12,13 @@ internal static class GotoDefinitionCommand
         var column = editor.Caret.Column;
         var position = editor.Document.PositionToOffset(new TextLocation(column, line));
 
-        var res = await GotoDefinition.Execute(designContext, editor.Document.Tag, position);
+        var res = await GotoDefinition.Execute(designContext, (DocumentId)editor.Document.Tag!, position);
         if (res == null) return;
 
         if (res.Value.Target is not null)
             designStore.OpenOrActiveDesigner(res.Value.Target, res); //打开或激活节点
         else
-            RunOnCodeEditor(editor.Controller, res.Value); // in expression editor
+            RunOnCodeEditor(editor.Controller, res.Value); //在当前代码编辑器内跳转
     }
 
     internal static void RunOnCodeEditor(CodeEditorController controller, ILocation location)

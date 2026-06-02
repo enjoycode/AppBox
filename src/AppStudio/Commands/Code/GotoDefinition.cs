@@ -6,20 +6,8 @@ namespace AppBoxDesign;
 
 internal static class GotoDefinition
 {
-    internal static async Task<Definition?> Execute(DesignHub context, object? docTag, int position)
+    internal static async Task<Definition?> Execute(DesignHub context, DocumentId docId, int position)
     {
-        DocumentId? docId = null;
-        ModelNode? modelNode = null;
-        if (docTag is ModelNode node)
-        {
-            modelNode = node;
-            docId = node.RoslynDocumentId;
-        }
-        else if (docTag is DocumentId documentId)
-        {
-            docId = documentId;
-        }
-
         var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
             throw new Exception($"Can't find document: {docId}");
@@ -33,8 +21,7 @@ internal static class GotoDefinition
         var loc = symbol.Locations[0];
         //先判断是否在同一文件内
         if (loc.SourceTree!.FilePath == doc.Name)
-            return new Definition(modelNode, loc.SourceSpan.Start, loc.SourceSpan.Length);
-        if (modelNode == null) return null; //in expression editor
+            return new Definition(null, loc.SourceSpan.Start, loc.SourceSpan.Length);
 
         //再判断是否模型源代码
         var targetModelId = DocNameUtil.TryGetModelIdFromDocName(loc.SourceTree.FilePath);
@@ -105,7 +92,7 @@ internal readonly struct Definition : ILocation
     }
 
     /// <summary>
-    /// 如果是null表示在表达式编辑器内
+    /// 如果是null表示在当前代码编辑内
     /// </summary>
     public ModelNode? Target { get; init; }
 

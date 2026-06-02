@@ -1,4 +1,3 @@
-using AppBoxCore;
 using PixUI.CodeEditor;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Completion;
@@ -24,12 +23,7 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
         var wants = WantsType.WantDocumentationForEveryCompletionResult | WantsType.WantKind |
                     WantsType.WantReturnType; //暂默认
 
-        DocumentId? docId = null;
-        if (document.Tag is ModelNode modelNode)
-            docId = modelNode.RoslynDocumentId;
-        else if (document.Tag is DocumentId documentId)
-            docId = documentId;
-
+        var docId = (DocumentId)document.Tag!;
         var doc = _designContext.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
             throw new Exception($"Can't find document: {docId}");
@@ -249,7 +243,7 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
         WantReturnType = 16,
 
         /// <summary>
-        /// Returns the kind (i.e Method, Property, Field)
+        /// Returns the kind (i.e. Method, Property, Field)
         /// </summary>
         WantKind = 32
     }

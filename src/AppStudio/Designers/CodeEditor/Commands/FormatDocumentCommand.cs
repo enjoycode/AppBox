@@ -1,3 +1,4 @@
+using Microsoft.CodeAnalysis;
 using PixUI.CodeEditor;
 
 namespace AppBoxDesign;
@@ -6,7 +7,7 @@ internal static class FormatDocumentCommand
 {
     public static async void Execute(DesignHub designContext, TextEditor editor)
     {
-        var changes = await FormatDocument.Execute(designContext, editor.Document.Tag);
+        var changes = await FormatDocument.Execute(designContext, (DocumentId)editor.Document.Tag!);
 
         //TODO:暂逐个处理，另UpdateCaretPosition至有效位置
         editor.Document.StartUndoGroup();
