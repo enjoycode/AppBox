@@ -10,12 +10,12 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class WorkflowRootDesigner : IDiagramItemDesigner
 {
-    public WorkflowRootDesigner(WorkflowModel model)
+    public WorkflowRootDesigner(WorkflowModel workflowModel)
     {
-        _model = model;
+        WorkflowModel = workflowModel;
     }
 
-    private readonly WorkflowModel _model;
+    internal readonly WorkflowModel WorkflowModel;
     public string TypeName => "Workflow";
     public bool IsSelected => false;
     public Point Location { get; set; } = Point.Empty;
@@ -27,12 +27,12 @@ internal sealed class WorkflowRootDesigner : IDiagramItemDesigner
     {
         var nameProperty = new DiagramProperty(this, "Name", TextEditor.Factory)
         {
-            ValueGetter = () => _model.Name,
+            ValueGetter = () => WorkflowModel.Name,
         };
 
         var paraProperty = new DiagramProperty(this, "Parameters", ParametersEditor.Factory)
         {
-            ValueGetter = () => _model.Parameters,
+            ValueGetter = () => WorkflowModel.Parameters,
         };
 
         yield return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [nameProperty, paraProperty] };

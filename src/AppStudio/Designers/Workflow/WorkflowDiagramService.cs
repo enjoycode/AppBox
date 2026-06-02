@@ -14,6 +14,7 @@ internal sealed class WorkflowDiagramService : IDiagramService
     }
 
     private readonly WorkflowRootDesigner _rootDesigner;
+    internal WorkflowModel WorkflowModel => _rootDesigner.WorkflowModel;
     internal DiagramSurface Surface { get; private set; } = null!;
     internal WorkflowToolbox Toolbox { get; } = new();
 

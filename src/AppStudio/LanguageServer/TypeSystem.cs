@@ -356,7 +356,7 @@ internal sealed class TypeSystem : IDisposable
     /// <remarks>
     /// 注意: 如果处于打开状态，则先关闭再移除
     /// </remarks>
-    private void RemoveDocument(DocumentId docId)
+    internal void RemoveDocument(DocumentId docId)
     {
         if (Workspace.IsDocumentOpen(docId))
             Workspace.CloseDocument(docId);
@@ -376,12 +376,12 @@ internal sealed class TypeSystem : IDisposable
         if (node.ExtRoslynDocumentId != null)
             RemoveDocument(node.ExtRoslynDocumentId);
         if (node.ServiceProjectId != null) //注意：服务模型移除整个虚拟项目
-            RemoveServiceProject(node.ServiceProjectId);
+            RemoveProject(node.ServiceProjectId);
     }
 
     #endregion
 
-    #region ====ServiceProject=====
+    #region ====Service & Expression Project=====
 
     /// <summary>
     /// 创建服务模型的虚拟项目，即一个服务模型对应一个虚拟项目
@@ -432,9 +432,50 @@ internal sealed class TypeSystem : IDisposable
             Log.Warn("Cannot create service project.");
     }
 
-    internal void RemoveServiceProject(ProjectId serviceProjectId)
+    /// <summary>
+    /// 创建表达式的虚拟项目
+    /// </summary>
+    internal void CreateExpressionProject(ProjectId prjId, DocumentId docId, ModelBase owner, string expName)
     {
-        var newSolution = Workspace.CurrentSolution.RemoveProject(serviceProjectId);
+        var prjName = $"{owner.Name}.{expName}";
+
+        var expressionProjectInfo = ProjectInfo.Create(prjId, VersionStamp.Create(),
+            prjName, prjName, LanguageNames.CSharp, null, null,
+            DllCompilationOptions, ParseOptions);
+
+        var deps = new List<MetadataReference>
+        {
+            MetadataReferences.CoreLib,
+            MetadataReferences.NetstandardLib,
+            MetadataReferences.SystemRuntimeLib,
+            MetadataReferences.SystemLinqLib,
+            MetadataReferences.SystemDataLib,
+            MetadataReferences.SystemCollectionsLib,
+            MetadataReferences.SystemJsonLib,
+            MetadataReferences.SystemPrivateUriLib,
+            MetadataReferences.SystemNetHttpLib,
+            MetadataReferences.SystemNetHttpJsonLib,
+            MetadataReferences.AppBoxCoreLib, //需要解析一些类型
+        };
+
+        var globalUsings =
+            "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxCore;";
+        var newSolution = Workspace.CurrentSolution
+                .AddProject(expressionProjectInfo)
+                .AddMetadataReferences(prjId, deps)
+                .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
+                // .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId)) //TODO:根据表达式类型
+                .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs", globalUsings)
+                .AddDocument(docId, "Expression.cs", string.Empty)
+            ;
+
+        if (!Workspace.TryApplyChanges(newSolution))
+            Log.Warn("Cannot create service project.");
+    }
+
+    internal void RemoveProject(ProjectId projectId)
+    {
+        var newSolution = Workspace.CurrentSolution.RemoveProject(projectId);
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot remove service project.");
     }
