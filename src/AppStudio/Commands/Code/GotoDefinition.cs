@@ -6,15 +6,23 @@ namespace AppBoxDesign;
 
 internal static class GotoDefinition
 {
-    internal static async Task<Definition?> Execute(DesignHub context, ModelId modelId, int position)
+    internal static async Task<Definition?> Execute(DesignHub context, object? docTag, int position)
     {
-        var modelNode = context.DesignTree.FindModelNode(modelId);
-        if (modelNode == null)
-            throw new Exception($"Can't find model: {modelId}");
+        DocumentId? docId = null;
+        ModelNode? modelNode = null;
+        if (docTag is ModelNode node)
+        {
+            modelNode = node;
+            docId = node.RoslynDocumentId;
+        }
+        else if (docTag is DocumentId documentId)
+        {
+            docId = documentId;
+        }
 
-        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
+        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
-            throw new Exception($"Can't find document: {modelNode.Model.Name}");
+            throw new Exception($"Can't find document: {docId}");
 
         var symbol = await GetDefinitionSymbol(doc, position);
         if (symbol?.Locations.IsDefaultOrEmpty != false)
@@ -26,6 +34,7 @@ internal static class GotoDefinition
         //先判断是否在同一文件内
         if (loc.SourceTree!.FilePath == doc.Name)
             return new Definition(modelNode, loc.SourceSpan.Start, loc.SourceSpan.Length);
+        if (modelNode == null) return null; //in expression editor
 
         //再判断是否模型源代码
         var targetModelId = DocNameUtil.TryGetModelIdFromDocName(loc.SourceTree.FilePath);
@@ -79,7 +88,7 @@ internal static class GotoDefinition
 
 internal readonly struct Definition : ILocation
 {
-    public Definition(ModelNode target, string? location)
+    public Definition(ModelNode? target, string? location)
     {
         Target = target;
         Location = location;
@@ -87,7 +96,7 @@ internal readonly struct Definition : ILocation
         Length = -1;
     }
 
-    public Definition(ModelNode target, int offset, int length)
+    public Definition(ModelNode? target, int offset, int length)
     {
         Target = target;
         Location = null;
@@ -95,7 +104,11 @@ internal readonly struct Definition : ILocation
         Length = length;
     }
 
-    public ModelNode Target { get; init; }
+    /// <summary>
+    /// 如果是null表示在表达式编辑器内
+    /// </summary>
+    public ModelNode? Target { get; init; }
+
     public string? Location { get; init; }
     public int Offset { get; init; }
     public int Length { get; init; }

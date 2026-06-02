@@ -19,7 +19,8 @@ internal sealed class ExpressionEditor : SingleChildWidget
             "Expression.cs",
             _textBuffer,
             new RoslynSyntaxParser(_textBuffer),
-            new RoslynCompletionProvider(designContext));
+            new RoslynCompletionProvider(designContext), 
+            _docId);
 
         Child = new CodeEditorWidget(_controller);
     }
@@ -34,17 +35,32 @@ internal sealed class ExpressionEditor : SingleChildWidget
     protected override void OnMounted()
     {
         base.OnMounted();
-        CreateAndLoad();
+        OnLoad();
     }
 
-    private async void CreateAndLoad()
+    protected override void OnUnmounted()
+    {
+        base.OnUnmounted();
+        OnUnload();
+    }
+
+    private async void OnLoad()
     {
         if (_textBuffer.HasOpen) return;
 
         _designContext.TypeSystem.CreateExpressionProject(_prjId, _docId, _owner, "EXP");
 
         await _textBuffer.Open();
-        _textBuffer.SetContent("static class Expression\n{\n static bool Exp()\n{\n return true;\n}");
+        _textBuffer.SetContent(
+            "static class Expression\n{\n    static bool Exp()\n    {\n        return true;\n    }\n}");
         _controller.Document.Open();
+    }
+
+    private void OnUnload()
+    {
+        if (!_textBuffer.HasOpen) return;
+
+        _designContext.TypeSystem.RemoveDocument(_docId);
+        _designContext.TypeSystem.RemoveProject(_prjId);
     }
 }

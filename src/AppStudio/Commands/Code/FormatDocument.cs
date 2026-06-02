@@ -9,15 +9,17 @@ namespace AppBoxDesign;
 
 internal static class FormatDocument
 {
-    public static async Task<IList<TextChange>> Execute(DesignHub context, ModelId modelId)
+    public static async Task<IList<TextChange>> Execute(DesignHub context, object? docTag)
     {
-        var modelNode = context.DesignTree.FindModelNode(modelId);
-        if (modelNode == null)
-            throw new Exception($"Can't find model: {modelId}");
+        DocumentId? docId = null;
+        if (docTag is ModelNode modelNode)
+            docId = modelNode.RoslynDocumentId;
+        else if (docTag is DocumentId documentId) //maybe in expression editor
+            docId = documentId;
 
-        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
+        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
-            throw new Exception($"Can't find document: {modelNode.Model.Name}");
+            throw new Exception($"Can't find document: {docId}");
 
         var opts = GetFormatOptions(context.TypeSystem.Workspace.Options); //TODO: cache OptionSet?
         var newDoc = await Formatter.FormatAsync(doc, opts).ConfigureAwait(false);

@@ -13,7 +13,7 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
     {
         _designContext = designContext;
     }
-    
+
     private readonly DesignHub _designContext;
 
     public IEnumerable<char> TriggerCharacters => ['.'];
@@ -23,15 +23,16 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
     {
         var wants = WantsType.WantDocumentationForEveryCompletionResult | WantsType.WantKind |
                     WantsType.WantReturnType; //暂默认
-        
-        ModelId modelId = document.Tag!;
-        var modelNode = _designContext.DesignTree.FindModelNode(modelId);
-        if (modelNode == null)
-            throw new Exception($"Can't find model: {modelId}");
 
-        var doc = _designContext.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
+        DocumentId? docId = null;
+        if (document.Tag is ModelNode modelNode)
+            docId = modelNode.RoslynDocumentId;
+        else if (document.Tag is DocumentId documentId)
+            docId = documentId;
+
+        var doc = _designContext.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
-            throw new Exception($"Can't find document: {modelNode.Model.Name}");
+            throw new Exception($"Can't find document: {docId}");
 
         // var sourceText = await doc.GetTextAsync();
         var service = CompletionService.GetService(doc)!;
@@ -44,7 +45,8 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
         // get recommened symbols to match them up later with SymbolCompletionProvider
         var semanticModel = await doc.GetSemanticModelAsync();
         var recommendedSymbols = await
-            Recommender.GetRecommendedSymbolsAtPositionAsync(semanticModel!, offset, _designContext.TypeSystem.Workspace);
+            Recommender.GetRecommendedSymbolsAtPositionAsync(semanticModel!, offset,
+                _designContext.TypeSystem.Workspace);
         var completions = new List<ICompletionItem>(completionList.Items.Length);
         foreach (var item in completionList.Items)
         {
