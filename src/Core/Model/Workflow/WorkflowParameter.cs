@@ -90,7 +90,10 @@ public sealed class WorkflowParameter : IBinSerializable
     {
         Entity = 0,
         String = 1,
-        Number = 2,
+        Integer = 2,
+        Double = 3,
+        Boolean = 4,
+        Guid = 5,
     }
 
     [Flags]
@@ -98,5 +101,6 @@ public sealed class WorkflowParameter : IBinSerializable
     {
         None = 0,
         LocalVariable = 1,
+        Array = 2,
     }
 }

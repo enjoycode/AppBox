@@ -7,10 +7,15 @@ namespace AppBoxDesign;
 
 internal sealed class ExpressionEditor : SingleChildWidget
 {
-    public ExpressionEditor(DesignHub designContext, ModelBase owner)
+    public ExpressionEditor(DesignHub designContext, ModelBase owner,
+        string className, string methodName, string returnType, string parameters)
     {
         _designContext = designContext;
         _owner = owner;
+        _className = className;
+        _methodName = methodName;
+        _returnType = returnType;
+        _parameters = parameters;
 
         _prjId = ProjectId.CreateNewId();
         _docId = DocumentId.CreateNewId(_prjId);
@@ -19,7 +24,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
             "Expression.cs",
             _textBuffer,
             new RoslynSyntaxParser(_textBuffer),
-            new RoslynCompletionProvider(designContext), 
+            new RoslynCompletionProvider(designContext),
             _docId);
 
         Child = new CodeEditorWidget(_controller);
@@ -28,6 +33,10 @@ internal sealed class ExpressionEditor : SingleChildWidget
     private readonly ModelBase _owner;
     private readonly ProjectId _prjId;
     private readonly DocumentId _docId;
+    private readonly string _className;
+    private readonly string _methodName;
+    private readonly string _returnType;
+    private readonly string _parameters;
     private readonly DesignHub _designContext;
     private readonly RoslynSourceText _textBuffer;
     private readonly CodeEditorController _controller;
@@ -52,7 +61,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
 
         await _textBuffer.Open();
         _textBuffer.SetContent(
-            "static class Expression\n{\n    static bool Exp()\n    {\n        return true;\n    }\n}");
+            $"static class {_className}\n{{\n    static {_returnType} {_methodName}({_parameters})\n    {{\n        \n    }}\n}}");
         _controller.Document.Open();
     }
 
