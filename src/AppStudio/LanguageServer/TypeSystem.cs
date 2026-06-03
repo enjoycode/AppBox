@@ -435,10 +435,8 @@ internal sealed class TypeSystem : IDisposable
     /// <summary>
     /// 创建表达式的虚拟项目
     /// </summary>
-    internal void CreateExpressionProject(ProjectId prjId, DocumentId docId, ModelBase owner, string expName)
+    internal void CreateExpressionProject(ProjectId prjId, DocumentId docId, string prjName, string? partialCode)
     {
-        var prjName = $"{owner.Name}.{expName}";
-
         var expressionProjectInfo = ProjectInfo.Create(prjId, VersionStamp.Create(),
             prjName, prjName, LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
@@ -463,14 +461,18 @@ internal sealed class TypeSystem : IDisposable
         var newSolution = Workspace.CurrentSolution
                 .AddProject(expressionProjectInfo)
                 .AddMetadataReferences(prjId, deps)
-                .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
+                // .AddProjectReference(prjId, new ProjectReference(ModelProjectId)) //TODO:根据表达式类型
                 // .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId)) //TODO:根据表达式类型
                 .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs", globalUsings)
                 .AddDocument(docId, "Expression.cs", string.Empty)
             ;
+        if (!string.IsNullOrEmpty(partialCode))
+        {
+            newSolution = newSolution.AddDocument(DocumentId.CreateNewId(prjId), "Partial.cs",  partialCode);
+        }
 
         if (!Workspace.TryApplyChanges(newSolution))
-            Log.Warn("Cannot create service project.");
+            Log.Warn("Cannot create expression project.");
     }
 
     internal void RemoveProject(ProjectId projectId)

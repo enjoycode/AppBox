@@ -48,6 +48,16 @@ public sealed class WorkflowParameter : IBinSerializable
         _originalName = null;
     }
 
+    internal string GetRuntimeType() => Type switch
+    {
+        ValueType.Integer => "int",
+        ValueType.Double => "double",
+        ValueType.String => "string",
+        ValueType.Boolean => "bool",
+        ValueType.Guid => "Guid",
+        _ => throw new NotImplementedException()
+    };
+
     #region ====Serialization====
 
     public void WriteTo<TWriter>(ref TWriter bs) where TWriter : struct, IOutputStream

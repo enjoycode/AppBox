@@ -50,24 +50,62 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
             ConditionLink link)
         {
             _designContext = designContext;
-            _workflowModel = workflowModel;
 
             Title.Value = "Condition Editor";
             Width = 580;
             Height = 400;
 
-            _expressionClassName = MakeClassName(node);
-            _expressionMethodName = MakeMethodName(node);
-            _expressionParameters = MakeParameters(workflowModel);
+            _expressionInfo = MakeExpressionInfo(workflowModel, node, link);
             _nameState = new RxProxy<string>(() => link.Name ?? "[Unnamed]", v => link.Name = v);
         }
 
         private readonly DesignHub _designContext;
-        private readonly WorkflowModel _workflowModel;
         private readonly State<string> _nameState;
-        private readonly string _expressionClassName;
-        private readonly string _expressionMethodName;
-        private readonly string _expressionParameters;
+        private readonly ExpressionInfo _expressionInfo;
+
+        private static ExpressionInfo MakeExpressionInfo(WorkflowModel workflowModel, ActivityNode activityNode,
+            ConditionLink condition)
+        {
+            var methodName = "Expression";
+            if (activityNode is DecisionNode decisionNode && CodeUtil.IsValidIdentifier(decisionNode.Title))
+                methodName = decisionNode.Title;
+
+            return new ExpressionInfo()
+            {
+                Owner = workflowModel,
+                ClassName = workflowModel.Name,
+                ReturnType = "bool",
+                MethodName = methodName,
+                PartialCode = BuildWorkflowPartialCode(workflowModel),
+                IsStatic = false,
+            };
+        }
+
+        /// <summary>
+        /// 生成虚拟的Workflow类，主要包括参数
+        /// </summary>
+        private static string BuildWorkflowPartialCode(WorkflowModel workflowModel)
+        {
+            var sb = new StringBuilder();
+            sb.Append("partial class ");
+            sb.Append(workflowModel.Name);
+            sb.Append('{');
+
+            //Workflow parameters
+            foreach (var parameter in workflowModel.Parameters)
+            {
+                sb.Append("public ");
+                sb.Append(parameter.GetRuntimeType());
+                sb.Append(' ');
+                sb.Append(parameter.Name);
+                sb.Append("{get;");
+                if (parameter.IsLocalVariable) sb.Append("set;");
+                sb.Append('}');
+            }
+
+            sb.Append('}');
+            return sb.ToString();
+        }
 
         protected override Widget BuildBody()
         {
@@ -80,70 +118,10 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
                     Children =
                     [
                         new Row { Children = [new Text("Title:"), new TextInput(_nameState)] },
-                        new ExpressionEditor(_designContext, _workflowModel, _expressionClassName,
-                            _expressionMethodName, "bool", _expressionParameters)
+                        new ExpressionEditor(_designContext, _expressionInfo)
                     ]
                 }
             };
-        }
-
-        private static string MakeClassName(ActivityNode node)
-        {
-            if (node is DecisionNode)
-                return "WorkflowDecision";
-            return "WorkflowCondition";
-        }
-
-        private static string MakeMethodName(ActivityNode node)
-        {
-            if (node is DecisionNode decisionNode)
-            {
-                if (CodeUtil.IsValidIdentifier(decisionNode.Title))
-                    return decisionNode.Title;
-            }
-
-            return "Expression";
-        }
-
-        private static string MakeParameters(WorkflowModel workflowModel)
-        {
-            if (workflowModel.Parameters.Count == 0)
-                return string.Empty;
-
-            var sb = new StringBuilder();
-            var hasParameterBefore = false;
-            foreach (var parameter in workflowModel.Parameters)
-            {
-                if (parameter.IsLocalVariable) continue;
-
-                if (hasParameterBefore) sb.Append(", ");
-                switch (parameter.Type)
-                {
-                    case WorkflowParameter.ValueType.Integer:
-                        sb.Append("int ");
-                        break;
-                    case WorkflowParameter.ValueType.Double:
-                        sb.Append("double ");
-                        break;
-                    case WorkflowParameter.ValueType.String:
-                        sb.Append("string ");
-                        break;
-                    case WorkflowParameter.ValueType.Boolean:
-                        sb.Append("bool ");
-                        break;
-                    case WorkflowParameter.ValueType.Guid:
-                        sb.Append("Guid ");
-                        break;
-                    default:
-                        sb.Append("object "); //TODO:
-                        break;
-                }
-
-                sb.Append(parameter.Name);
-                hasParameterBefore = true;
-            }
-
-            return sb.ToString();
         }
     }
 }
