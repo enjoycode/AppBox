@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal static class GetProblems
 {
-    internal static async Task<IList<CodeProblem>> Execute(DesignHub context, ModelNode modelNode)
+    internal static async Task<IList<CodeProblem>> Execute(DesignContext context, ModelNode modelNode)
     {
         var document = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
         var semanticModel = await document.GetSemanticModelAsync();

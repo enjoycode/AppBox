@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 
 internal sealed class ImportCommand : DesignCommand
 {
-    public ImportCommand(DesignHub context) : base(context) { }
+    public ImportCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {

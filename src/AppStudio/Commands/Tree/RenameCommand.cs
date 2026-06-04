@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal sealed class RenameCommand : DesignCommand
 {
-    public RenameCommand(DesignHub context) : base(context) { }
+    public RenameCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {
@@ -62,7 +62,7 @@ internal sealed class RenameCommand : DesignCommand
     /// <param name="oldName">旧名称</param>
     /// <param name="newName">新名称</param>
     /// <returns>返回受影响的模型标识列表</returns>
-    internal static async ValueTask<ModelId[]> Rename(DesignHub context, ModelId modelId,
+    internal static async ValueTask<ModelId[]> Rename(DesignContext context, ModelId modelId,
         ModelReferenceType referenceType, string oldName, string newName)
     {
         if (string.IsNullOrEmpty(oldName) || string.IsNullOrEmpty(newName))

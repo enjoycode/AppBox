@@ -14,9 +14,9 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorkspace
 {
-    public TypeSystem(DesignHub designHub)
+    public TypeSystem(DesignContext designContext)
     {
-        DesignHub = designHub;
+        DesignContext = designContext;
         Workspace = new ModelWorkspace(new HostServicesAggregator());
 
         ModelProjectId = ProjectId.CreateNewId();
@@ -25,7 +25,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
         ServiceProxyProjectId = ProjectId.CreateNewId();
     }
 
-    internal readonly DesignHub DesignHub;
+    internal readonly DesignContext DesignContext;
 
     //统一AssemblyName,方便ModelProject InternalVisibleTo
     private const string DesignTimeServiceAssemblyName = "DesignTimeService";
@@ -262,7 +262,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
         {
             try
             {
-                await DesignHub.StagedService.DownloadCodeAsync(toStream, node.Model.Id);
+                await DesignContext.StagedService.DownloadCodeAsync(toStream, node.Model.Id);
             }
             catch (Exception)
             {
@@ -271,7 +271,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
         }
 
         if (toStream.Length == 0) //从MetaStore加载
-            await DesignHub.MetaStoreService.DownloadModelCodeAsync(toStream, node.Model.Id);
+            await DesignContext.MetaStoreService.DownloadModelCodeAsync(toStream, node.Model.Id);
     }
 
     /// <summary>
@@ -606,7 +606,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
                     var modelId = DocNameUtil.TryGetModelIdFromDocName(filePath);
                     if (modelId != null)
                     {
-                        var modelNode = DesignHub.DesignTree.FindModelNode(modelId.Value);
+                        var modelNode = DesignContext.DesignTree.FindModelNode(modelId.Value);
                         if (modelNode != null)
                             modelName = $"{modelNode.AppNode.Label}.{modelNode.Label}";
                     }

@@ -61,14 +61,14 @@ internal static class DesignUtils
         return exp;
     }
 
-    public static ModelNode[] GetAllSqlEntityModels(DesignHub designContext)
+    public static ModelNode[] GetAllSqlEntityModels(DesignContext designContext)
     {
         return designContext.DesignTree.FindNodesByType(ModelType.Entity)
             .Where(m => ((EntityModel)m.Model).SqlStoreOptions != null)
             .ToArray();
     }
 
-    public static ModelNode[] GetAllDynamicViewModels(DesignHub designContext)
+    public static ModelNode[] GetAllDynamicViewModels(DesignContext designContext)
     {
         return designContext.DesignTree.FindNodesByType(ModelType.View)
             .Where(m => ((ViewModel)m.Model).ViewType == ViewModelType.PixUIDynamic)

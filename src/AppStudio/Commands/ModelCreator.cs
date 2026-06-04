@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal static class ModelCreator
 {
-    public static async Task<NewNodeResult> Make(DesignHub hub, ModelType modelType,
+    public static async Task<NewNodeResult> Make(DesignContext context, ModelType modelType,
         Func<ModelId, ModelBase> creator,
         DesignNodeType selectedNodeType, string selectedNodeId, string name,
         Func<string, string?> initSrcCodeGen)
@@ -13,7 +13,7 @@ internal static class ModelCreator
         if (string.IsNullOrEmpty(name) || !CodeUtil.IsValidIdentifier(name))
             throw new Exception("Name invalid");
         //获取选择的节点
-        var selectedNode = hub.DesignTree.FindNode(selectedNodeType, selectedNodeId);
+        var selectedNode = context.DesignTree.FindNode(selectedNodeType, selectedNodeId);
         if (selectedNode == null)
             throw new Exception("Can't find selected node");
         //根据选择的节点获取合适的插入位置
@@ -23,20 +23,20 @@ internal static class ModelCreator
         var appNode = DesignTree.FindAppNodeFromNode(parentNode)!;
         var appId = appNode.Model.Id;
         //判断名称是否已存在
-        if (hub.DesignTree.IsModelNameExists(appId, modelType, name.AsMemory()))
+        if (context.DesignTree.IsModelNameExists(appId, modelType, name.AsMemory()))
             throw new Exception("Name has exists");
 
         //判断当前模型根节点有没有签出
-        var modelRootNode = hub.DesignTree.FindModelRootNode(appId, modelType)!;
+        var modelRootNode = context.DesignTree.FindModelRootNode(appId, modelType)!;
         var modelRootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
         var checkoutOk = await modelRootNode.CheckoutAsync();
         if (!checkoutOk)
             throw new Exception("Can't checkout ModelRootNode");
 
         //生成模型标识号并新建模型及节点 //TODO:fix Layer
-        var modelId = await hub.MetaStoreService.GenModelIdAsync(appId, modelType, ModelLayer.DEV);
+        var modelId = await context.MetaStoreService.GenModelIdAsync(appId, modelType, ModelLayer.DEV);
         var model = creator(modelId);
-        var node = new ModelNode(model, hub);
+        var node = new ModelNode(model, context);
         var insertIndex = parentNode.Type == DesignNodeType.ModelRootNode
             ? modelRootNode.Children.Add(node)
             : ((FolderNode)parentNode).Children.Add(node);
@@ -46,9 +46,9 @@ internal static class ModelCreator
             model.FolderId = folderNode.Folder.Id;
         //设为签出状态，新建的同样加入签出列表，方便后续获取所有变更项
         var checkout = new CheckoutInfo(node.Type, node.CheckoutTargetId, model.Version,
-            hub.SessionName, hub.LeafOrgUnitId);
+            context.SessionName, context.LeafOrgUnitId);
         node.CheckoutInfo = checkout;
-        hub.DesignTree.AddCheckoutInfos(new List<CheckoutInfo>() { checkout });
+        context.DesignTree.AddCheckoutInfos(new List<CheckoutInfo>() { checkout });
 
         //保存至Staged
         var initSrcCode = initSrcCodeGen(appNode.Model.Name);
@@ -64,7 +64,7 @@ internal static class ModelCreator
 
         await node.SaveAsync(codeStream);
         //创建RoslynDocument
-        await hub.TypeSystem.CreateModelDocumentAsync(node, initSrcCode);
+        await context.TypeSystem.CreateModelDocumentAsync(node, initSrcCode);
 
         return new NewNodeResult(parentNode.Type, parentNode.Id, node,
             modelRootNodeHasCheckout ? null : modelRootNode.Id, insertIndex);

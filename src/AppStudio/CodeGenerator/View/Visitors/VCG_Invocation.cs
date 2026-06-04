@@ -38,7 +38,7 @@ internal partial class ViewCsGenerator
         if (!propSymbol.ContainingType.IsAppBoxEntity(FindModel))
             throw new Exception("Must be a Entity");
 
-        var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(propSymbol.ContainingType.ToString());
+        var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(propSymbol.ContainingType.ToString());
         if (modelNode == null)
             throw new Exception("Can't find EntityModel");
         var entityModel = (EntityModel)modelNode.Model;

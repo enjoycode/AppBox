@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 
 internal sealed class WorkflowDiagramService : IDiagramService
 {
-    public WorkflowDiagramService(DesignHub designContext, WorkflowModel workflowModel)
+    public WorkflowDiagramService(DesignContext designContext, WorkflowModel workflowModel)
     {
         PropertyPanel = new DiagramPropertyPanel(designContext);
         _rootDesigner = new WorkflowRootDesigner(workflowModel);

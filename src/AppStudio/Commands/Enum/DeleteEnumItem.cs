@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal static class DeleteEnumItem
 {
-    internal static async ValueTask Execute(DesignHub context, ModelNode node, EnumItem member)
+    internal static async ValueTask Execute(DesignContext context, ModelNode node, EnumItem member)
     {
         if (!node.IsCheckoutByMe)
             throw new Exception("Has not checkout");

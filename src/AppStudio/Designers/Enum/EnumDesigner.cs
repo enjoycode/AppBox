@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class EnumDesigner : View, IModelDesigner
 {
-    public EnumDesigner(DesignHub designContext, ModelNode modelNode)
+    public EnumDesigner(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         ModelNode = modelNode;
@@ -23,7 +23,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
         };
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     public ModelNode ModelNode { get; }
     private readonly EnumModel _enumModel;

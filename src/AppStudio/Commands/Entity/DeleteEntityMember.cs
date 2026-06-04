@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal static class DeleteEntityMember
 {
-    internal static async ValueTask Execute(DesignHub context, ModelNode node, EntityMember member)
+    internal static async ValueTask Execute(DesignContext context, ModelNode node, EntityMember member)
     {
         if (!node.IsCheckoutByMe)
             throw new Exception("Has not checkout");

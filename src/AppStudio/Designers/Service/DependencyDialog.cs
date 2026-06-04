@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 
 internal sealed class DependencyDialog : Dialog
 {
-    public DependencyDialog(DesignHub designContext, ModelNode modelNode)
+    public DependencyDialog(DesignContext designContext, ModelNode modelNode)
     {
         Title.Value = "Dependencies";
         Width = 600;
@@ -18,7 +18,7 @@ internal sealed class DependencyDialog : Dialog
     }
 
     private readonly ModelNode _modelNode;
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private ServiceModel ServiceModel => (ServiceModel)_modelNode.Model;
     private readonly ListViewController<ModelDependency> _sourceListController = new();
     private readonly ListViewController<ModelDependency> _targetListController = new();

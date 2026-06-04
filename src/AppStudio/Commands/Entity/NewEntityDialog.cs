@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class NewEntityDialog : Dialog
 {
-    public NewEntityDialog(DesignHub designContext)
+    public NewEntityDialog(DesignContext designContext)
     {
         _designContext = designContext;
         Width = 300;
@@ -13,7 +13,7 @@ internal sealed class NewEntityDialog : Dialog
         Title.Value = "New Entity";
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly State<string> _name = "";
     private readonly State<DataStoreNode?> _store = new RxValue<DataStoreNode?>(null);
@@ -83,7 +83,7 @@ internal sealed class NewEntityDialog : Dialog
         return list;
     }
 
-    private static Task<NewNodeResult> NewEntity(DesignHub context, DesignNode selectedNode,
+    private static Task<NewNodeResult> NewEntity(DesignContext context, DesignNode selectedNode,
         string? storeId, string name)
     {
         if (name.StartsWith("Rx"))

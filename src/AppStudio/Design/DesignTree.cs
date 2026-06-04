@@ -5,9 +5,9 @@ namespace AppBoxDesign;
 
 public sealed class DesignTree
 {
-    public DesignTree(DesignHub hub)
+    public DesignTree(DesignContext context)
     {
-        DesignHub = hub;
+        DesignContext = context;
     }
 
     private int _loadingFlag;
@@ -22,7 +22,7 @@ public sealed class DesignTree
     /// </summary>
     private StagedItems? Staged { get; set; }
 
-    public readonly DesignHub DesignHub;
+    public readonly DesignContext DesignContext;
 
     public IList<DesignNode> RootNodes => _rootNodes;
 
@@ -46,23 +46,23 @@ public sealed class DesignTree
         _rootNodes.Add(_appRootNode);
 
         //1.先加载签出信息及StagedModels
-        _checkouts = await DesignHub.CheckoutService.LoadAllAsync();
-        Staged = await DesignHub.StagedService.LoadStagedAsync();
+        _checkouts = await DesignContext.CheckoutService.LoadAllAsync();
+        Staged = await DesignContext.StagedService.LoadStagedAsync();
 
         //2.开始加载设计时元数据
         //加载Apps
-        var metaApps = await DesignHub.MetaStoreService.LoadAllApplicationAsync();
+        var metaApps = await DesignContext.MetaStoreService.LoadAllApplicationAsync();
         var apps = new List<ApplicationModel>(metaApps);
         apps.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
 
         //加载Folders
-        var metaFolders = await DesignHub.MetaStoreService.LoadAllFolderAsync();
+        var metaFolders = await DesignContext.MetaStoreService.LoadAllFolderAsync();
         var folders = new List<ModelFolder>(metaFolders);
         //从staged中添加新建的并更新修改的文件夹
         Staged.UpdateFolders(folders);
 
         //加载Models
-        var metaModels = await DesignHub.MetaStoreService.LoadAllModelAsync();
+        var metaModels = await DesignContext.MetaStoreService.LoadAllModelAsync();
         var models = new List<ModelBase>(metaModels);
 
         //添加默认存储节点
@@ -90,7 +90,7 @@ public sealed class DesignTree
         }
 
         //加入Models
-        Staged.RemoveDeletedModels(DesignHub, models); //先移除已删除的
+        Staged.RemoveDeletedModels(DesignContext, models); //先移除已删除的
         var allModelNodes = new List<ModelNode>(models.Count);
         foreach (var model in models)
         {
@@ -100,14 +100,14 @@ public sealed class DesignTree
         //5.在所有节点加载完后创建模型对应的RoslynDocument
         foreach (var modelNode in allModelNodes)
         {
-            await DesignHub.TypeSystem.CreateModelDocumentAsync(modelNode);
+            await DesignContext.TypeSystem.CreateModelDocumentAsync(modelNode);
         }
 
         Staged = null;
         Interlocked.Exchange(ref _loadingFlag, 0);
 
 #if DEBUG
-        DesignHub.TypeSystem.DumpAllProjectErrors();
+        DesignContext.TypeSystem.DumpAllProjectErrors();
 #endif
     }
 
@@ -352,7 +352,7 @@ public sealed class DesignTree
         {
             //新建的同样加入签出列表
             var checkoutInfo = new CheckoutInfo(node.Type, node.CheckoutTargetId, node.Version,
-                DesignHub.SessionName, DesignHub.LeafOrgUnitId);
+                DesignContext.SessionName, DesignContext.LeafOrgUnitId);
             node.CheckoutInfo = checkoutInfo;
             AddCheckoutInfos([checkoutInfo]);
             return;
@@ -363,7 +363,7 @@ public sealed class DesignTree
         if (_checkouts.TryGetValue(key, out var checkout))
         {
             node.CheckoutInfo = checkout;
-            if (checkout.DeveloperOuid == DesignHub.LeafOrgUnitId && node is ModelNode modelNode) //如果是被当前用户签出的模型
+            if (checkout.DeveloperOuid == DesignContext.LeafOrgUnitId && node is ModelNode modelNode) //如果是被当前用户签出的模型
             {
                 //从Staged加载
                 var stagedModel = Staged?.FindModel(modelNode.Model.Id);
@@ -377,7 +377,7 @@ public sealed class DesignTree
     /// 获取当前用户签出的所有节点
     /// </summary>
     internal IEnumerable<CheckoutInfo> GetAllCheckoutByMe() =>
-        _checkouts.Values.Where(c => c.DeveloperOuid == DesignHub.LeafOrgUnitId);
+        _checkouts.Values.Where(c => c.DeveloperOuid == DesignContext.LeafOrgUnitId);
 
     /// <summary>
     /// 部署完后更新所有模型节点的状态，并移除待删除的节点
@@ -391,7 +391,7 @@ public sealed class DesignTree
         }
 
         //刷新签出信息表，移除被自己签出的信息
-        var list = _checkouts.Where(kv => kv.Value.DeveloperOuid == DesignHub.LeafOrgUnitId)
+        var list = _checkouts.Where(kv => kv.Value.DeveloperOuid == DesignContext.LeafOrgUnitId)
             .Select(kv => kv.Key);
         foreach (var key in list)
             _checkouts.Remove(key);
@@ -403,7 +403,7 @@ public sealed class DesignTree
     public void RemoveCheckoutsForDeletedApp(int deletedAppId)
     {
         var list = _checkouts
-            .Where(kv => kv.Value.DeveloperOuid == DesignHub.LeafOrgUnitId && kv.Value.IsOwnedByApp(deletedAppId))
+            .Where(kv => kv.Value.DeveloperOuid == DesignContext.LeafOrgUnitId && kv.Value.IsOwnedByApp(deletedAppId))
             .Select(kv => kv.Key);
         foreach (var key in list)
             _checkouts.Remove(key);

@@ -11,11 +11,11 @@ namespace AppBoxDesign;
 
 internal sealed class PublishCommand : DesignCommand
 {
-    public PublishCommand(DesignHub context) : base(context) { }
+    public PublishCommand(DesignContext context) : base(context) { }
 
     public void Execute() => new PublishDialog(Context).Show();
 
-    internal static async Task Publish(DesignHub context, IList<PendingChange> changes, string commitMessage)
+    internal static async Task Publish(DesignContext context, IList<PendingChange> changes, string commitMessage)
     {
         //将PendingChanges转为PublishPackage, 并保存所有尚未保存的内容
         var package = new PublishPackage();
@@ -57,12 +57,12 @@ internal sealed class PublishCommand : DesignCommand
         context.ClearRemovedItems();
     }
 
-    private static void ValidateModels(DesignHub hub, PublishPackage package)
+    private static void ValidateModels(DesignContext context, PublishPackage package)
     {
         //TODO:
     }
 
-    private static async Task CompileAndUploadAsync(DesignHub hub, IList<PendingChange> changes, PublishPackage package)
+    private static async Task CompileAndUploadAsync(DesignContext context, IList<PendingChange> changes, PublishPackage package)
     {
         var isFirst = true;
         foreach (var item in changes)
@@ -73,11 +73,11 @@ internal sealed class PublishCommand : DesignCommand
                 var pipeWriter = new PipeBytesWriter(async w =>
                 {
                     var stream = new PipeWriteStream(w);
-                    await CompileServiceAsync(stream, hub, sm, false);
+                    await CompileServiceAsync(stream, context, sm, false);
                 });
-                var appName = hub.AppNameGetter(sm.Id.AppId);
+                var appName = context.AppNameGetter(sm.Id.AppId);
                 var fullName = $"{appName}.{sm.Name}";
-                await hub.PublishService.UploadServiceAssembly(pipeWriter, fullName, isFirst);
+                await context.PublishService.UploadServiceAssembly(pipeWriter, fullName, isFirst);
                 isFirst = false;
             }
         }
@@ -89,19 +89,19 @@ internal sealed class PublishCommand : DesignCommand
     /// <remarks>
     /// 因Blazor不支持Brotli,所以暂不压缩
     /// </remarks>
-    internal static async Task CompileServiceAsync(Stream toStream, DesignHub hub, ServiceModel model, bool forDebug)
+    internal static async Task CompileServiceAsync(Stream toStream, DesignContext context, ServiceModel model, bool forDebug)
     {
-        var designNode = hub.DesignTree.FindModelNode(model.Id)!;
+        var designNode = context.DesignTree.FindModelNode(model.Id)!;
         var appName = designNode.AppNode.Model.Name;
 
         //获取RoslynDocument并检测语义错误
-        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
+        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
         var semanticModel = await doc.GetSemanticModelAsync();
         if (semanticModel == null) throw new Exception("Can't get SemanticModel");
         CodeGeneratorUtil.CheckSemantic(semanticModel, designNode);
 
         //转换服务模型的虚拟代码为运行时代码
-        var codegen = new ServiceCodeGenerator(hub, appName, semanticModel, model);
+        var codegen = new ServiceCodeGenerator(context, appName, semanticModel, model);
         var newRootNode = codegen.Visit(await semanticModel.SyntaxTree.GetRootAsync());
         //Log.Debug(newRootNode.ToFullString());
 

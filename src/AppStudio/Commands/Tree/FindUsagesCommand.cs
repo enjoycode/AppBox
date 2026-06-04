@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class FindUsagesCommand : DesignCommand
 {
-    public FindUsagesCommand(DesignHub context) : base(context) { }
+    public FindUsagesCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {
@@ -37,7 +37,7 @@ internal sealed class FindUsagesCommand : DesignCommand
         _ => throw new NotImplementedException(type.ToString())
     };
 
-    internal static Task<List<Reference>> Find(DesignHub context, ModelReferenceType referenceType,
+    internal static Task<List<Reference>> Find(DesignContext context, ModelReferenceType referenceType,
         ModelNode modelNode, string? memberName = null)
     {
         switch (referenceType)

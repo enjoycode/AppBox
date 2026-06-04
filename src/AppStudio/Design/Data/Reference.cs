@@ -93,14 +93,14 @@ internal sealed class CodeReference : Reference
     /// <summary>
     /// 重命名
     /// </summary>
-    internal void Rename(DesignHub hub, int diff, string newName)
+    internal void Rename(DesignContext context, int diff, string newName)
     {
-        var document = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(ModelNode.RoslynDocumentId)!;
+        var document = context.TypeSystem.Workspace.CurrentSolution.GetDocument(ModelNode.RoslynDocumentId)!;
         var sourceText = document.GetTextAsync().Result;
         var startOffset = Offset + diff;
 
         sourceText = sourceText.WithChanges(new TextChange(new TextSpan(startOffset, Length), newName));
-        hub.TypeSystem.Workspace.OnDocumentChanged(ModelNode.RoslynDocumentId!, sourceText);
+        context.TypeSystem.Workspace.OnDocumentChanged(ModelNode.RoslynDocumentId!, sourceText);
     }
     #endregion
 }

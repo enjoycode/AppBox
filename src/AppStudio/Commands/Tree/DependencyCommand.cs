@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal sealed class DependencyCommand : DesignCommand
 {
-    public DependencyCommand(DesignHub context) : base(context) { }
+    public DependencyCommand(DesignContext context) : base(context) { }
 
     private DependencyNode? _dependencyNode;
 

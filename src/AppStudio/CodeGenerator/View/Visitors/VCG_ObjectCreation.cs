@@ -53,7 +53,7 @@ partial class ViewCsGenerator
         var lambdaReturnSymbol = ModelExtensions.GetTypeInfo(SemanticModel, lambdaArg.ExpressionBody).Type;
         if (lambdaReturnSymbol == null || lambdaReturnSymbol is not INamedTypeSymbol returnSymbol ||
             returnSymbol.ContainingNamespace.Name != "Views") return false;
-        var viewModelNode = DesignHub.DesignTree.FindModelNodeByFullName(lambdaReturnSymbol.ToString());
+        var viewModelNode = DesignContext.DesignTree.FindModelNodeByFullName(lambdaReturnSymbol.ToString());
         if (viewModelNode == null) return false;
         if (((ViewModel)viewModelNode.Model).ViewType == ViewModelType.PixUIDynamic)
             return false; //排除动态视图模型
@@ -88,7 +88,7 @@ partial class ViewCsGenerator
         newNode = null;
         if (typeSymbol == null || !typeSymbol.IsAppBoxView(FindModel)) return false;
 
-        var viewModelNode = DesignHub.DesignTree.FindModelNodeByFullName(typeSymbol.ToString());
+        var viewModelNode = DesignContext.DesignTree.FindModelNodeByFullName(typeSymbol.ToString());
         var viewModel = (ViewModel)viewModelNode!.Model;
         if (viewModel.ViewType != ViewModelType.PixUIDynamic) return false;
 

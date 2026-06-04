@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal sealed class PublishDialog : Dialog
 {
-    public PublishDialog(DesignHub context)
+    public PublishDialog(DesignContext context)
     {
         Width = 500;
         Height = 300;
@@ -13,7 +13,7 @@ internal sealed class PublishDialog : Dialog
         _context = context;
     }
 
-    private readonly DesignHub _context;
+    private readonly DesignContext _context;
     private readonly DataGridController<PendingChange> _dataGridController = new();
     private IList<PendingChange> _changes = null!;
 

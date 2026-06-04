@@ -69,7 +69,7 @@ internal static class CodeGeneratorUtil
     /// <summary>
     /// 转换视图或服务模型时生成使用到的实体模型的运行时代码，包括EntityRef及EntitySet的引用
     /// </summary>
-    internal static void BuildUsedEntity(DesignHub hub, ModelNode modelNode,
+    internal static void BuildUsedEntity(DesignContext context, ModelNode modelNode,
         IDictionary<string, SyntaxTree> ctx, CSharpParseOptions parseOptions)
     {
         var fullName = $"{modelNode.AppName}.Entities.{modelNode.Model.Name}";
@@ -89,8 +89,8 @@ internal static class CodeGeneratorUtil
         {
             foreach (var refModelId in refModel.RefModelIds)
             {
-                var refModelNode = hub.DesignTree.FindModelNode(refModelId)!;
-                BuildUsedEntity(hub, refModelNode, ctx, parseOptions);
+                var refModelNode = context.DesignTree.FindModelNode(refModelId)!;
+                BuildUsedEntity(context, refModelNode, ctx, parseOptions);
             }
         }
 
@@ -99,8 +99,8 @@ internal static class CodeGeneratorUtil
             .Cast<EntitySetMember>();
         foreach (var setModel in sets)
         {
-            var setModelNode = hub.DesignTree.FindModelNode(setModel.RefModelId)!;
-            BuildUsedEntity(hub, setModelNode, ctx, parseOptions);
+            var setModelNode = context.DesignTree.FindModelNode(setModel.RefModelId)!;
+            BuildUsedEntity(context, setModelNode, ctx, parseOptions);
         }
 
         //实体枚举成员的处理
@@ -109,12 +109,12 @@ internal static class CodeGeneratorUtil
             .Cast<EntityFieldMember>();
         foreach (var m in enumMembers)
         {
-            var enumModelNode = hub.DesignTree.FindModelNode(m.EnumModelId!.Value)!;
-            BuildUsedEnum(hub, enumModelNode, ctx, parseOptions);
+            var enumModelNode = context.DesignTree.FindModelNode(m.EnumModelId!.Value)!;
+            BuildUsedEnum(context, enumModelNode, ctx, parseOptions);
         }
     }
 
-    internal static void BuildUsedEnum(DesignHub hub, ModelNode modelNode,
+    internal static void BuildUsedEnum(DesignContext context, ModelNode modelNode,
         IDictionary<string, SyntaxTree> ctx, CSharpParseOptions parseOptions)
     {
         var fullName = $"{modelNode.AppName}.Enums.{modelNode.Model.Name}";
@@ -132,12 +132,12 @@ internal static class CodeGeneratorUtil
     /// 生成反序列化时的实体工厂
     /// </summary>
     /// <returns></returns>
-    internal static string GenerateEntityFactoriesCode(DesignHub hub, HashSet<string> usedModels)
+    internal static string GenerateEntityFactoriesCode(DesignContext context, HashSet<string> usedModels)
     {
         if (usedModels.Count == 0)
             return EmptyEntityFactories;
 
-        var entities = usedModels.Select(name => hub.DesignTree.FindModelNodeByFullName(name))
+        var entities = usedModels.Select(name => context.DesignTree.FindModelNodeByFullName(name))
             .Where(node => node != null && node.Model.ModelType == ModelType.Entity)
             .ToArray();
         if (entities.Length == 0)

@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 {
-    public ViewCodeDesigner(DesignHub designContext, ModelNode modelNode)
+    public ViewCodeDesigner(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         ModelNode = modelNode;
@@ -31,7 +31,7 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
 
     private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly CodeEditorController _codeEditorController;
     private readonly PreviewController _previewController;

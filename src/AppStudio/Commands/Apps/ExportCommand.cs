@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 
 internal sealed class ExportCommand : DesignCommand
 {
-    public ExportCommand(DesignHub context) : base(context) { }
+    public ExportCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {

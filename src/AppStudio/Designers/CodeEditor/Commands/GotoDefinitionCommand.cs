@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal static class GotoDefinitionCommand
 {
-    public static async void Execute(DesignHub designContext, TextEditor editor)
+    public static async void Execute(DesignContext designContext, TextEditor editor)
     {
         var designStore = (DesignStore)designContext.DesignUIService;
         var line = editor.Caret.Line;

@@ -3,15 +3,15 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public sealed class DesignHub : IModelContainer, IDisposable
+public sealed class DesignContext : IModelContainer, IDisposable
 {
-    static DesignHub()
+    static DesignContext()
     {
         //注册设计时序列化器
         DesignTypeSerializer.Register();
     }
 
-    public DesignHub(string sessionName, Guid leafOrgUnitId)
+    public DesignContext(string sessionName, Guid leafOrgUnitId)
     {
         SessionName = sessionName;
         LeafOrgUnitId = leafOrgUnitId;
@@ -143,12 +143,12 @@ public sealed class DesignHub : IModelContainer, IDisposable
 
 internal sealed class DesignTimeContext : IRuntimeContext
 {
-    public DesignTimeContext(DesignHub designContext)
+    public DesignTimeContext(DesignContext designContext)
     {
         _designContext = designContext;
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
 
     public IUserSession? CurrentSession { get; } //TODO: fix
 

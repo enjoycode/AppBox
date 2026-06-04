@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class NewCommand : DesignCommand
 {
-    public NewCommand(DesignHub context, string type) : base(context)
+    public NewCommand(DesignContext context, string type) : base(context)
     {
         if (type != "Folder" && type != "Service" && type != "Permission" &&
             type != "Report" && type != "Enum" && type != "Workflow" && type != "Entity" && type != "View")
@@ -30,7 +30,7 @@ internal sealed class NewCommand : DesignCommand
     /// </summary>
     private sealed class NewDialog : Dialog
     {
-        public NewDialog(DesignHub designContext, string type)
+        public NewDialog(DesignContext designContext, string type)
         {
             _designContext = designContext;
             Width = 300;
@@ -39,7 +39,7 @@ internal sealed class NewCommand : DesignCommand
             _type = type;
         }
 
-        private readonly DesignHub _designContext;
+        private readonly DesignContext _designContext;
         private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
         private readonly State<string> _name = "";
         private readonly string _type;

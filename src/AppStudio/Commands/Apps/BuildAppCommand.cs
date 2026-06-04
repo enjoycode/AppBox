@@ -15,7 +15,7 @@ namespace AppBoxDesign;
 
 internal sealed class BuildAppCommand : DesignCommand
 {
-    public BuildAppCommand(DesignHub context) : base(context) { }
+    public BuildAppCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {
@@ -32,7 +32,7 @@ internal sealed class BuildAppCommand : DesignCommand
         }
     }
 
-    private static async Task Build(DesignHub context)
+    private static async Task Build(DesignContext context)
     {
         //TODO:检查签出情况，如有其他签出返回警告
 
@@ -102,7 +102,7 @@ internal sealed class BuildAppCommand : DesignCommand
         await context.PublishService.UploadViewAssemblyMap(pipeWriter);
     }
 
-    private static async IAsyncEnumerable<ModelNode> GetAllDynamicWidgets(DesignHub context)
+    private static async IAsyncEnumerable<ModelNode> GetAllDynamicWidgets(DesignContext context)
     {
         for (var i = 0; i < context.DesignTree.AppRootNode.Children.Count; i++)
         {
@@ -281,13 +281,13 @@ internal sealed class BuildAppCommand : DesignCommand
 
 internal sealed class BuildAppContext
 {
-    public BuildAppContext(DesignHub hub)
+    public BuildAppContext(DesignContext context)
     {
-        _hub = hub;
-        _modelsProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(hub.TypeSystem.ModelProjectId)!;
+        _context = context;
+        _modelsProject = context.TypeSystem.Workspace.CurrentSolution.GetProject(context.TypeSystem.ModelProjectId)!;
     }
 
-    private readonly DesignHub _hub;
+    private readonly DesignContext _context;
     private readonly Project _modelsProject;
 
     private readonly Dictionary<ModelId, AssemblyInfo> _assemblyInfos = new(); //循环引用情况下不同的Model指向相同的Assembly
@@ -323,10 +323,10 @@ internal sealed class BuildAppContext
 
         if (modelNode.Model.ModelType == ModelType.View)
         {
-            var codegen = await ViewCsGenerator.Make(_hub, modelNode, false);
+            var codegen = await ViewCsGenerator.Make(_context, modelNode, false);
             var newTree = await codegen.GetRuntimeSyntaxTree();
             var usedModels = codegen.UsedModels
-                .Select(fullName => _hub.DesignTree.FindModelNodeByFullName(fullName)!)
+                .Select(fullName => _context.DesignTree.FindModelNodeByFullName(fullName)!)
                 .ToList();
             var modelInfo = new ModelInfo(modelNode, newTree, usedModels, codegen.IsDynamicWidget);
             _modelCache.Add(modelInfo.ModelId, modelInfo);
@@ -364,19 +364,19 @@ internal sealed class BuildAppContext
                 foreach (var refModelId in entityRef.RefModelIds)
                 {
                     if (refModelId == entityModel.Id || usages.Any(n => n.Model.Id == refModelId)) continue;
-                    usages.Add(_hub.DesignTree.FindModelNode(refModelId)!);
+                    usages.Add(_context.DesignTree.FindModelNode(refModelId)!);
                 }
             }
             else if (member is EntitySetMember entitySet)
             {
                 if (entitySet.RefModelId == entityModel.Id ||
                     usages.Any(n => n.Model.Id == entitySet.RefModelId)) continue;
-                usages.Add(_hub.DesignTree.FindModelNode(entitySet.RefModelId)!);
+                usages.Add(_context.DesignTree.FindModelNode(entitySet.RefModelId)!);
             }
             else if (member is EntityFieldMember { FieldType: EntityFieldType.Enum } entityField)
             {
                 if (usages.Any(n => n.Model.Id == entityField.EnumModelId!.Value)) continue;
-                usages.Add(_hub.DesignTree.FindModelNode(entityField.EnumModelId!.Value)!);
+                usages.Add(_context.DesignTree.FindModelNode(entityField.EnumModelId!.Value)!);
             }
         }
 

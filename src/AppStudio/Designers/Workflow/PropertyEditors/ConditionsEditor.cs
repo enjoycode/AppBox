@@ -10,13 +10,13 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
     internal static EditorFactory Factory => (ctx, prop) =>
         new(new ConditionsEditor(ctx, prop), VerticalAlignment.Top);
 
-    public ConditionsEditor(DesignHub designContext, IDiagramProperty propertyItem)
+    public ConditionsEditor(DesignContext designContext, IDiagramProperty propertyItem)
         : base(propertyItem, c => c.Name ?? "[Unnamed]")
     {
         _designContext = designContext;
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private ActivityDesigner ActivityDesigner => (ActivityDesigner)PropertyItem.DiagramItem;
 
     private WorkflowModel WorkflowModel =>
@@ -56,7 +56,7 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
 
     private sealed class ConditionDialog : Dialog
     {
-        public ConditionDialog(DesignHub designContext, WorkflowModel workflowModel, ActivityNode node,
+        public ConditionDialog(DesignContext designContext, WorkflowModel workflowModel, ActivityNode node,
             ConditionLink link)
         {
             Title.Value = "Condition Editor";

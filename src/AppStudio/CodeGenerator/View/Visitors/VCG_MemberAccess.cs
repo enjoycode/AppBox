@@ -27,7 +27,7 @@ internal partial class ViewCsGenerator
         if (symbol is IPropertySymbol propertySymbol && propertySymbol.Name != "Target" /*暂简单排除Target属性*/ &&
             IsRxEntity(propertySymbol.ContainingType, out var entityFullName))
         {
-            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(entityFullName)!;
+            var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(entityFullName)!;
             var entityModel = (EntityModel)modelNode.Model;
             var memberName = node.Name.Identifier.Text;
             var member = entityModel.GetMember(memberName, true);
@@ -53,7 +53,7 @@ internal partial class ViewCsGenerator
             propertySymbol.ContainingType.ContainingNamespace.Name == "Permissions" &&
             IsPermissionClass(propertySymbol.ContainingType))
         {
-            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(propertySymbol.ContainingType.ToString()!)!;
+            var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(propertySymbol.ContainingType.ToString()!)!;
             var modelId = modelNode.Model.Id.Value;
             var memberName = node.Name.Identifier.Text;
 

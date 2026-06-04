@@ -51,7 +51,7 @@ public abstract class DesignNode : IComparable<DesignNode>
         }
     }
 
-    protected DesignHub DesignContext => DesignTree!.DesignHub;
+    protected DesignContext DesignContext => DesignTree!.DesignContext;
 
     #region ====Checkout====
 
@@ -74,7 +74,7 @@ public abstract class DesignNode : IComparable<DesignNode>
         if (IsCheckoutByMe) return true;
 
         //调用服务
-        var hub = DesignTree!.DesignHub;
+        var hub = DesignTree!.DesignContext;
         var infos = new List<CheckoutInfo>()
         {
             new(Type, CheckoutTargetId, Version, hub.SessionName, hub.LeafOrgUnitId)

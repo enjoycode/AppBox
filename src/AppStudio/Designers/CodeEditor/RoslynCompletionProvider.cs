@@ -8,12 +8,12 @@ namespace AppBoxDesign;
 
 internal sealed class RoslynCompletionProvider : ICompletionProvider
 {
-    public RoslynCompletionProvider(DesignHub designContext)
+    public RoslynCompletionProvider(DesignContext designContext)
     {
         _designContext = designContext;
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
 
     public IEnumerable<char> TriggerCharacters => ['.'];
 

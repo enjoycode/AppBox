@@ -345,7 +345,7 @@ internal static class EntityCsGenerator
     private static void GenEntityRefFieldMember(EntityRefFieldMember refField, StringBuilder sb, DesignTree tree)
     {
         //先获取路径信息
-        var path = EntityCodeGenUtils.GetEntityRefFieldPath(refField, tree.DesignHub);
+        var path = EntityCodeGenUtils.GetEntityRefFieldPath(refField, tree.DesignContext);
         var field = (EntityFieldMember)path[^1];
 
         //build code
@@ -452,7 +452,7 @@ internal static class EntityCsGenerator
             sb.Append("\t\tcase ");
             sb.Append(member.MemberId);
             sb.Append(": ws.Write");
-            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignHub));
+            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignContext));
             sb.Append("Member(id,");
             if (member is EntityFieldMember { FieldType: EntityFieldType.Enum })
                 sb.Append("(int)");
@@ -488,7 +488,7 @@ internal static class EntityCsGenerator
             if (member is EntityFieldMember { FieldType: EntityFieldType.Enum } enumMember)
                 sb.Append($"({GetEnumFullName(tree, enumMember)})");
             sb.Append("rs.Read");
-            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignHub));
+            sb.Append(EntityCodeGenUtils.GetEntityMemberWriteReadType(member, tree.DesignContext));
             sb.Append("Member");
             switch (member.Type)
             {

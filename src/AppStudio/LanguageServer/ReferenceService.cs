@@ -13,7 +13,7 @@ internal static class ReferenceService
     /// <summary>
     /// 查找模型的引用项
     /// </summary>
-    internal static Task<List<Reference>> FindModelReferencesAsync(DesignHub ctx, ModelNode modelNode)
+    internal static Task<List<Reference>> FindModelReferencesAsync(DesignContext ctx, ModelNode modelNode)
     {
         //TODO: 未实现的
         return modelNode.Model.ModelType switch
@@ -28,7 +28,7 @@ internal static class ReferenceService
         };
     }
 
-    private static async Task<List<Reference>> FindEntityReferences(DesignHub ctx, ModelNode modelNode)
+    private static async Task<List<Reference>> FindEntityReferences(DesignContext ctx, ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
@@ -54,7 +54,7 @@ internal static class ReferenceService
     /// <summary>
     /// 查找实体模型成员的引用项
     /// </summary>
-    internal static async Task<List<Reference>> FindEntityMemberReferencesAsync(DesignHub hub,
+    internal static async Task<List<Reference>> FindEntityMemberReferencesAsync(DesignContext context,
         ModelNode modelNode, EntityMember member)
     {
         var appName = modelNode.AppNode.Model.Name;
@@ -64,13 +64,13 @@ internal static class ReferenceService
         var ls = new List<Reference>();
 
         //查找实体模型本身及所有其他实体模型的相关表达式（组织策略、编辑策略等）的引用
-        AddReferencesFromEntityModels(hub, ls, ModelReferenceType.EntityMember, modelNode.Model.Id,
+        AddReferencesFromEntityModels(context, ls, ModelReferenceType.EntityMember, modelNode.Model.Id,
             memberName, member.MemberId);
 
         //获取虚拟代码的成员符号并查找代码引用
-        var symbol = await hub.TypeSystem.GetEntityMemberSymbolAsync(modelNode, memberName);
+        var symbol = await context.TypeSystem.GetEntityMemberSymbolAsync(modelNode, memberName);
         if (symbol != null)
-            await AddCodeReferencesAsync(hub, ls, symbol.ContainingType, symbol);
+            await AddCodeReferencesAsync(context, ls, symbol.ContainingType, symbol);
         else
             Log.Warn($"Can't get EntityMember symbol: {appName}.{modelName}.{memberName}");
 
@@ -94,7 +94,7 @@ internal static class ReferenceService
     //     // return ls;
     // }
 
-    private static async Task<List<Reference>> FindServiceReferences(DesignHub ctx, ModelNode modelNode)
+    private static async Task<List<Reference>> FindServiceReferences(DesignContext ctx, ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
@@ -105,22 +105,22 @@ internal static class ReferenceService
         return ls;
     }
 
-    private static async Task<List<Reference>> FindViewReferences(DesignHub hub, ModelNode modelNode)
+    private static async Task<List<Reference>> FindViewReferences(DesignContext context, ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
-        var modelSymbol = await hub.TypeSystem.GetModelSymbolAsync(modelNode);
-        await AddCodeReferencesAsync(hub, ls, modelSymbol!, null);
+        var modelSymbol = await context.TypeSystem.GetModelSymbolAsync(modelNode);
+        await AddCodeReferencesAsync(context, ls, modelSymbol!, null);
         return ls;
     }
 
-    private static async Task<List<Reference>> FindEnumReferences(DesignHub hub, ModelNode modelNode)
+    private static async Task<List<Reference>> FindEnumReferences(DesignContext context, ModelNode modelNode)
     {
         var ls = new List<Reference>();
 
         var enumModelId = modelNode.Model.Id;
-        var modelSymbol = await hub.TypeSystem.GetModelSymbolAsync(modelNode);
-        await AddCodeReferencesAsync(hub, ls, modelSymbol!, null);
+        var modelSymbol = await context.TypeSystem.GetModelSymbolAsync(modelNode);
+        await AddCodeReferencesAsync(context, ls, modelSymbol!, null);
 
         //修改实体枚举成员的引用
         var entityNodes = ls.Where(r => r.ModelNode.ModelType == ModelType.Entity)
@@ -134,7 +134,7 @@ internal static class ReferenceService
         return ls;
     }
 
-    internal static async Task<List<Reference>> FindEnumItemReferencesAsync(DesignHub hub,
+    internal static async Task<List<Reference>> FindEnumItemReferencesAsync(DesignContext context,
         ModelNode modelNode, string itemName)
     {
         var ls = new List<Reference>();
@@ -143,10 +143,10 @@ internal static class ReferenceService
         //AddReferencesFromEntityModels(hub, ls, ModelReferenceType.EntityMemberName, modelID, memberName);
 
         //获取虚拟成员及相应的资源的虚拟成员
-        var symbol = await hub.TypeSystem.GetEnumItemSymbolAsync(modelNode, itemName);
+        var symbol = await context.TypeSystem.GetEnumItemSymbolAsync(modelNode, itemName);
         //加入所有的代码引用
         if (symbol != null)
-            await AddCodeReferencesAsync(hub, ls, symbol.ContainingType, symbol);
+            await AddCodeReferencesAsync(context, ls, symbol.ContainingType, symbol);
         else
             Log.Warn($"Can't get EnumItem symbol: {modelNode.AppName}.{modelNode.Model.Name}.{itemName}");
 
@@ -156,10 +156,10 @@ internal static class ReferenceService
     /// <summary>
     /// 从所有实体模型中查找指定类型的引用项
     /// </summary>
-    private static void AddReferencesFromEntityModels(DesignHub hub, List<Reference> list,
+    private static void AddReferencesFromEntityModels(DesignContext context, List<Reference> list,
         ModelReferenceType referenceType, ModelId modelId, string? memberName, short? entityMemberId)
     {
-        var allEntityNodes = hub.DesignTree.FindNodesByType(ModelType.Entity);
+        var allEntityNodes = context.DesignTree.FindNodesByType(ModelType.Entity);
         foreach (var entityNode in allEntityNodes)
         {
             AddReferencesFromEntityModel(list, entityNode, referenceType, modelId, memberName, entityMemberId);
@@ -181,14 +181,14 @@ internal static class ReferenceService
     /// <summary>
     /// 添加代码引用
     /// </summary>
-    /// <param name="hub"></param>
+    /// <param name="context"></param>
     /// <param name="list"></param>
     /// <param name="typeSymbol">目标类型</param>
     /// <param name="memberSymbol">目标成员类型，可为空.</param>
-    private static async Task AddCodeReferencesAsync(DesignHub hub, List<Reference> list,
+    private static async Task AddCodeReferencesAsync(DesignContext context, List<Reference> list,
         INamedTypeSymbol typeSymbol, ISymbol? memberSymbol)
     {
-        var solution = hub.TypeSystem.Workspace.CurrentSolution;
+        var solution = context.TypeSystem.Workspace.CurrentSolution;
         var targetSymbol = memberSymbol ?? typeSymbol;
 
         var referencedSymbols = await SymbolFinder.FindReferencesAsync(targetSymbol, solution);
@@ -197,7 +197,7 @@ internal static class ReferenceService
             foreach (var loc in item.Locations)
             {
                 var modelId = DocNameUtil.GetModelIdFromDocName(loc.Document.Name);
-                var modelNode = hub.DesignTree.FindModelNode(modelId)!;
+                var modelNode = context.DesignTree.FindModelNode(modelId)!;
                 var sourceSpan = loc.Location.SourceSpan;
                 var reference = new CodeReference(modelNode, sourceSpan.Start, sourceSpan.Length);
                 list.Add(reference);
@@ -208,7 +208,7 @@ internal static class ReferenceService
     /// <summary>
     /// 开始执行重命名
     /// </summary>
-    internal static async Task<IList<Reference>> RenameAsync(DesignHub hub,
+    internal static async Task<IList<Reference>> RenameAsync(DesignContext context,
         ModelReferenceType referenceType, ModelId modelId, string oldName, string newName)
     {
         //注意：暂不用Roslyn的Renamer.RenameSymbolAsync，因为需要处理多个Symbol
@@ -219,16 +219,16 @@ internal static class ReferenceService
         switch (referenceType)
         {
             case ModelReferenceType.EntityMember:
-                sourceNode = hub.DesignTree.FindModelNode(modelId)!;
+                sourceNode = context.DesignTree.FindModelNode(modelId)!;
                 var entityModel = (EntityModel)sourceNode.Model;
                 var entityMember = entityModel.GetMember(oldName)!;
-                references = await FindEntityMemberReferencesAsync(hub, sourceNode, entityMember);
+                references = await FindEntityMemberReferencesAsync(context, sourceNode, entityMember);
                 break;
             case ModelReferenceType.EntityModel:
             case ModelReferenceType.ServiceModel:
             case ModelReferenceType.ViewModel:
-                sourceNode = hub.DesignTree.FindModelNode(modelId)!;
-                references = await FindModelReferencesAsync(hub, sourceNode);
+                sourceNode = context.DesignTree.FindModelNode(modelId)!;
+                references = await FindModelReferencesAsync(context, sourceNode);
                 break;
             default:
                 throw new NotImplementedException($"重命名引用类型: {referenceType}");
@@ -268,7 +268,7 @@ internal static class ReferenceService
             switch (r)
             {
                 case CodeReference cr:
-                    cr.Rename(hub, diff, newName);
+                    cr.Rename(context, diff, newName);
                     break;
                 case ModelReference mr:
                     mr.TargetReference.Target.RenameReference(referenceType,
@@ -300,7 +300,7 @@ internal static class ReferenceService
 
         await sourceNode.SaveAsync(null);
         if (needUpdateSourceRoslyn)
-            await hub.TypeSystem.UpdateModelDocumentAsync(sourceNode);
+            await context.TypeSystem.UpdateModelDocumentAsync(sourceNode);
 
         //最后返回处理结果，暂简单返回受影响的节点，由前端刷新
         return references;

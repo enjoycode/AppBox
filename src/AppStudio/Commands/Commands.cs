@@ -4,18 +4,18 @@ namespace AppBoxDesign;
 
 internal abstract class DesignCommand
 {
-    protected DesignCommand(DesignHub context)
+    protected DesignCommand(DesignContext context)
     {
         Context = context;
     }
 
-    protected readonly DesignHub Context;
+    protected readonly DesignContext Context;
     protected DesignStore DesignStore => (DesignStore)Context.DesignUIService;
 }
 
 internal sealed class Commands
 {
-    public Commands(DesignHub designContext)
+    public Commands(DesignContext designContext)
     {
         NewAppCommand = new NewAppCommand(designContext);
         NewEntityCommand = new NewCommand(designContext, "Entity");

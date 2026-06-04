@@ -16,4 +16,4 @@ internal readonly struct EditorInfo
     public static implicit operator EditorInfo(Widget editor) => new(editor);
 }
 
-internal delegate EditorInfo EditorFactory(DesignHub ctx, IDiagramProperty prop);
+internal delegate EditorInfo EditorFactory(DesignContext ctx, IDiagramProperty prop);

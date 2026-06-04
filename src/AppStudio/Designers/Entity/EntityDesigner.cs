@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal sealed class EntityDesigner : View, IModelDesigner
 {
-    public EntityDesigner(DesignHub designContext, ModelNode modelNode)
+    public EntityDesigner(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         ModelNode = modelNode;
@@ -23,7 +23,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
         };
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     public ModelNode ModelNode { get; }
     private readonly State<int> _activePad = 0; //当前的设计面板

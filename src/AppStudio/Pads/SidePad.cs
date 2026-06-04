@@ -16,7 +16,7 @@ internal sealed class NaviBar : View
     private readonly State<float> _buttonSize = 25;
     private readonly DesignStore _designStore;
 
-    public NaviBar(DesignHub designContext)
+    public NaviBar(DesignContext designContext)
     {
         _designStore = (DesignStore)designContext.DesignUIService;
 
@@ -72,7 +72,7 @@ internal sealed class NaviBar : View
 
 internal sealed class SidePad : View
 {
-    public SidePad(DesignHub designContext)
+    public SidePad(DesignContext designContext)
     {
         var designStore = (DesignStore)designContext.DesignUIService;
 

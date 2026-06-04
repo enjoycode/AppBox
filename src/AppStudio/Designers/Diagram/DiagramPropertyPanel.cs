@@ -5,7 +5,7 @@ namespace AppBoxDesign.Diagram;
 
 internal sealed class DiagramPropertyPanel : SingleChildWidget
 {
-    public DiagramPropertyPanel(DesignHub designContext)
+    public DiagramPropertyPanel(DesignContext designContext)
     {
         _designContext = designContext;
         IsLayoutTight = false;
@@ -36,7 +36,7 @@ internal sealed class DiagramPropertyPanel : SingleChildWidget
         };
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private IDiagramItem? _selectedItem;
     private readonly State<string> _typeName;
     private readonly ListViewController<DiagramPropertyGroup> _listViewController = new();

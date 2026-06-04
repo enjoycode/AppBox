@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal abstract class DataTableFromServiceEditorBase : View
 {
-    protected DataTableFromServiceEditorBase(DesignHub designContext, DataTableFromServiceBase tableFromService)
+    protected DataTableFromServiceEditorBase(DesignContext designContext, DataTableFromServiceBase tableFromService)
     {
         _designContext = designContext;
         _tableFromService = tableFromService;
@@ -16,7 +16,7 @@ internal abstract class DataTableFromServiceEditorBase : View
     }
 
     //TODO: 服务选择
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly DataGridController<ServiceMethodParameterInfo> _dgController = new();
     private readonly State<string> _service;
     private readonly DataTableFromServiceBase _tableFromService;

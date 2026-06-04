@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal abstract class DataTableFromQueryEditorBase : View
 {
-    protected DataTableFromQueryEditorBase(DesignHub designContext, DataTableFromQueryBase tableFromQuery)
+    protected DataTableFromQueryEditorBase(DesignContext designContext, DataTableFromQueryBase tableFromQuery)
     {
         _designContext = designContext;
         _tableFromQuery = tableFromQuery;
@@ -22,7 +22,7 @@ internal abstract class DataTableFromQueryEditorBase : View
         _ordersController.DataSource = _tableFromQuery.Orders;
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly State<ModelNode?> _entityTarget;
     private readonly TreeController<EntityMember> _treeController = new();
     private readonly TabController<string> _tabController = new(["Selects", "Filters", "Orders"]);

@@ -10,7 +10,7 @@ namespace AppBoxDesign;
 
 internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
 {
-    public ServiceDesigner(DesignHub designContext, ModelNode modelNode)
+    public ServiceDesigner(DesignContext designContext, ModelNode modelNode)
     {
         ModelNode = modelNode;
         _designContext = designContext;
@@ -25,7 +25,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         Child = BuildEditor(_codeEditorController);
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly RoslynSourceText _textBuffer;
     public ModelNode ModelNode { get; }

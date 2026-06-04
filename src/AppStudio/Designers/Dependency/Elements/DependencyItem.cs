@@ -5,7 +5,7 @@ namespace AppBoxDesign.Dependency;
 
 internal sealed class DependencyItem : DiagramShape
 {
-    public DependencyItem(DesignHub designContext, ModelNode modelNode)
+    public DependencyItem(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         ModelNode = modelNode;
@@ -20,7 +20,7 @@ internal sealed class DependencyItem : DiagramShape
     internal const float ItemHeight = 30;
     private const float FontSize = 16;
     private const float WidthPadding = 16f;
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly IParagraph _titleParagraph;
     public ModelNode ModelNode { get; }
     

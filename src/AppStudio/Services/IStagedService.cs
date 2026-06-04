@@ -108,7 +108,7 @@ public sealed class StagedItems
     /// <summary>
     /// 从存储加载的模型中移除已删除的
     /// </summary>
-    internal void RemoveDeletedModels(DesignHub context, List<ModelBase> storedModels)
+    internal void RemoveDeletedModels(DesignContext context, List<ModelBase> storedModels)
     {
         if (Items == null || Items.Length == 0)
             return;

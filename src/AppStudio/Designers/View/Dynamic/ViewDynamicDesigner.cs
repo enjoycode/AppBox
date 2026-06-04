@@ -12,7 +12,7 @@ namespace AppBoxDesign;
 
 internal sealed class ViewDynamicDesigner : View, IModelDesigner
 {
-    private static void InitEditors(DesignHub designContext)
+    private static void InitEditors(DesignContext designContext)
     {
         if (DesignSettings.CreateDynamicStateValue != null!) return;
 
@@ -47,7 +47,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         EventEditor.Register(nameof(ShowDialog), (e, m, a) => new ShowDialogEditor(designContext, e, m, a));
     }
 
-    public ViewDynamicDesigner(DesignHub designContext, ModelNode modelNode)
+    public ViewDynamicDesigner(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         InitEditors(designContext);
@@ -72,7 +72,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         };
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly DesignController _designController = new();
     private readonly Toolbox _toolboxPad;
     private readonly DynamicOutlinePad _outlinePad;

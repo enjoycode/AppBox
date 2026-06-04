@@ -12,13 +12,13 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGeneratorWithUsages
 {
-    internal static async Task<ViewCsGenerator> Make(DesignHub hub, ModelNode modelNode, bool forPreview)
+    internal static async Task<ViewCsGenerator> Make(DesignContext context, ModelNode modelNode, bool forPreview)
     {
         Debug.Assert(modelNode.Model.ModelType == ModelType.View);
 
         //开始转换编译视图模型的运行时代码
-        var srcPrjId = hub.TypeSystem.ViewsProjectId;
-        var srcProject = hub.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
+        var srcPrjId = context.TypeSystem.ViewsProjectId;
+        var srcProject = context.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
 
         //始终检查语义错误，防止同步过程出现问题
@@ -26,13 +26,13 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
         CodeGeneratorUtil.CheckSemantic(semanticModel!, modelNode);
 
         var appName = modelNode.AppNode.Model.Name;
-        return new ViewCsGenerator(hub, appName, semanticModel!, (ViewModel)modelNode.Model, forPreview);
+        return new ViewCsGenerator(context, appName, semanticModel!, (ViewModel)modelNode.Model, forPreview);
     }
 
-    private ViewCsGenerator(DesignHub hub, string appName, SemanticModel semanticModel, ViewModel viewModel,
+    private ViewCsGenerator(DesignContext context, string appName, SemanticModel semanticModel, ViewModel viewModel,
         bool forPreview)
     {
-        DesignHub = hub;
+        DesignContext = context;
         AppName = appName;
         SemanticModel = semanticModel;
         ViewModel = viewModel;
@@ -41,7 +41,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
         _forPreview = forPreview;
     }
 
-    internal readonly DesignHub DesignHub;
+    internal readonly DesignContext DesignContext;
     internal readonly string AppName;
     internal readonly SemanticModel SemanticModel;
     internal readonly ViewModel ViewModel;
@@ -92,7 +92,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
     /// <param name="fullName">eg: sys.Entities.Customer</param>
     private bool FindModel(string fullName)
     {
-        var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(fullName);
+        var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(fullName);
         return modelNode != null;
     }
 
@@ -108,7 +108,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
         //开始生成依赖模型的运行时代码
         foreach (var usedModel in _usedModels)
         {
-            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(usedModel)!;
+            var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(usedModel)!;
             var modelType = modelNode.Model.ModelType;
 
             if (ctx.ContainsKey(usedModel)) continue;
@@ -116,17 +116,17 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
             switch (modelType)
             {
                 case ModelType.Entity:
-                    CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx, parseOpts);
+                    CodeGeneratorUtil.BuildUsedEntity(DesignContext, modelNode, ctx, parseOpts);
                     break;
                 case ModelType.View:
                 {
-                    var codeGen = await Make(DesignHub, modelNode, _forPreview);
+                    var codeGen = await Make(DesignContext, modelNode, _forPreview);
                     ctx.Add(usedModel, await codeGen.GetRuntimeSyntaxTree());
                     await codeGen.BuildUsages(ctx);
                     break;
                 }
                 case ModelType.Enum:
-                    CodeGeneratorUtil.BuildUsedEnum(DesignHub, modelNode, ctx, parseOpts);
+                    CodeGeneratorUtil.BuildUsedEnum(DesignContext, modelNode, ctx, parseOpts);
                     break;
                 default:
                     throw new NotSupportedException(modelType.ToString());

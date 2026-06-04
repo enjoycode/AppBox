@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal static class FormatDocumentCommand
 {
-    public static async void Execute(DesignHub designContext, TextEditor editor)
+    public static async void Execute(DesignContext designContext, TextEditor editor)
     {
         var changes = await FormatDocument.Execute(designContext, (DocumentId)editor.Document.Tag!);
 

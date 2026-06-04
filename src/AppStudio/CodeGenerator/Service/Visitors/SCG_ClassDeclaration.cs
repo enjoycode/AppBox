@@ -17,7 +17,7 @@ internal partial class ServiceCodeGenerator
             updatedNode = updatedNode.AddBaseListTypes(SyntaxFactory.SimpleBaseType(TypeHelper.ServiceInterfaceType));
 
             //实体工厂
-            var entityFactoriesCode = CodeGeneratorUtil.GenerateEntityFactoriesCode(DesignHub, _usedModel);
+            var entityFactoriesCode = CodeGeneratorUtil.GenerateEntityFactoriesCode(DesignContext, _usedModel);
             var entityFactories = SyntaxFactory.ParseMemberDeclaration(entityFactoriesCode)!;
 
             //IService接口实现

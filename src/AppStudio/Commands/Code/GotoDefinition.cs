@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal static class GotoDefinition
 {
-    internal static async Task<Definition?> Execute(DesignHub context, DocumentId docId, int position)
+    internal static async Task<Definition?> Execute(DesignContext context, DocumentId docId, int position)
     {
         var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)

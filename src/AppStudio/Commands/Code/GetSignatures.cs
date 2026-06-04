@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal static class GetSignatures
 {
-    public static async Task<SignatureResult?> Execute(DesignHub context, ModelId modelId, int offset)
+    public static async Task<SignatureResult?> Execute(DesignContext context, ModelId modelId, int offset)
     {
         var modelNode = context.DesignTree.FindModelNode(modelId);
         if (modelNode == null)

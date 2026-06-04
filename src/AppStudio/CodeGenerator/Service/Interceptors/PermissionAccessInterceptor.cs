@@ -15,8 +15,8 @@ internal sealed class PermissionAccessInterceptor : IMemberAccessInterceptor<Syn
     {
         var generator = (ServiceCodeGenerator)visitor!;
         var appName = symbol.ContainingType.ContainingNamespace.Name;
-        var appNode = generator.DesignHub.DesignTree.FindApplicationNodeByName(appName.AsMemory())!;
-        var modelNode = generator.DesignHub.DesignTree.FindModelNodeByName(appNode.Model.Id,
+        var appNode = generator.DesignContext.DesignTree.FindApplicationNodeByName(appName.AsMemory())!;
+        var modelNode = generator.DesignContext.DesignTree.FindModelNodeByName(appNode.Model.Id,
             ModelType.Permission, symbol.Name.AsMemory())!;
 
         return SyntaxFactory.ParseExpression(

@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class DataTableEditDialog : Dialog
 {
-    public DataTableEditDialog(DesignHub designContext, DesignController designController, DynamicState state)
+    public DataTableEditDialog(DesignContext designContext, DesignController designController, DynamicState state)
     {
         Title.Value = "DataTable Settings";
         Width = 630;
@@ -33,7 +33,7 @@ internal sealed class DataTableEditDialog : Dialog
         _isFromQuery.AddListener(_ => _tableState.Reset()); //改变数据源类型重置绑定组件的相关配置
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly DesignController _designController;
     private readonly DynamicDataTable _tableState;
     private readonly State<bool> _isFromQuery;
@@ -90,7 +90,7 @@ internal sealed class DataTableEditDialog : Dialog
 
     private class DataTableFromQueryEditor : DataTableFromQueryEditorBase
     {
-        public DataTableFromQueryEditor(DesignHub designContext, DesignController designController,
+        public DataTableFromQueryEditor(DesignContext designContext, DesignController designController,
             DynamicDataTable tableState)
             : base(designContext, (DataTableFromQuery)tableState.Source)
         {
@@ -117,7 +117,7 @@ internal sealed class DataTableEditDialog : Dialog
 
     private class DataTableFromServiceEditor : DataTableFromServiceEditorBase
     {
-        public DataTableFromServiceEditor(DesignHub designContext, DesignController designController,
+        public DataTableFromServiceEditor(DesignContext designContext, DesignController designController,
             DynamicDataTable tableState)
             : base(designContext, (DataTableFromService)tableState.Source)
         {

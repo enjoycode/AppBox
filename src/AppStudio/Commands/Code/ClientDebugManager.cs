@@ -16,7 +16,7 @@ internal static class ClientDebugManager
     public static async Task StartDebugService(IDebuggableCodeDesigner designer,
         ServiceMethodInfo methodInfo, int[] breakpoints)
     {
-        var hub = designer.ModelNode.DesignTree!.DesignHub;
+        var hub = designer.ModelNode.DesignTree!.DesignContext;
         var serviceModel = (ServiceModel)designer.ModelNode.Model;
         var appName = designer.ModelNode.AppName;
         var serviceName = serviceModel.Name;

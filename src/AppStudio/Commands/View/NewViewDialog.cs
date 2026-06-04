@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class NewViewDialog : Dialog
 {
-    public NewViewDialog(DesignHub designContext)
+    public NewViewDialog(DesignContext designContext)
     {
         _designContext = designContext;
         Width = 300;
@@ -13,7 +13,7 @@ internal sealed class NewViewDialog : Dialog
         Title.Value = "New View";
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly State<string> _name = "";
     private readonly State<bool> _isDynamic = false;
@@ -65,7 +65,7 @@ internal sealed class NewViewDialog : Dialog
         DesignStore.OnNewNode(res!);
     }
 
-    private static Task<NewNodeResult> NewView(DesignHub context, DesignNode selectedNode, string name, bool isDynamic)
+    private static Task<NewNodeResult> NewView(DesignContext context, DesignNode selectedNode, string name, bool isDynamic)
     {
         var selectedNodeType = selectedNode.Type;
         var selectedNodeId = selectedNode.Id;

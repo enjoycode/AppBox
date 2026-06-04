@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 
 internal static class FormatDocument
 {
-    public static async Task<IList<TextChange>> Execute(DesignHub context, DocumentId docId)
+    public static async Task<IList<TextChange>> Execute(DesignContext context, DocumentId docId)
     {
         var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)

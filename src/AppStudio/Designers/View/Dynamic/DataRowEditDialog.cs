@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal sealed class DataRowEditDialog : Dialog
 {
-    public DataRowEditDialog(DesignHub designContext, DesignController designController, DynamicState state)
+    public DataRowEditDialog(DesignContext designContext, DesignController designController, DynamicState state)
     {
         Title.Value = "DataRow Settings";
         Width = 630;
@@ -30,7 +30,7 @@ internal sealed class DataRowEditDialog : Dialog
         // _isFromQuery.AddListener(_ => _tableState.Reset()); //改变数据源类型重置绑定组件的相关配置
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly DesignController _designController;
     private readonly DynamicState _state;
     // private readonly State<bool> _isFromQuery;

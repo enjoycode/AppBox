@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class NewAppCommand : DesignCommand
 {
-    public NewAppCommand(DesignHub context) : base(context) { }
+    public NewAppCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {
@@ -32,7 +32,7 @@ internal sealed class NewAppCommand : DesignCommand
         }
     }
 
-    internal static async Task<ApplicationNode> CreateApplication(DesignHub context, ApplicationModel app)
+    internal static async Task<ApplicationNode> CreateApplication(DesignContext context, ApplicationModel app)
     {
         var designStore = (DesignStore)context.DesignUIService;
         var appRootNode = context.DesignTree.AppRootNode;

@@ -8,7 +8,7 @@ public sealed class AppStudio : View
 {
     public AppStudio()
     {
-        _designContext = new DesignHub(Channel.SessionName, Channel.LeafOrgUnitId);
+        _designContext = new DesignContext(Channel.SessionName, Channel.LeafOrgUnitId);
         _designContext.InitServices(new DesignStore(_designContext), new CheckoutService(),
             new StagedService(), new MetaStoreService(), new PublishService());
 
@@ -49,7 +49,7 @@ public sealed class AppStudio : View
         };
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
 
     protected override async void OnMounted()
     {

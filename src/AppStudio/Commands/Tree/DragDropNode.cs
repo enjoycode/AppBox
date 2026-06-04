@@ -32,7 +32,7 @@ internal static class DragDropNode
 
     private static async Task<int> DropModelNodeInner(ModelNode sourceNode, DesignNode targetNode)
     {
-        var hub = targetNode.DesignTree!.DesignHub;
+        var hub = targetNode.DesignTree!.DesignContext;
         int insertIndex;
 
         if (targetNode.Type == DesignNodeType.ModelRootNode)

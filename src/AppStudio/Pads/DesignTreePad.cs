@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class DesignTreePad : View
 {
-    public DesignTreePad(DesignHub designContext)
+    public DesignTreePad(DesignContext designContext)
     {
         _designStore = (DesignStore)designContext.DesignUIService;
 

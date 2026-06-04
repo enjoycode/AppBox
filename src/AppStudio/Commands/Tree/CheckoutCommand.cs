@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal sealed class CheckoutCommand : DesignCommand
 {
-    public CheckoutCommand(DesignHub context) : base(context) { }
+    public CheckoutCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {

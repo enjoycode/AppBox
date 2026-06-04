@@ -9,13 +9,13 @@ namespace Tests;
 
 public static class DesignHelper
 {
-    internal static async Task<DesignHub> MockDesignHub()
+    internal static async Task<DesignContext> MockDesignContext()
     {
         LocalFileSystem.Init(new OSFileSystem());
         await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
 
         var mockSession = ServerRuntimeHelper.MockUserSession();
-        var designContext = new DesignHub(mockSession.Name, mockSession.LeafOrgUnitId);
+        var designContext = new DesignContext(mockSession.Name, mockSession.LeafOrgUnitId);
         designContext.InitServices(new MockDesignUIService(), new MockCheckoutService(),
             new MockStagedService(), new MockMetaStoreService(), new MockPublishService());
         designContext.TypeSystem.InitWorkspace();
@@ -24,9 +24,9 @@ public static class DesignHelper
         return designContext;
     }
 
-    internal static async Task ReplaceCode(DesignHub hub, DocumentId documentId, string code)
+    internal static async Task ReplaceCode(DesignContext context, DocumentId documentId, string code)
     {
-        var workspace = hub.TypeSystem.Workspace;
+        var workspace = context.TypeSystem.Workspace;
         var roslynDoc = workspace.CurrentSolution.GetDocument(documentId)!;
         var sourceText = await roslynDoc.GetTextAsync();
         sourceText = sourceText.Replace(0, sourceText.Length, code);

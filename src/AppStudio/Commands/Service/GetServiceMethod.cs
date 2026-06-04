@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class GetServiceMethod
 {
-    internal static async Task<ServiceMethodInfo> GetByPosition(DesignHub ctx, ModelNode modelNode, int position)
+    internal static async Task<ServiceMethodInfo> GetByPosition(DesignContext ctx, ModelNode modelNode, int position)
     {
         //定位服务入口方法
         var doc = ctx.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
@@ -18,17 +18,17 @@ internal static class GetServiceMethod
         return GetBySymbol(symbol, modelNode);
     }
 
-    internal static async Task<ServiceMethodInfo> GetByName(DesignHub hub, string methodPath)
+    internal static async Task<ServiceMethodInfo> GetByName(DesignContext context, string methodPath)
     {
         //methodName eg: sys.OrderService.GetOrders
         var sr = methodPath.Split('.');
         var fullName = $"{sr[0]}.Services.{sr[1]}";
         var methodName = sr[2];
-        var modelNode = hub.DesignTree.FindModelNodeByFullName(fullName);
+        var modelNode = context.DesignTree.FindModelNodeByFullName(fullName);
         if (modelNode == null)
             throw new Exception("Can't find service model node");
 
-        var doc = hub.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
+        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
         var semanticModel = await doc!.GetSemanticModelAsync();
         var rootNode = await doc!.GetSyntaxRootAsync();
         var method = rootNode!.DescendantNodes()

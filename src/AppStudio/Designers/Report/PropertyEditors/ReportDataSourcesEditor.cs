@@ -15,13 +15,13 @@ internal sealed class ReportDataSourcesEditor : ListEditorBase<IDataSource>
     internal static EditorFactory Factory => (ctx, prop) =>
         new(new ReportDataSourcesEditor(ctx, prop), VerticalAlignment.Top);
 
-    public ReportDataSourcesEditor(DesignHub designContext, IDiagramProperty propertyItem)
+    public ReportDataSourcesEditor(DesignContext designContext, IDiagramProperty propertyItem)
         : base(propertyItem, d => d.Name)
     {
         _designContext = designContext;
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
 
     protected override async void OnAdd()
     {
@@ -47,7 +47,7 @@ internal sealed class ReportDataSourcesEditor : ListEditorBase<IDataSource>
     /// </summary>
     private class ReportDataSourceDialog : Dialog
     {
-        public ReportDataSourceDialog(DesignHub designContext, IList<IDataSource> dataSources, int index)
+        public ReportDataSourceDialog(DesignContext designContext, IList<IDataSource> dataSources, int index)
         {
             Title.Value = "Report DataSource";
             Width = 630;
@@ -64,7 +64,7 @@ internal sealed class ReportDataSourcesEditor : ListEditorBase<IDataSource>
             );
         }
 
-        private readonly DesignHub _designContext;
+        private readonly DesignContext _designContext;
         private readonly IList<IDataSource> _dataSources;
         private readonly int _index;
         private readonly State<bool> _isFromQuery;
@@ -126,7 +126,7 @@ internal sealed class ReportDataSourcesEditor : ListEditorBase<IDataSource>
 
         private class DataTableFromQueryEditor : DataTableFromQueryEditorBase
         {
-            public DataTableFromQueryEditor(DesignHub designContext, DataTableFromQuery tableFromQuery) : base(
+            public DataTableFromQueryEditor(DesignContext designContext, DataTableFromQuery tableFromQuery) : base(
                 designContext, tableFromQuery.Wrap) { }
 
             protected override string[] FindStates(DynamicStateType type, bool allowNull)
@@ -137,7 +137,7 @@ internal sealed class ReportDataSourcesEditor : ListEditorBase<IDataSource>
 
         private class DataTableFromServiceEditor : DataTableFromServiceEditorBase
         {
-            public DataTableFromServiceEditor(DesignHub designContext, DataTableFromService tableFromService) : base(
+            public DataTableFromServiceEditor(DesignContext designContext, DataTableFromService tableFromService) : base(
                 designContext, tableFromService.Wrap) { }
 
             protected override string[] FindStates(DynamicStateType type, bool allowNull)

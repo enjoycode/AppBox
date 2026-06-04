@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 
 internal sealed class DependencyDesigner : View, IDesigner
 {
-    public DependencyDesigner(DesignHub designContext)
+    public DependencyDesigner(DesignContext designContext)
     {
         _designContext = designContext;
         _diagramService = new DependencyDiagramService();
@@ -17,7 +17,7 @@ internal sealed class DependencyDesigner : View, IDesigner
         Child = new DiagramView(_diagramService);
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly DependencyDiagramService _diagramService;
     private ModelNode _targetNode = null!;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;

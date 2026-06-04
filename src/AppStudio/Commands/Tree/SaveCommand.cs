@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal sealed class SaveCommand : DesignCommand
 {
-    public SaveCommand(DesignHub context) : base(context) { }
+    public SaveCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {

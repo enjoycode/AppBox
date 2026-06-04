@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class MainMenuPad : View
 {
-    public MainMenuPad(DesignHub designContext)
+    public MainMenuPad(DesignContext designContext)
     {
         var designStore = (DesignStore)designContext.DesignUIService;
 

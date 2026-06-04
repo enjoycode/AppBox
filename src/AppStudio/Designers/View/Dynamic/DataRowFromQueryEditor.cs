@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 
 internal sealed class DataRowFromQueryEditor : View
 {
-    public DataRowFromQueryEditor(DesignHub designContext, DesignController designController, DynamicState state)
+    public DataRowFromQueryEditor(DesignContext designContext, DesignController designController, DynamicState state)
     {
         _designContext = designContext;
         _designController = designController;
@@ -22,7 +22,7 @@ internal sealed class DataRowFromQueryEditor : View
         _selectsController.DataSource = RowFromQuery.Selects;
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly DesignController _designController;
     private readonly DynamicState _state;
     private readonly DynamicDataRow _dataRow;

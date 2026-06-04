@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 
 internal sealed class ReportDiagramService : IDiagramService
 {
-    public ReportDiagramService(DesignHub designContext)
+    public ReportDiagramService(DesignContext designContext)
     {
         PropertyPanel = new DiagramPropertyPanel(designContext);
     }

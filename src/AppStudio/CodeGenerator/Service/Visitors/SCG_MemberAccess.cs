@@ -154,7 +154,7 @@ internal partial class ServiceCodeGenerator
             var entityType = symbol.ContainingType;
             var memberName = symbol.Name;
 
-            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(entityType.ToString()!)!;
+            var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(entityType.ToString()!)!;
             var entityModel = (EntityModel)modelNode.Model;
             var entityMember = entityModel.GetMember(memberName, false);
             if (entityMember == null)

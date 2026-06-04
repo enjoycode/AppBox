@@ -11,7 +11,7 @@ internal static class BuildViewPreview
 {
     internal static async Task<byte[]> Execute(ModelNode modelNode)
     {
-        var hub = modelNode.DesignTree!.DesignHub;
+        var hub = modelNode.DesignTree!.DesignContext;
         var codegen = await ViewCsGenerator.Make(hub, modelNode, true);
         var newTree = await codegen.GetRuntimeSyntaxTree();
         //生成视图模型依赖的其他模型的运行时代码

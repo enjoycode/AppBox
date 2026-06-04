@@ -10,7 +10,7 @@ public sealed class LoadDesignTreeTest
     [Test]
     public async Task TestGetModelId()
     {
-        var designHub = await DesignHelper.MockDesignHub();
+        var designHub = await DesignHelper.MockDesignContext();
 
         var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
         long modelId = modelNode.Model.Id;

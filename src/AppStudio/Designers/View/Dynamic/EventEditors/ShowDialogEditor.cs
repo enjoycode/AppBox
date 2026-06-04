@@ -7,7 +7,7 @@ namespace AppBoxDesign.EventEditors;
 
 internal sealed class ShowDialogEditor : SingleChildWidget
 {
-    public ShowDialogEditor(DesignHub designContext, DesignElement element, DynamicEventMeta eventMeta, IEventAction eventAction)
+    public ShowDialogEditor(DesignContext designContext, DesignElement element, DynamicEventMeta eventMeta, IEventAction eventAction)
     {
         _designContext = designContext;
         _showDialogAction = (ShowDialog)eventAction;
@@ -23,7 +23,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
         Child = Build();
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly DataGridController<ViewParameter> _dgController = new();
     private readonly ShowDialog _showDialogAction;
     private readonly State<ModelNode?> _targetView;

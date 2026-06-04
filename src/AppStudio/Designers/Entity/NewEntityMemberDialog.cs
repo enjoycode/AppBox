@@ -8,7 +8,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class NewEntityMemberDialog : Dialog
 {
-    public NewEntityMemberDialog(DesignHub designContext, ModelNode modelNode)
+    public NewEntityMemberDialog(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         _modelNode = modelNode;
@@ -24,7 +24,7 @@ internal sealed class NewEntityMemberDialog : Dialog
     private static readonly string[] FieldTypes =
         ["String", "Int", "Long", "Float", "Double", "Decimal", "Bool", "DateTime", "Guid", "Enum", "Binary"];
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly ModelNode _modelNode;
     private readonly State<string> _name = string.Empty;
     private readonly State<bool> _allowNull = false;

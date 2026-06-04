@@ -23,7 +23,7 @@ internal static class NewEntityMember
             throw new Exception("Name has exists");
     }
 
-    internal static EntityFieldMember NewEntityField(DesignHub ctx, ModelNode node, string memberName,
+    internal static EntityFieldMember NewEntityField(DesignContext ctx, ModelNode node, string memberName,
         EntityFieldType fieldType, bool allowNull,
         ModelId? enumModelId = null, string? defaultValue = null)
     {
@@ -57,7 +57,7 @@ internal static class NewEntityMember
     }
 
     private static bool ValidateDefaultValue(EntityFieldMember field, string defaultValue,
-        DesignHub ctx, out string? error)
+        DesignContext ctx, out string? error)
     {
         error = "Format error";
         switch (field.FieldType)
@@ -105,7 +105,7 @@ internal static class NewEntityMember
         return false;
     }
 
-    internal static EntityMember[] NewEntityRef(DesignHub ctx, ModelNode node, string name,
+    internal static EntityMember[] NewEntityRef(DesignContext ctx, ModelNode node, string name,
         string[] refIds, bool allowNull)
     {
         if (refIds.Length == 0)
@@ -194,7 +194,7 @@ internal static class NewEntityMember
         return res.ToArray();
     }
 
-    internal static EntitySetMember NewEntitySet(DesignHub ctx, ModelNode node, string name,
+    internal static EntitySetMember NewEntitySet(DesignContext ctx, ModelNode node, string name,
         ModelId refModelId, short refMemberId)
     {
         Validate(node, name);
@@ -214,7 +214,7 @@ internal static class NewEntityMember
         return entitySet;
     }
 
-    internal static EntityRefFieldMember NewEntityRefField(DesignHub ctx, ModelNode node, string name, string path)
+    internal static EntityRefFieldMember NewEntityRefField(DesignContext ctx, ModelNode node, string name, string path)
     {
         Validate(node, name);
 

@@ -14,7 +14,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class ExpressionEditor : SingleChildWidget
 {
-    public ExpressionEditor(DesignHub designContext, ExpressionInfo expressionInfo)
+    public ExpressionEditor(DesignContext designContext, ExpressionInfo expressionInfo)
     {
         _designContext = designContext;
         _expressionInfo = expressionInfo;
@@ -32,7 +32,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
         Child = new CodeEditorWidget(_controller);
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly ExpressionInfo _expressionInfo;
     private readonly ProjectId _prjId;
     private readonly DocumentId _docId;

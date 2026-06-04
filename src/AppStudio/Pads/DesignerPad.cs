@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class DesignerPad : View
 {
-    public DesignerPad(DesignHub designContext)
+    public DesignerPad(DesignContext designContext)
     {
         _designContext = designContext;
         DesignStore.TreeController.SelectionChanged += OnTreeSelectionChanged;
@@ -23,7 +23,7 @@ internal sealed class DesignerPad : View
             () => new Center { Child = new Text("Welcome to AppBox!") });
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly State<bool> _isOpenedAnyDesigner = false;
 

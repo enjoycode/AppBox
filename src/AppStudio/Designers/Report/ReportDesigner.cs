@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 
 internal sealed class ReportDesigner : View, IModelDesigner
 {
-    public ReportDesigner(DesignHub designContext, ModelNode modelNode)
+    public ReportDesigner(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         ModelNode = modelNode;
@@ -33,7 +33,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
         };
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private bool _hasLoadSourceCode;
     private Report _report = null!;
     private readonly ReportDiagramService _diagramService;

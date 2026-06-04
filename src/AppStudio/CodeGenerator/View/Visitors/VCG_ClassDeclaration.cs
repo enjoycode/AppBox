@@ -14,7 +14,7 @@ internal partial class ViewCsGenerator
             var updatedNode = (ClassDeclarationSyntax)base.VisitClassDeclaration(node)!;
             //实体工厂
             var entityFactoriesCode =
-                CodeGeneratorUtil.GenerateEntityFactoriesCode(DesignHub, _usedModels);
+                CodeGeneratorUtil.GenerateEntityFactoriesCode(DesignContext, _usedModels);
             var entityFactories =
                 SyntaxFactory.ParseCompilationUnit(entityFactoriesCode).Members[0];
             return updatedNode.AddMembers(entityFactories);

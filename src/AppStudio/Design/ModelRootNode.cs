@@ -119,7 +119,7 @@ public sealed class ModelRootNode : DesignNode, IChildrenNode
     {
         //注意: 1.不在这里创建相应的RoslynDocument,因为可能生成虚拟代码时找不到引用的模型，待加载完整个树后再创建
         //     2.model可能被签出的本地替换掉，所以相关操作必须指向node.Model
-        var node = new ModelNode(model, DesignTree!.DesignHub);
+        var node = new ModelNode(model, DesignTree!.DesignContext);
         DesignTree.BindCheckoutInfo(node, model.PersistentState == PersistentState.Detached);
 
         if (node.Model.FolderId.HasValue && _folders.TryGetValue(node.Model.FolderId.Value, out var folderNode))

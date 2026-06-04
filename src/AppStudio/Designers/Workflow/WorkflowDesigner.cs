@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 
 internal sealed class WorkflowDesigner : View, IModelDesigner
 {
-    public WorkflowDesigner(DesignHub designContext, ModelNode modelNode)
+    public WorkflowDesigner(DesignContext designContext, ModelNode modelNode)
     {
         _designContext = designContext;
         ModelNode = modelNode;
@@ -28,7 +28,7 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
         };
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private readonly WorkflowDiagramService _diagramService;
     private bool _hasLoaded;
     public ModelNode ModelNode { get; }

@@ -10,13 +10,13 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class DesignStore : IDesignUIService
 {
-    public DesignStore(DesignHub designContext)
+    public DesignStore(DesignContext designContext)
     {
         _designContext = designContext;
         Commands = new Commands(designContext);
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
 
     public async Task LoadDesignTreeAsync()
     {
@@ -265,7 +265,7 @@ internal sealed class DesignStore : IDesignUIService
     /// <summary>
     /// 获取引用了指定实体的所有EntityRef成员
     /// </summary>
-    internal static EntityMemberInfo[] GetAllEntityRefs(DesignHub designContext, ModelId modelId)
+    internal static EntityMemberInfo[] GetAllEntityRefs(DesignContext designContext, ModelId modelId)
     {
         var designTree = designContext.DesignTree;
         var entityRefs = designTree.FindAllEntityRefs(modelId);

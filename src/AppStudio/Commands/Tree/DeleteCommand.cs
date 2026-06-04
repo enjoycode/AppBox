@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class DeleteCommand : DesignCommand
 {
-    public DeleteCommand(DesignHub context) : base(context) { }
+    public DeleteCommand(DesignContext context) : base(context) { }
 
     public async void Execute()
     {
@@ -41,7 +41,7 @@ internal sealed class DeleteCommand : DesignCommand
         }
     }
 
-    private static async ValueTask<string> DeleteNode(DesignHub context, DesignNode deleteNode)
+    private static async ValueTask<string> DeleteNode(DesignContext context, DesignNode deleteNode)
     {
         if (deleteNode is not (ModelNode or ApplicationNode or FolderNode { Children.Count: 0 }))
             throw new Exception("Can not delete it.");
@@ -58,10 +58,10 @@ internal sealed class DeleteCommand : DesignCommand
         return rootNode == null ? string.Empty : rootNode.Id;
     }
 
-    private static async Task<DesignNode?> DeleteModelNode(DesignHub hub, ModelNode node)
+    private static async Task<DesignNode?> DeleteModelNode(DesignContext context, ModelNode node)
     {
         // 查找ModelRootNode
-        var modelRootNode = hub.DesignTree.FindModelRootNode(node.Model.AppId, node.Model.ModelType)!;
+        var modelRootNode = context.DesignTree.FindModelRootNode(node.Model.AppId, node.Model.ModelType)!;
         var rootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
         // 尝试签出模型节点及根节点
         var nodeCheckout = await node.CheckoutAsync();
@@ -78,7 +78,7 @@ internal sealed class DeleteCommand : DesignCommand
             throw new Exception("Can't delete system model.");
         var model = node.Model;
         // 查找引用项
-        var usages = await ReferenceService.FindModelReferencesAsync(hub, node);
+        var usages = await ReferenceService.FindModelReferencesAsync(context, node);
         if (usages.Count > 0)
         {
             //注意排除自身引用
@@ -99,7 +99,7 @@ internal sealed class DeleteCommand : DesignCommand
         if (model.PersistentState == PersistentState.Detached)
         {
             //TODO: should remove from checkouts
-            await hub.StagedService.DeleteModelAsync(model.Id);
+            await context.StagedService.DeleteModelAsync(model.Id);
         }
         else
         {
@@ -107,19 +107,19 @@ internal sealed class DeleteCommand : DesignCommand
             await node.SaveAsync(null);
         }
 
-        hub.AddRemovedItem(model);
+        context.AddRemovedItem(model);
         // 移除对应节点
         modelRootNode.RemoveModel(node);
         // 删除Roslyn相关
-        hub.TypeSystem.RemoveAllDocuments(node);
+        context.TypeSystem.RemoveAllDocuments(node);
 
         return rootNodeHasCheckout ? null : modelRootNode;
     }
 
-    private static async Task<DesignNode?> DeleteFolderNode(DesignHub hub, FolderNode node)
+    private static async Task<DesignNode?> DeleteFolderNode(DesignContext context, FolderNode node)
     {
         //查找ModelRootNode
-        var modelRootNode = hub.DesignTree.FindModelRootNode(node.Folder.AppId, node.Folder.TargetModelType)!;
+        var modelRootNode = context.DesignTree.FindModelRootNode(node.Folder.AppId, node.Folder.TargetModelType)!;
         var rootNodeHasCheckout = modelRootNode.IsCheckoutByMe;
         // 尝试签出根节点
         var rootCheckout = await modelRootNode.CheckoutAsync();
@@ -141,7 +141,7 @@ internal sealed class DeleteCommand : DesignCommand
         return rootNodeHasCheckout ? null : modelRootNode;
     }
 
-    private static async Task<DesignNode?> DeleteAppNode(DesignHub hub, ApplicationNode appNode)
+    private static async Task<DesignNode?> DeleteAppNode(DesignContext context, ApplicationNode appNode)
     {
         //TODO:*****判断有无其他应用的引用
         //TODO:考虑删除整个应用前自动导出备份
@@ -152,7 +152,7 @@ internal sealed class DeleteCommand : DesignCommand
 
         //组包用现有PublishService发布(删除)
         var pkg = new PublishPackage() { DeletedAppId = appNode.Model.Id };
-        var apps = hub.GetApplications();
+        var apps = context.GetApplications();
         foreach (var app in apps)
             pkg.Apps.Add(app.Id, app.Name);
         var modelNodes = appNode.GetAllModelNodes();
@@ -166,7 +166,7 @@ internal sealed class DeleteCommand : DesignCommand
             }
 
             //删除所有Roslyn相关
-            hub.TypeSystem.RemoveAllDocuments(modelNode);
+            context.TypeSystem.RemoveAllDocuments(modelNode);
         }
 
         //加入待删除的根级文件夹
@@ -178,13 +178,13 @@ internal sealed class DeleteCommand : DesignCommand
         }
 
         //使用PublishService.PublishAsync，与删除ApplicationModel非事务
-        await hub.PublishService.PublishAsync(pkg, $"Delete Application: {appNode.Model.Name}");
+        await context.PublishService.PublishAsync(pkg, $"Delete Application: {appNode.Model.Name}");
         //删除ApplicationModel
-        await hub.MetaStoreService.DeleteApplicationAsync(appNode.Model); //服务端会删除第三方库
+        await context.MetaStoreService.DeleteApplicationAsync(appNode.Model); //服务端会删除第三方库
         //从设计树移除ApplicationNode
-        hub.DesignTree.AppRootNode.Children.Remove(appNode);
+        context.DesignTree.AppRootNode.Children.Remove(appNode);
         //移除本地签出列表内相关项
-        hub.DesignTree.RemoveCheckoutsForDeletedApp(appNode.Model.Id);
+        context.DesignTree.RemoveCheckoutsForDeletedApp(appNode.Model.Id);
         return null;
     }
 }

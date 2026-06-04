@@ -8,7 +8,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal static class ContextMenuService
 {
-    internal static MenuItem[] BuildContextMenu(DesignHub designContext, TextEditor textEditor)
+    internal static MenuItem[] BuildContextMenu(DesignContext designContext, TextEditor textEditor)
     {
         return
         [

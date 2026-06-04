@@ -10,7 +10,7 @@ public class ReferenceServiceTest
     [Test]
     public async Task FindModelReferencesTest()
     {
-        var hub = await DesignHelper.MockDesignHub();
+        var hub = await DesignHelper.MockDesignContext();
         var modelNode = hub.DesignTree.FindModelNodeByFullName("sys.Enums.Gender")!;
         var res = await ReferenceService.FindModelReferencesAsync(hub, modelNode);
         Assert.True(res.Count > 0);
@@ -19,7 +19,7 @@ public class ReferenceServiceTest
     [Test]
     public async Task FindEntityMemberReferencesTest()
     {
-        var hub = await DesignHelper.MockDesignHub();
+        var hub = await DesignHelper.MockDesignContext();
         var customerNode = hub.DesignTree.FindModelNodeByFullName("sys.Entities.Customer");
         var entityModel = (EntityModel)customerNode!.Model;
         var entityMember = entityModel.GetMember("City")!;
@@ -32,7 +32,7 @@ public class ReferenceServiceTest
     [Test]
     public async Task FineEnumItemReferencesTest()
     {
-        var hub = await DesignHelper.MockDesignHub();
+        var hub = await DesignHelper.MockDesignContext();
         var enumModelNode = hub.DesignTree.FindModelNodeByFullName("sys.Enums.Gender")!;
         var res = await ReferenceService.FindEnumItemReferencesAsync(hub, enumModelNode, "Male");
         Assert.True(res.Count > 0);

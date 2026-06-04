@@ -8,7 +8,7 @@ public sealed class BuildAppTest
     [Test]
     public async Task BuildTest()
     {
-        var hub = await DesignHelper.MockDesignHub();
+        var hub = await DesignHelper.MockDesignContext();
         // var handler = new BuildApp(); 
         // await handler.Handle(designHub, AnyArgs.Make(true));
 

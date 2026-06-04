@@ -5,7 +5,7 @@ namespace AppBoxDesign;
 
 internal sealed class RenameDialog : Dialog
 {
-    public RenameDialog(DesignHub context, ModelReferenceType referenceType,
+    public RenameDialog(DesignContext context, ModelReferenceType referenceType,
         string target, string modelId, string oldName)
     {
         _designContext = context;
@@ -19,7 +19,7 @@ internal sealed class RenameDialog : Dialog
         Height = 240;
     }
 
-    private readonly DesignHub _designContext;
+    private readonly DesignContext _designContext;
     private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly ModelReferenceType _referenceType;
     private readonly string _modelId;

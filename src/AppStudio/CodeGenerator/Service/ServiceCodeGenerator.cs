@@ -12,17 +12,17 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICodeGeneratorWithUsages
 {
-    internal ServiceCodeGenerator(DesignHub hub, string appName, SemanticModel semanticModel,
+    internal ServiceCodeGenerator(DesignContext context, string appName, SemanticModel semanticModel,
         ServiceModel serviceModel)
     {
-        DesignHub = hub;
+        DesignContext = context;
         AppName = appName;
         SemanticModel = semanticModel;
         ServiceModel = serviceModel;
         TypeSymbolCache = new TypeSymbolCache(semanticModel);
     }
 
-    internal readonly DesignHub DesignHub;
+    internal readonly DesignContext DesignContext;
     internal readonly string AppName;
     internal readonly SemanticModel SemanticModel;
     internal readonly ServiceModel ServiceModel;
@@ -59,7 +59,7 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICode
     /// <param name="fullName">eg: sys.Entities.Customer</param>
     private bool FindModel(string fullName)
     {
-        var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(fullName);
+        var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(fullName);
         return modelNode != null;
     }
 
@@ -74,14 +74,14 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICode
         var ctx = new Dictionary<string, SyntaxTree>();
         foreach (var usedEntity in _usedModel)
         {
-            var modelNode = DesignHub.DesignTree.FindModelNodeByFullName(usedEntity)!;
+            var modelNode = DesignContext.DesignTree.FindModelNodeByFullName(usedEntity)!;
             switch (modelNode.Model.ModelType)
             {
                 case ModelType.Entity:
-                    CodeGeneratorUtil.BuildUsedEntity(DesignHub, modelNode, ctx, TypeSystem.ServiceParseOptions);
+                    CodeGeneratorUtil.BuildUsedEntity(DesignContext, modelNode, ctx, TypeSystem.ServiceParseOptions);
                     break;
                 case ModelType.Enum:
-                    CodeGeneratorUtil.BuildUsedEnum(DesignHub, modelNode, ctx, TypeSystem.ServiceParseOptions);
+                    CodeGeneratorUtil.BuildUsedEnum(DesignContext, modelNode, ctx, TypeSystem.ServiceParseOptions);
                     break;
                 default:
                     throw new NotImplementedException($"{modelNode.Model.ModelType}");
