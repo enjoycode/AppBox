@@ -95,12 +95,12 @@ internal sealed class CodeReference : Reference
     /// </summary>
     internal void Rename(DesignContext context, int diff, string newName)
     {
-        var document = context.TypeSystem.Workspace.CurrentSolution.GetDocument(ModelNode.RoslynDocumentId)!;
+        var document = context.Workspace.CurrentSolution.GetDocument(ModelNode.RoslynDocumentId)!;
         var sourceText = document.GetTextAsync().Result;
         var startOffset = Offset + diff;
 
         sourceText = sourceText.WithChanges(new TextChange(new TextSpan(startOffset, Length), newName));
-        context.TypeSystem.Workspace.OnDocumentChanged(ModelNode.RoslynDocumentId!, sourceText);
+        context.Workspace.OnDocumentChanged(ModelNode.RoslynDocumentId!, sourceText);
     }
     #endregion
 }

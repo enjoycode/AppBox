@@ -18,7 +18,7 @@ public static class DesignHelper
         var designContext = new DesignContext(mockSession.Name, mockSession.LeafOrgUnitId);
         designContext.InitServices(new MockDesignUIService(), new MockCheckoutService(),
             new MockStagedService(), new MockMetaStoreService(), new MockPublishService());
-        designContext.TypeSystem.InitWorkspace();
+        designContext.InitWorkspace();
 
         await designContext.DesignTree.LoadAsync();
         return designContext;
@@ -26,7 +26,7 @@ public static class DesignHelper
 
     internal static async Task ReplaceCode(DesignContext context, DocumentId documentId, string code)
     {
-        var workspace = context.TypeSystem.Workspace;
+        var workspace = context.Workspace;
         var roslynDoc = workspace.CurrentSolution.GetDocument(documentId)!;
         var sourceText = await roslynDoc.GetTextAsync();
         sourceText = sourceText.Replace(0, sourceText.Length, code);
@@ -151,7 +151,7 @@ internal sealed class MockPublishService : IPublishService
 internal sealed class MockMetadataReferenceProvider : IMetadataReferenceProvider
 {
     private readonly string _sdkPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-    private readonly string _appPath = Path.GetDirectoryName(typeof(TypeSystem).Assembly.Location)!;
+    private readonly string _appPath = Path.GetDirectoryName(typeof(DesignContext).Assembly.Location)!;
 
     public ValueTask<MetadataReference> LoadSdkLib(string assemblyName)
     {

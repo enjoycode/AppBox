@@ -108,7 +108,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
             _membersController.Refresh();
             //保存并更新虚拟代码
             await ModelNode.SaveAsync(null);
-            await _designContext.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+            await _designContext.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception e)
         {
@@ -129,7 +129,7 @@ internal sealed class EnumDesigner : View, IModelDesigner
 
             //保存并更新虚拟代码
             await ModelNode.SaveAsync(null);
-            await _designContext.TypeSystem.UpdateModelDocumentAsync(ModelNode);
+            await _designContext.UpdateModelDocumentAsync(ModelNode);
         }
         catch (Exception ex)
         {

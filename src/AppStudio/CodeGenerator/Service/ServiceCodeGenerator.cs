@@ -78,10 +78,10 @@ internal sealed partial class ServiceCodeGenerator : CSharpSyntaxRewriter, ICode
             switch (modelNode.Model.ModelType)
             {
                 case ModelType.Entity:
-                    CodeGeneratorUtil.BuildUsedEntity(DesignContext, modelNode, ctx, TypeSystem.ServiceParseOptions);
+                    CodeGeneratorUtil.BuildUsedEntity(DesignContext, modelNode, ctx, DesignContext.ServiceParseOptions);
                     break;
                 case ModelType.Enum:
-                    CodeGeneratorUtil.BuildUsedEnum(DesignContext, modelNode, ctx, TypeSystem.ServiceParseOptions);
+                    CodeGeneratorUtil.BuildUsedEnum(DesignContext, modelNode, ctx, DesignContext.ServiceParseOptions);
                     break;
                 default:
                     throw new NotImplementedException($"{modelNode.Model.ModelType}");

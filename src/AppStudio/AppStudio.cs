@@ -65,7 +65,7 @@ public sealed class AppStudio : View
                     : new ClientMetadataReferenceProvider();
             await MetadataReferences.InitAsync(metadataReferenceProvider);
             //开始加载DesignTree
-            _designContext.TypeSystem.InitWorkspace();
+            _designContext.InitWorkspace();
             await _designContext.DesignUIService.LoadDesignTreeAsync();
         }
         catch (Exception e)

@@ -11,11 +11,11 @@ internal static class FormatDocument
 {
     public static async Task<IList<TextChange>> Execute(DesignContext context, DocumentId docId)
     {
-        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
+        var doc = context.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
             throw new Exception($"Can't find document: {docId}");
 
-        var opts = GetFormatOptions(context.TypeSystem.Workspace.Options); //TODO: cache OptionSet?
+        var opts = GetFormatOptions(context.Workspace.Options); //TODO: cache OptionSet?
         var newDoc = await Formatter.FormatAsync(doc, opts).ConfigureAwait(false);
         var changes = await newDoc.GetTextChangesAsync(doc).ConfigureAwait(false);
         return changes

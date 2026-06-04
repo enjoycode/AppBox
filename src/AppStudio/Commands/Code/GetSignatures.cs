@@ -12,7 +12,7 @@ internal static class GetSignatures
         if (modelNode == null)
             throw new Exception($"Can't find model: {modelId}");
 
-        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
+        var doc = context.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId!);
         if (doc == null)
             throw new Exception($"Can't find document: {modelNode.Model.Name}");
 

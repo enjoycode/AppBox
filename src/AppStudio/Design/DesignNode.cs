@@ -90,7 +90,7 @@ public abstract class DesignNode : IComparable<DesignNode>
                 var modelNode = (ModelNode)this;
                 modelNode.Model = res.ModelWithNewVersion;
                 //更新为新模型的虚拟代码
-                await DesignContext.TypeSystem.UpdateModelDocumentAsync(modelNode);
+                await DesignContext.UpdateModelDocumentAsync(modelNode);
             }
 
             //更新当前节点的签出信息

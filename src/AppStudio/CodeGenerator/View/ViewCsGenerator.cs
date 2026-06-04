@@ -17,8 +17,8 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
         Debug.Assert(modelNode.Model.ModelType == ModelType.View);
 
         //开始转换编译视图模型的运行时代码
-        var srcPrjId = context.TypeSystem.ViewsProjectId;
-        var srcProject = context.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
+        var srcPrjId = context.ViewsProjectId;
+        var srcProject = context.Workspace.CurrentSolution.GetProject(srcPrjId);
         var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
 
         //始终检查语义错误，防止同步过程出现问题
@@ -62,7 +62,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
         var newRootNode = Visit(await SemanticModel.SyntaxTree.GetRootAsync());
         var docName = $"{AppName}.Views.{ViewModel.Name}";
         return SyntaxFactory.SyntaxTree(newRootNode,
-            options: TypeSystem.ParseOptions,
+            options: DesignContext.ParseOptions,
             path: docName + ".cs",
             encoding: Encoding.UTF8);
     }
@@ -103,7 +103,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
     {
         if (_usedModels.Count == 0) return;
 
-        var parseOpts = TypeSystem.ViewParseOptions;
+        var parseOpts = DesignContext.ViewParseOptions;
 
         //开始生成依赖模型的运行时代码
         foreach (var usedModel in _usedModels)

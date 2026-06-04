@@ -21,7 +21,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
 
         _prjId = ProjectId.CreateNewId();
         _docId = DocumentId.CreateNewId(_prjId);
-        _textBuffer = new RoslynSourceText(designContext.TypeSystem.Workspace, _docId);
+        _textBuffer = new RoslynSourceText(designContext.Workspace, _docId);
         _controller = new CodeEditorController(
             "Expression.cs",
             _textBuffer,
@@ -56,7 +56,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
         if (_textBuffer.HasOpen) return;
 
         var projectName = $"{_expressionInfo.Owner.Name}_EXP";
-        _designContext.TypeSystem.CreateExpressionProject(_prjId, _docId, projectName, _expressionInfo.PartialCode);
+        _designContext.CreateExpressionProject(_prjId, _docId, projectName, _expressionInfo.PartialCode);
 
         await _textBuffer.Open();
         _textBuffer.SetContent(BuildCode());
@@ -67,8 +67,8 @@ internal sealed class ExpressionEditor : SingleChildWidget
     {
         if (!_textBuffer.HasOpen) return;
 
-        _designContext.TypeSystem.RemoveDocument(_docId);
-        _designContext.TypeSystem.RemoveProject(_prjId);
+        _designContext.RemoveDocument(_docId);
+        _designContext.RemoveProject(_prjId);
     }
 
     private string BuildCode()

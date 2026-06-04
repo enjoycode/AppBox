@@ -12,9 +12,9 @@ internal static class GetServiceMethod
     internal static async Task<ServiceMethodInfo> GetByPosition(DesignContext ctx, ModelNode modelNode, int position)
     {
         //定位服务入口方法
-        var doc = ctx.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
+        var doc = ctx.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
         var semanticModel = await doc!.GetSemanticModelAsync();
-        var symbol = await SymbolFinder.FindSymbolAtPositionAsync(semanticModel!, position, ctx.TypeSystem.Workspace);
+        var symbol = await SymbolFinder.FindSymbolAtPositionAsync(semanticModel!, position, ctx.Workspace);
         return GetBySymbol(symbol, modelNode);
     }
 
@@ -28,7 +28,7 @@ internal static class GetServiceMethod
         if (modelNode == null)
             throw new Exception("Can't find service model node");
 
-        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
+        var doc = context.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId);
         var semanticModel = await doc!.GetSemanticModelAsync();
         var rootNode = await doc!.GetSyntaxRootAsync();
         var method = rootNode!.DescendantNodes()

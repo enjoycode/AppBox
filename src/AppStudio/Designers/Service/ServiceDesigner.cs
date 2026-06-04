@@ -14,7 +14,7 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
     {
         ModelNode = modelNode;
         _designContext = designContext;
-        _textBuffer = new RoslynSourceText(designContext.TypeSystem.Workspace, modelNode.RoslynDocumentId!);
+        _textBuffer = new RoslynSourceText(designContext.Workspace, modelNode.RoslynDocumentId!);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
             new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.RoslynDocumentId);
         _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(_designContext, e);
@@ -212,12 +212,12 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
         var serviceProjectId = ModelNode.ServiceProjectId!;
         foreach (var dep in removed)
         {
-            _designContext.TypeSystem.RemoveMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
+            _designContext.RemoveMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
         }
 
         foreach (var dep in added)
         {
-            _designContext.TypeSystem.AddMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
+            _designContext.AddMetadataReference(serviceProjectId, dep.Type, dep.AssemblyName, appName);
         }
     }
 

@@ -64,7 +64,7 @@ internal static class ModelCreator
 
         await node.SaveAsync(codeStream);
         //创建RoslynDocument
-        await context.TypeSystem.CreateModelDocumentAsync(node, initSrcCode);
+        await context.CreateModelDocumentAsync(node, initSrcCode);
 
         return new NewNodeResult(parentNode.Type, parentNode.Id, node,
             modelRootNodeHasCheckout ? null : modelRootNode.Id, insertIndex);

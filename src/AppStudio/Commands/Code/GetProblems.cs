@@ -6,7 +6,7 @@ internal static class GetProblems
 {
     internal static async Task<IList<CodeProblem>> Execute(DesignContext context, ModelNode modelNode)
     {
-        var document = context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
+        var document = context.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
         var semanticModel = await document.GetSemanticModelAsync();
         return semanticModel!.GetDiagnostics()
             .Select(MakeProblem)

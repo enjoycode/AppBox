@@ -111,7 +111,7 @@ internal sealed class DeleteCommand : DesignCommand
         // 移除对应节点
         modelRootNode.RemoveModel(node);
         // 删除Roslyn相关
-        context.TypeSystem.RemoveAllDocuments(node);
+        context.RemoveAllDocuments(node);
 
         return rootNodeHasCheckout ? null : modelRootNode;
     }
@@ -166,7 +166,7 @@ internal sealed class DeleteCommand : DesignCommand
             }
 
             //删除所有Roslyn相关
-            context.TypeSystem.RemoveAllDocuments(modelNode);
+            context.RemoveAllDocuments(modelNode);
         }
 
         //加入待删除的根级文件夹

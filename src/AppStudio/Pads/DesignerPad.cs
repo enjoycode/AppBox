@@ -114,7 +114,7 @@ internal sealed class DesignerPad : View
             if (modelNode.ModelType is ModelType.Service or ModelType.View)
             {
                 var docId = modelNode.RoslynDocumentId!;
-                var workspace = _designContext.TypeSystem.Workspace;
+                var workspace = _designContext.Workspace;
                 if (workspace.IsDocumentOpen(docId))
                     workspace.CloseDocument(docId);
             }

@@ -57,7 +57,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
             _hasLoadSourceCode = true;
 
             await using var ms = new MemoryStream(2048);
-            await _designContext.TypeSystem.DownloadSourceCode(ms, ModelNode);
+            await _designContext.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
                 var jsonReader = new Utf8JsonReader(ms.GetBuffer().AsSpan(0, (int)ms.Length));

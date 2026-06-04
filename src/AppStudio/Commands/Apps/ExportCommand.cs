@@ -1,7 +1,6 @@
 using System.IO.Compression;
 using AppBoxClient;
 using AppBoxCore;
-using AppBoxCore.Channel;
 using PixUI;
 using PixUI.Platform;
 
@@ -126,7 +125,7 @@ internal sealed class ExportCommand : DesignCommand
                 {
                     await using var streamWriter = new StreamWriter(tempFile.FileStream, leaveOpen: true);
                     //1.先将代码写入临时文件
-                    var doc = Context.TypeSystem.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
+                    var doc = Context.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
                     var srcText = await doc.GetTextAsync();
                     srcText.Write(streamWriter);
 
@@ -152,7 +151,7 @@ internal sealed class ExportCommand : DesignCommand
                 try
                 {
                     //1.从服务端下载代码
-                    await Context.TypeSystem.DownloadSourceCode(tempFile.FileStream, modelNode);
+                    await Context.DownloadSourceCode(tempFile.FileStream, modelNode);
                     tempFile.FileStream.Position = 0;
 
                     //2.开始写入

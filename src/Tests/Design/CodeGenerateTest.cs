@@ -113,7 +113,7 @@ public class CodeGenerateTest
         var designHub = await DesignHelper.MockDesignContext();
         var serviceNode = designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!;
         var serviceModel = (ServiceModel)serviceNode.Model;
-        var doc = designHub.TypeSystem.Workspace.CurrentSolution.GetDocument(serviceNode.RoslynDocumentId)!;
+        var doc = designHub.Workspace.CurrentSolution.GetDocument(serviceNode.RoslynDocumentId)!;
         var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(doc!, "sys", serviceModel);
         Console.WriteLine(proxyCode);
     }

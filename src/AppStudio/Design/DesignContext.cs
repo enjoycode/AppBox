@@ -3,7 +3,7 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public sealed class DesignContext : IModelContainer, IDisposable
+public sealed partial class DesignContext : IModelContainer, IDisposable
 {
     static DesignContext()
     {
@@ -16,7 +16,7 @@ public sealed class DesignContext : IModelContainer, IDisposable
         SessionName = sessionName;
         LeafOrgUnitId = leafOrgUnitId;
 
-        TypeSystem = new TypeSystem(this);
+        Workspace = new ModelWorkspace(new HostServicesAggregator());
         DesignTree = new DesignTree(this);
 
         RuntimeContext.Init(new DesignTimeContext(this), null); //TODO: fix
@@ -25,7 +25,6 @@ public sealed class DesignContext : IModelContainer, IDisposable
     internal readonly string SessionName;
     internal readonly Guid LeafOrgUnitId;
     public readonly DesignTree DesignTree;
-    internal readonly TypeSystem TypeSystem;
     internal ICheckoutService CheckoutService { get; private set; } = null!;
     internal IStagedService StagedService { get; private set; } = null!;
     internal IMetaStoreService MetaStoreService { get; private set; } = null!;
@@ -51,10 +50,7 @@ public sealed class DesignContext : IModelContainer, IDisposable
         PublishService = publishService;
     }
 
-    public void Dispose()
-    {
-        TypeSystem.Dispose();
-    }
+    public void Dispose() => Workspace.Dispose();
 
     /// <summary>
     /// 根据签出信息及删除信息获取变更项

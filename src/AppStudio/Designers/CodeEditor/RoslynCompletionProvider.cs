@@ -24,7 +24,7 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
                     WantsType.WantReturnType; //暂默认
 
         var docId = (DocumentId)document.Tag!;
-        var doc = _designContext.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
+        var doc = _designContext.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
             throw new Exception($"Can't find document: {docId}");
 
@@ -39,8 +39,7 @@ internal sealed class RoslynCompletionProvider : ICompletionProvider
         // get recommened symbols to match them up later with SymbolCompletionProvider
         var semanticModel = await doc.GetSemanticModelAsync();
         var recommendedSymbols = await
-            Recommender.GetRecommendedSymbolsAtPositionAsync(semanticModel!, offset,
-                _designContext.TypeSystem.Workspace);
+            Recommender.GetRecommendedSymbolsAtPositionAsync(semanticModel!, offset, _designContext.Workspace);
         var completions = new List<ICompletionItem>(completionList.Items.Length);
         foreach (var item in completionList.Items)
         {

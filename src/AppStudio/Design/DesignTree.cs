@@ -100,14 +100,14 @@ public sealed class DesignTree
         //5.在所有节点加载完后创建模型对应的RoslynDocument
         foreach (var modelNode in allModelNodes)
         {
-            await DesignContext.TypeSystem.CreateModelDocumentAsync(modelNode);
+            await DesignContext.CreateModelDocumentAsync(modelNode);
         }
 
         Staged = null;
         Interlocked.Exchange(ref _loadingFlag, 0);
 
 #if DEBUG
-        DesignContext.TypeSystem.DumpAllProjectErrors();
+        DesignContext.DumpAllProjectErrors();
 #endif
     }
 

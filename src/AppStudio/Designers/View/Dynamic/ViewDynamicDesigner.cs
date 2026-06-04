@@ -116,7 +116,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         try
         {
             using var ms = new MemoryStream(2048);
-            await _designContext.TypeSystem.DownloadSourceCode(ms, ModelNode);
+            await _designContext.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
                 _designController.Load(ms.GetBuffer().AsSpan(0, (int)ms.Length));

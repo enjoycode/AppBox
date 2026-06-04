@@ -22,7 +22,7 @@ internal static class BuildViewPreview
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
             CodeUtil.ViewGlobalUsings() + //[assembly:TargetFramework(".NETStandard, Version = v2.1")]
             $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]",
-            TypeSystem.ParseOptions);
+            DesignContext.ParseOptions);
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)
             .WithNullableContextOptions(NullableContextOptions.Enable)
             .WithOptimizationLevel(OptimizationLevel.Debug);

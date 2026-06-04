@@ -133,7 +133,7 @@ internal sealed class ImportCommand : DesignCommand
                 srcCode = await stringReader.ReadToEndAsync();
             }
 
-            await Context.TypeSystem.CreateModelDocumentAsync(modelNode, srcCode);
+            await Context.CreateModelDocumentAsync(modelNode, srcCode);
         }
     }
 
@@ -232,7 +232,7 @@ internal sealed class ImportCommand : DesignCommand
                 await modelNode.SaveAsync(null);
             else if (modelNode.Model.PersistentState == PersistentState.Detached)
                 await Context.StagedService.DeleteModelAsync(modelNode.Model.Id);
-            Context.TypeSystem.RemoveAllDocuments(modelNode);
+            Context.RemoveAllDocuments(modelNode);
         }
 
         //4.2 再重新添加
@@ -251,7 +251,7 @@ internal sealed class ImportCommand : DesignCommand
                 srcCode = await stringReader.ReadToEndAsync();
             }
 
-            await Context.TypeSystem.CreateModelDocumentAsync(modelNode, srcCode);
+            await Context.CreateModelDocumentAsync(modelNode, srcCode);
         }
 
         //5.保存依赖的第三方库 TODO:比较移除不再依赖的

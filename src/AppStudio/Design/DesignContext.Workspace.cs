@@ -7,26 +7,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using PixUI;
 
+
 namespace AppBoxDesign;
 
-/// <summary>
-/// Roslyn的Workspace及各个Project的管理，每个开发人员的设计时上下文对应一个TypeSystem实例
-/// </summary>
-internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorkspace
+partial class DesignContext
 {
-    public TypeSystem(DesignContext designContext)
-    {
-        DesignContext = designContext;
-        Workspace = new ModelWorkspace(new HostServicesAggregator());
-
-        ModelProjectId = ProjectId.CreateNewId();
-        ViewsProjectId = ProjectId.CreateNewId();
-        ServiceBaseProjectId = ProjectId.CreateNewId();
-        ServiceProxyProjectId = ProjectId.CreateNewId();
-    }
-
-    internal readonly DesignContext DesignContext;
-
     //统一AssemblyName,方便ModelProject InternalVisibleTo
     private const string DesignTimeServiceAssemblyName = "DesignTimeService";
 
@@ -38,22 +23,22 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
     /// <summary>
     /// 通用模型的虚拟工程标识
     /// </summary>
-    internal readonly ProjectId ModelProjectId;
+    internal readonly ProjectId ModelProjectId = ProjectId.CreateNewId();
 
     /// <summary>
     /// 用于Web的视图模型的虚拟工程标识
     /// </summary>
-    internal readonly ProjectId ViewsProjectId;
+    internal readonly ProjectId ViewsProjectId = ProjectId.CreateNewId();
 
     /// <summary>
     /// 服务模型的通用虚拟工程标识
     /// </summary>
-    internal readonly ProjectId ServiceBaseProjectId;
+    internal readonly ProjectId ServiceBaseProjectId = ProjectId.CreateNewId();
 
     /// <summary>
     /// 服务代理虚拟工程标识号
     /// </summary>
-    internal readonly ProjectId ServiceProxyProjectId;
+    internal readonly ProjectId ServiceProxyProjectId = ProjectId.CreateNewId();
 
     private static readonly CSharpCompilationOptions DllCompilationOptions =
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
@@ -262,7 +247,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
         {
             try
             {
-                await DesignContext.StagedService.DownloadCodeAsync(toStream, node.Model.Id);
+                await StagedService.DownloadCodeAsync(toStream, node.Model.Id);
             }
             catch (Exception)
             {
@@ -271,7 +256,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
         }
 
         if (toStream.Length == 0) //从MetaStore加载
-            await DesignContext.MetaStoreService.DownloadModelCodeAsync(toStream, node.Model.Id);
+            await MetaStoreService.DownloadModelCodeAsync(toStream, node.Model.Id);
     }
 
     /// <summary>
@@ -468,7 +453,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
             ;
         if (!string.IsNullOrEmpty(partialCode))
         {
-            newSolution = newSolution.AddDocument(DocumentId.CreateNewId(prjId), "Partial.cs",  partialCode);
+            newSolution = newSolution.AddDocument(DocumentId.CreateNewId(prjId), "Partial.cs", partialCode);
         }
 
         if (!Workspace.TryApplyChanges(newSolution))
@@ -606,7 +591,7 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
                     var modelId = DocNameUtil.TryGetModelIdFromDocName(filePath);
                     if (modelId != null)
                     {
-                        var modelNode = DesignContext.DesignTree.FindModelNode(modelId.Value);
+                        var modelNode = DesignTree.FindModelNode(modelId.Value);
                         if (modelNode != null)
                             modelName = $"{modelNode.AppNode.Label}.{modelNode.Label}";
                     }
@@ -618,6 +603,4 @@ internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorksp
     }
 
     #endregion
-
-    public void Dispose() => Workspace.Dispose();
 }

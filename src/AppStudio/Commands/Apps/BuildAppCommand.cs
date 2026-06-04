@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-using AppBoxClient;
 using AppBoxCore;
 using AppBoxCore.Channel;
 using Microsoft.CodeAnalysis;
@@ -114,8 +113,8 @@ internal sealed class BuildAppCommand : DesignCommand
                 var viewModel = (ViewModel)modelNode.Model;
                 if (viewModel.ViewType == ViewModelType.PixUI)
                 {
-                    var srcPrjId = context.TypeSystem.ViewsProjectId;
-                    var srcProject = context.TypeSystem.Workspace.CurrentSolution.GetProject(srcPrjId);
+                    var srcPrjId = context.ViewsProjectId;
+                    var srcProject = context.Workspace.CurrentSolution.GetProject(srcPrjId);
                     var srcDocument = srcProject!.GetDocument(modelNode.RoslynDocumentId!)!;
                     var syntaxTree = await srcDocument.GetSyntaxTreeAsync();
                     if (syntaxTree == null) continue;
@@ -284,7 +283,7 @@ internal sealed class BuildAppContext
     public BuildAppContext(DesignContext context)
     {
         _context = context;
-        _modelsProject = context.TypeSystem.Workspace.CurrentSolution.GetProject(context.TypeSystem.ModelProjectId)!;
+        _modelsProject = context.Workspace.CurrentSolution.GetProject(context.ModelProjectId)!;
     }
 
     private readonly DesignContext _context;
@@ -505,7 +504,7 @@ internal sealed class AssemblyInfo : IEqualityComparer<AssemblyInfo>
                 ? CodeUtil.ViewGlobalUsings()
                 : "" +
                   $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]",
-            TypeSystem.ParseOptions)
+            DesignContext.ParseOptions)
         );
 
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false)

@@ -15,23 +15,23 @@ public sealed class ModelNode : DesignNode
         switch (model.ModelType)
         {
             case ModelType.Entity:
-                RoslynDocumentId = DocumentId.CreateNewId(context.TypeSystem.ModelProjectId);
-                ExtRoslynDocumentId = DocumentId.CreateNewId(context.TypeSystem.ViewsProjectId /*暂直接放在视图工程内*/);
+                RoslynDocumentId = DocumentId.CreateNewId(context.ModelProjectId);
+                ExtRoslynDocumentId = DocumentId.CreateNewId(context.ViewsProjectId /*暂直接放在视图工程内*/);
                 break;
             case ModelType.View:
-                RoslynDocumentId = DocumentId.CreateNewId(context.TypeSystem.ViewsProjectId);
+                RoslynDocumentId = DocumentId.CreateNewId(context.ViewsProjectId);
                 break;
             case ModelType.Service:
                 ServiceProjectId = ProjectId.CreateNewId();
                 RoslynDocumentId = DocumentId.CreateNewId(ServiceProjectId);
-                ExtRoslynDocumentId = DocumentId.CreateNewId(context.TypeSystem.ServiceProxyProjectId);
+                ExtRoslynDocumentId = DocumentId.CreateNewId(context.ServiceProxyProjectId);
                 break;
             case ModelType.Permission:
-                RoslynDocumentId = DocumentId.CreateNewId(context.TypeSystem.ServiceBaseProjectId);
-                ExtRoslynDocumentId = DocumentId.CreateNewId(context.TypeSystem.ViewsProjectId);
+                RoslynDocumentId = DocumentId.CreateNewId(context.ServiceBaseProjectId);
+                ExtRoslynDocumentId = DocumentId.CreateNewId(context.ViewsProjectId);
                 break;
             case ModelType.Enum:
-                RoslynDocumentId = DocumentId.CreateNewId(context.TypeSystem.ModelProjectId);
+                RoslynDocumentId = DocumentId.CreateNewId(context.ModelProjectId);
                 break;
         }
     }
@@ -105,14 +105,14 @@ public sealed class ModelNode : DesignNode
             }
             else
             {
-                var typeSystem = DesignTree!.DesignContext.TypeSystem;
+                var designContext = DesignTree!.DesignContext;
                 //注意：不在此更新RoslynDocument, 实体模型通过设计命令更新,服务模型通过前端代码编辑器实时更新
                 if (IsCodable)
                 {
                     using var ms = new MemoryStream(); //Should use temp file
                     await using var streamWriter = new StreamWriter(ms, leaveOpen: true);
 
-                    var doc = typeSystem.Workspace.CurrentSolution.GetDocument(RoslynDocumentId)!;
+                    var doc = designContext.Workspace.CurrentSolution.GetDocument(RoslynDocumentId)!;
                     var srcText = await doc.GetTextAsync();
                     srcText.Write(streamWriter);
 
@@ -122,7 +122,7 @@ public sealed class ModelNode : DesignNode
 
                     //如果是非新建的服务模型需要更新服务代理(注意用utf8CodeStream判断是否刚创建的)
                     if (Model.ModelType == ModelType.Service)
-                        await typeSystem.UpdateServiceProxyDocumentAsync(this);
+                        await designContext.UpdateServiceProxyDocumentAsync(this);
                 }
             }
         }

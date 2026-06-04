@@ -95,7 +95,7 @@ internal sealed class PublishCommand : DesignCommand
         var appName = designNode.AppNode.Model.Name;
 
         //获取RoslynDocument并检测语义错误
-        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
+        var doc = context.Workspace.CurrentSolution.GetDocument(designNode.RoslynDocumentId)!;
         var semanticModel = await doc.GetSemanticModelAsync();
         if (semanticModel == null) throw new Exception("Can't get SemanticModel");
         CodeGeneratorUtil.CheckSemantic(semanticModel, designNode);
@@ -107,7 +107,7 @@ internal sealed class PublishCommand : DesignCommand
 
         var docName = $"{appName}.Services.{model.Name}";
         var newTree = SyntaxFactory.SyntaxTree(newRootNode, path: docName + ".cs",
-            options: TypeSystem.ParseOptions,
+            options: DesignContext.ParseOptions,
             encoding: Encoding.UTF8);
 
         //生成服务模型依赖的其他模型的运行时代码
@@ -119,7 +119,7 @@ internal sealed class PublishCommand : DesignCommand
         var usingAndVersionTree = SyntaxFactory.ParseSyntaxTree(
             CodeUtil.ServiceGlobalUsings() +
             $"using System.Reflection;using System.Runtime.CompilerServices;using System.Runtime.Versioning;[assembly: AssemblyVersion(\"{asmVersion}\")]",
-            TypeSystem.ParseOptions);
+            DesignContext.ParseOptions);
         var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary /*, false*/)
             .WithNullableContextOptions(NullableContextOptions.Enable)
             .WithOptimizationLevel(forDebug ? OptimizationLevel.Debug : OptimizationLevel.Release);

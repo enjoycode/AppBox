@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 internal sealed class ClientMetadataReferenceProvider : IMetadataReferenceProvider
 {
     private readonly string _sdkPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-    private readonly string _appPath = Path.GetDirectoryName(typeof(TypeSystem).Assembly.Location)!;
+    private readonly string _appPath = Path.GetDirectoryName(typeof(AppStudio).Assembly.Location)!;
 
     public ValueTask<MetadataReference> LoadSdkLib(string assemblyName)
     {

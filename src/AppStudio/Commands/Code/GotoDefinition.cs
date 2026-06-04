@@ -8,7 +8,7 @@ internal static class GotoDefinition
 {
     internal static async Task<Definition?> Execute(DesignContext context, DocumentId docId, int position)
     {
-        var doc = context.TypeSystem.Workspace.CurrentSolution.GetDocument(docId);
+        var doc = context.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
             throw new Exception($"Can't find document: {docId}");
 
@@ -49,7 +49,7 @@ internal static class GotoDefinition
         if (targetModelNode.Model.ModelType == ModelType.Service)
         {
             //到这里肯定是服务代理类的方法，需要转换定位至服务代码的相应位置
-            var methodSymbol = await context.TypeSystem.GetServiceMethodSymbolAsync(targetModelNode, symbol.Name);
+            var methodSymbol = await context.GetServiceMethodSymbolAsync(targetModelNode, symbol.Name);
             var newLoc = methodSymbol?.Locations[0];
             return new Definition(targetModelNode, newLoc?.SourceSpan.Start ?? -1, newLoc?.SourceSpan.Length ?? -1);
         }
