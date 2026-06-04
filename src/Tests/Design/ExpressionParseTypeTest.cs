@@ -1,6 +1,7 @@
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxDesign.CodeGenerator;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Framework;
 
@@ -25,7 +26,9 @@ public class ExpressionParseTypeTest
                         static {{returnType}} M()=>throw new Exception();
                      }
                      """;
-        var semanticModel = ExpressionParser.Parse(code, out var root);
+        var syntaxTree = ExpressionParser.Parse(code);
+        var root = syntaxTree.GetCompilationUnitRoot();
+        var semanticModel = ExpressionParser.GetSemanticModel(syntaxTree);
 
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
         var parser = new ExpressionParser(semanticModel);

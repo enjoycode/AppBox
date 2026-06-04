@@ -1,5 +1,6 @@
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace AppBoxDesign.CodeGenerator;
 
@@ -106,4 +107,19 @@ internal partial class ExpressionParser
             convertedType = MakeTypeInfo(typeInfo.ConvertedType!);
         return convertedType;
     }
+
+    private static BinaryOperatorType GetBinaryOperator(SyntaxToken token) => token.Kind() switch
+    {
+        SyntaxKind.PlusToken => BinaryOperatorType.Add,
+        SyntaxKind.MinusToken => BinaryOperatorType.Subtract,
+        SyntaxKind.AsteriskToken => BinaryOperatorType.Multiply,
+        SyntaxKind.SlashToken => BinaryOperatorType.Divide,
+        SyntaxKind.EqualsEqualsToken => BinaryOperatorType.Equal,
+        SyntaxKind.ExclamationEqualsToken => BinaryOperatorType.NotEqual,
+        SyntaxKind.GreaterThanToken => BinaryOperatorType.Greater,
+        SyntaxKind.GreaterThanEqualsToken => BinaryOperatorType.GreaterOrEqual,
+        SyntaxKind.LessThanToken => BinaryOperatorType.Less,
+        SyntaxKind.LessThanEqualsToken => BinaryOperatorType.LessOrEqual,
+        _ => throw new NotImplementedException($"Binary Operator: {token}")
+    };
 }

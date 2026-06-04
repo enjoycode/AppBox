@@ -14,18 +14,24 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
 
     private readonly SemanticModel _semanticModel;
 
-    public static SemanticModel Parse(string code, out CompilationUnitSyntax root)
+    public static SyntaxTree Parse(string code)
     {
-        var parseOptions = new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp11);
+        var parseOptions = new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp13);
+        return CSharpSyntaxTree.ParseText(code, parseOptions);
+    }
+
+    /// <summary>
+    /// 获取SemanticModel,并检查语义错误
+    /// </summary>
+    public static SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
+    {
         var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
             .WithNullableContextOptions(NullableContextOptions.Enable);
 
-        var tree = CSharpSyntaxTree.ParseText(code, parseOptions);
-        root = tree.GetCompilationUnitRoot();
         var compilation = CSharpCompilation.Create("Expression", options: compilationOptions)
             .AddReferences(MetadataReferences.CoreLib)
-            .AddSyntaxTrees(tree);
-        var semanticModel = compilation.GetSemanticModel(tree);
+            .AddSyntaxTrees(syntaxTree);
+        var semanticModel = compilation.GetSemanticModel(syntaxTree);
         var diagnostics = (IEnumerable<Diagnostic>)semanticModel.GetDiagnostics();
         var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
         if (errors > 0)
@@ -35,7 +41,9 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
 
     public static Expression ParseCode(string code, bool singleLine = true)
     {
-        var semanticModel = Parse(code, out var root);
+        var syntaxTree = CSharpSyntaxTree.ParseText(code);
+        var root = syntaxTree.GetCompilationUnitRoot();
+        var semanticModel = GetSemanticModel(syntaxTree);
 
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
         if (methodDecl.Body is { Statements.Count: > 1 })

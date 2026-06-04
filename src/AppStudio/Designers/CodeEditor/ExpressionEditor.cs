@@ -1,6 +1,9 @@
 using System.Text;
 using AppBoxCore;
+using AppBoxDesign.CodeGenerator;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PixUI;
 using PixUI.CodeEditor;
 
@@ -94,12 +97,39 @@ internal sealed class ExpressionEditor : SingleChildWidget
         sb.Append('}');
         return sb.ToString();
     }
+
+    public Expression? ParseToExpression()
+    {
+        var srcCode = _controller.Document.TextContent + _expressionInfo.PartialCode;
+        var syntaxTree = ExpressionParser.Parse(srcCode);
+        //先判断有无表达式，即Body是否为空
+        var root = syntaxTree.GetCompilationUnitRoot();
+        var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault();
+        if (methodDecl == null) return null;
+        if (methodDecl.ExpressionBody != null) throw new NotImplementedException("Parse expression body");
+        if (methodDecl.Body == null || methodDecl.Body.Statements.Count == 0) return null;
+        //检查语义
+        var semanticModel = ExpressionParser.GetSemanticModel(syntaxTree);
+        SyntaxNode targetNode = methodDecl.Body;
+        if (methodDecl.Body.Statements is [ReturnStatementSyntax returnStatement])
+        {
+            // Single line return statement
+            targetNode = returnStatement.Expression!;
+        }
+
+        //开始转换为表达式
+        var parser = new ExpressionParser(semanticModel);
+        return parser.Visit(targetNode).Expression;
+    }
 }
 
 internal sealed class ExpressionInfo
 {
     public ModelBase Owner { get; init; } = null!;
+
     public bool IsStatic { get; init; }
+
+    // public bool IsIgnoreThis { get; init; } = true;
     public bool IsPartial => !string.IsNullOrEmpty(PartialCode);
     public required string ClassName { get; init; }
     public required string MethodName { get; init; }

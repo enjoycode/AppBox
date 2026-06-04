@@ -9,6 +9,7 @@ internal abstract class ListEditorBase<T> : SingleChildWidget
         PropertyItem = propertyItem;
         _listController = new ListViewController<T>();
         DataSources = (IList<T>)PropertyItem.ValueGetter()!;
+        if (DataSources.Count > 0) SelectedIndex.Value = 0; //默认选择第一项
 
         Height = 100;
 

@@ -12,7 +12,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// Roslyn的Workspace及各个Project的管理，每个开发人员的设计时上下文对应一个TypeSystem实例
 /// </summary>
-internal sealed class TypeSystem : IDisposable
+internal sealed class TypeSystem : IDisposable //TODO:考虑合并至ModelWorkspace
 {
     public TypeSystem(DesignHub designHub)
     {

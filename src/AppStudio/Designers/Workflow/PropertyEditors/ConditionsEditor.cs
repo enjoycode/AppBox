@@ -22,13 +22,23 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
     private WorkflowModel WorkflowModel =>
         ((WorkflowDiagramService)ActivityDesigner.Surface!.DiagramService).WorkflowModel;
 
-    protected override void OnEdit()
+    protected override async void OnEdit()
     {
         if (SelectedIndex.Value < 0) return;
 
         var link = DataSources[SelectedIndex.Value];
         var dlg = new ConditionDialog(_designContext, WorkflowModel, ActivityDesigner.Node, link);
-        dlg.Show();
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
+
+        try
+        {
+            link.Condition = dlg.ParseToExpression();
+        }
+        catch (Exception e)
+        {
+            Notification.Error($"Can't parse expression: {e.Message}");
+        }
     }
 
     protected override void OnRemove()
@@ -49,33 +59,47 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
         public ConditionDialog(DesignHub designContext, WorkflowModel workflowModel, ActivityNode node,
             ConditionLink link)
         {
-            _designContext = designContext;
-
             Title.Value = "Condition Editor";
             Width = 580;
             Height = 400;
 
-            _expressionInfo = MakeExpressionInfo(workflowModel, node, link);
+
             _nameState = new RxProxy<string>(() => link.Name ?? "[Unnamed]", v => link.Name = v);
+            var expressionInfo = MakeExpressionInfo(workflowModel, node, link);
+            _expressionEditor = new ExpressionEditor(designContext, expressionInfo);
         }
 
-        private readonly DesignHub _designContext;
         private readonly State<string> _nameState;
-        private readonly ExpressionInfo _expressionInfo;
+        private readonly ExpressionEditor _expressionEditor;
+
+        public Expression? ParseToExpression() => _expressionEditor.ParseToExpression();
 
         private static ExpressionInfo MakeExpressionInfo(WorkflowModel workflowModel, ActivityNode activityNode,
-            ConditionLink condition)
+            ConditionLink link)
         {
-            var methodName = "Expression";
-            if (activityNode is DecisionNode decisionNode && CodeUtil.IsValidIdentifier(decisionNode.Title))
-                methodName = decisionNode.Title;
+            // var methodName = "Expression";
+            // if (activityNode is DecisionNode decisionNode && CodeUtil.IsValidIdentifier(decisionNode.Title))
+            //     methodName = decisionNode.Title;
+
+            //构建表达式代码
+            var expressionCode = string.Empty;
+            if (!Expression.IsNull(link.Condition))
+            {
+                //TODO:判断BlockExpression,不需要附加return,但附加preTabs
+                var sb = new StringBuilder();
+                sb.Append("        return ");
+                link.Condition!.ToCode(sb, 0); //TODO: use ExpressionToCSharpCode
+                sb.Append(";\n");
+                expressionCode = sb.ToString();
+            }
 
             return new ExpressionInfo()
             {
                 Owner = workflowModel,
                 ClassName = workflowModel.Name,
                 ReturnType = "bool",
-                MethodName = methodName,
+                MethodName = "Expression",
+                ExpressionCode = expressionCode,
                 PartialCode = BuildWorkflowPartialCode(workflowModel),
                 IsStatic = false,
             };
@@ -118,7 +142,7 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
                     Children =
                     [
                         new Row { Children = [new Text("Title:"), new TextInput(_nameState)] },
-                        new ExpressionEditor(_designContext, _expressionInfo)
+                        _expressionEditor
                     ]
                 }
             };
