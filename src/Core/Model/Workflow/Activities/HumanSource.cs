@@ -32,7 +32,7 @@ public sealed class HumanSource : IBinSerializable
     /// </remarks>
     public Expression? OrgUnitExpression
     {
-        private get => _ouExpression;
+        get => _ouExpression;
         set
         {
             _ouExpression = value;

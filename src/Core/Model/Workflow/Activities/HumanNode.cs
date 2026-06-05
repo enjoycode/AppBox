@@ -7,7 +7,7 @@ public abstract class HumanNode : ActivityNode
 {
     #region ====Fields====
 
-    private Expression? _formView; // e.View = new erp.Forms.LeaveView
+    private ModelId? _formModelId;
     private Expression? _notificationExpression; //发送通知服务，不设置则不调用
 
     #endregion
@@ -24,10 +24,10 @@ public abstract class HumanNode : ActivityNode
     /// <summary>
     /// 用于设置人工处理时所显示的用户表单界面
     /// </summary>
-    public Expression? FormView
+    public ModelId? FormModelId
     {
-        get => _formView;
-        set => _formView = value;
+        get => _formModelId;
+        set => _formModelId = value;
     }
 
     /// <summary>
@@ -81,10 +81,10 @@ public abstract class HumanNode : ActivityNode
             ws.WriteCollection(HumanSource);
         }
 
-        if (!Expression.IsNull(_formView))
+        if (_formModelId.HasValue)
         {
             ws.WriteFieldId(4);
-            ws.SerializeExpression(_formView);
+            ws.WriteLong(_formModelId.Value);
         }
 
         ws.WriteFieldEnd();
@@ -94,20 +94,19 @@ public abstract class HumanNode : ActivityNode
     {
         base.ReadFrom(ref rs);
 
-        int propIndex;
         do
         {
-            propIndex = rs.ReadFieldId();
+            var propIndex = rs.ReadFieldId();
             switch (propIndex)
             {
                 case 1: rs.ReadCollection(ResultConditions); break;
                 case 2: rs.ReadCollection(Actions); break;
                 case 3: rs.ReadCollection(HumanSource); break;
-                case 4: _formView = (Expression)rs.Deserialize()!; break;
-                case 0: break;
+                case 4: _formModelId = rs.ReadLong(); break;
+                case 0: return;
                 default: throw SerializationException.ReadUnknownField(nameof(HumanNode), propIndex);
             }
-        } while (propIndex != 0);
+        } while (true);
     }
 
     #endregion
