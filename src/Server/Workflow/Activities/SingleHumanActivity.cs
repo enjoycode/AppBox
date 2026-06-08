@@ -9,6 +9,8 @@ public sealed class SingleHumanActivity : HumanActivity
 
     private Activity[] _links;
 
+    public override byte Type => ActivityType.SingleHumanActivity;
+
     internal override void InitActivity(ActivityNode node)
     {
         base.InitActivity(node);
@@ -93,7 +95,7 @@ public sealed class SingleHumanActivity : HumanActivity
         ws.WriteVariant(_links.Length);
         for (var i = 0; i < _links.Length; i++)
         {
-            ws.Serialize(_links[i]);
+            ws.SerializeActivity(_links[i]);
         }
 
         ws.WriteFieldEnd();
@@ -114,7 +116,7 @@ public sealed class SingleHumanActivity : HumanActivity
                     _links = new Activity[count];
                     for (var i = 0; i < count; i++)
                     {
-                        _links[i] = (Activity)rs.Deserialize()!;
+                        _links[i] = rs.DeserializeActivity()!;
                     }
 
                     break;

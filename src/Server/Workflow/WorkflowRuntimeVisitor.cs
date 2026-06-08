@@ -5,17 +5,6 @@ namespace AppBox.Workflow;
 
 public readonly struct WorkflowRuntimeVisitor
 {
-    private static readonly ReadOnlyDictionary<byte, Func<Activity>> Factory = new(
-        new Dictionary<byte, Func<Activity>>()
-        {
-            { ActivityType.StartActivity, () => new StartActivity() },
-            { ActivityType.DecisionActivity, () => new DecisionActivity() },
-            { ActivityType.AutomationActivity, () => new AutomationActivity() },
-            { ActivityType.SingleHumanActivity, () => new SingleHumanActivity() },
-            { ActivityType.MultiHumanActivity, () => new MultiHumanActivity() },
-        }
-    );
-
     public WorkflowRuntimeVisitor() { }
 
     private readonly Dictionary<ActivityNode, Activity> _hasVisits = new();
@@ -26,9 +15,7 @@ public readonly struct WorkflowRuntimeVisitor
             return exists;
 
         //创建相应的Activity，并加入字典表
-        if (!Factory.TryGetValue(node.Type, out var creator))
-            throw new Exception($"Can not find Activity for: {node.GetType()}");
-        var activity = creator();
+        var activity = ActivityFactory.Make(node.Type);
         activity.InitActivity(node);
         _hasVisits.Add(node, activity);
 

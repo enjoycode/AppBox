@@ -8,6 +8,8 @@ public sealed class AutomationActivity : Activity
     private Expression? _expression;
     private Activity? _next;
 
+    public override byte Type => ActivityType.AutomationActivity;
+
     internal override void InitActivity(ActivityNode node)
     {
         base.InitActivity(node);
@@ -36,7 +38,7 @@ public sealed class AutomationActivity : Activity
         ws.WriteFieldId(1);
         ws.SerializeExpression(_expression);
         ws.WriteFieldId(2);
-        ws.Serialize(_next);
+        ws.SerializeActivity(_next);
 
         ws.WriteFieldEnd();
     }
@@ -51,7 +53,7 @@ public sealed class AutomationActivity : Activity
             switch (propIndex)
             {
                 case 1: _expression = (Expression?)rs.Deserialize(); break;
-                case 2: _next = (Activity?)rs.Deserialize(); break;
+                case 2: _next = rs.DeserializeActivity(); break;
                 case 0: return;
                 default: throw SerializationException.ReadUnknownField(nameof(AutomationActivity), propIndex);
             }

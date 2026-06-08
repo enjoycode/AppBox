@@ -235,7 +235,7 @@ public static class OutputStreamExtensions
     /// <summary>
     /// 检查是否已经序列化过，是则写入ObjectRef信息
     /// </summary>
-    private static bool CheckSerialized<T>(ref T s, object obj) where T : struct, IOutputStream
+    public static bool CheckSerialized<T>(this ref T s, object obj) where T : struct, IOutputStream
     {
         var index = s.Context.GetSerializedIndex(obj);
         if (index == -1)
@@ -278,7 +278,7 @@ public static class OutputStreamExtensions
         //检查是否已经序列化过
         if (serializer.TargetType.IsClass && serializer.TargetType != typeof(string))
         {
-            if (CheckSerialized(ref s, value))
+            if (s.CheckSerialized(value))
                 return;
         }
 
@@ -382,7 +382,7 @@ public static class OutputStreamExtensions
             return;
         }
 
-        if (CheckSerialized(ref s, value)) return;
+        if (s.CheckSerialized(value)) return;
 
         s.Context.AddToSerialized(value);
         s.WriteByte((byte)PayloadType.Entity);
@@ -402,7 +402,7 @@ public static class OutputStreamExtensions
         //特殊处理非Root的EntityPathExpression,不用加入已序列化列表
         if (value is not IEntityPathExpression entityPath || Expression.IsNull(entityPath.Owner))
         {
-            if (CheckSerialized(ref s, value!)) return;
+            if (s.CheckSerialized(value!)) return;
             s.Context.AddToSerialized(value!);
         }
 

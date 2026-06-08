@@ -7,11 +7,13 @@ public static class ActivityType
     public const byte DecisionActivity = 2;
     public const byte SingleHumanActivity = 3;
     public const byte MultiHumanActivity = 4;
+    public const byte ForkActivity = 5;
+    public const byte JoinActivity = 6;
 }
 
-public static class ActivityFactory
+public static class ActivityNodeFactory
 {
-    static ActivityFactory()
+    static ActivityNodeFactory()
     {
         Register(ActivityType.StartActivity, () => new StartNode());
         Register(ActivityType.AutomationActivity, () => new AutomationNode());

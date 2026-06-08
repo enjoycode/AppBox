@@ -70,7 +70,7 @@ public class FlowLink : IBinSerializable
                 case 3: _targetConnector = rs.ReadString(); break;
                 case 4:
                 {
-                    Target = ActivityFactory.Make(rs.ReadByte());
+                    Target = ActivityNodeFactory.Make(rs.ReadByte());
                     Target.ReadFrom(ref rs);
                     break;
                 }

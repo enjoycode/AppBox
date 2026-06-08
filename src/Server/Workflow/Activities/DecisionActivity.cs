@@ -13,6 +13,8 @@ public sealed class DecisionActivity : Activity
         _links = links;
     }
 
+    public override byte Type => ActivityType.DecisionActivity;
+
     private Expression?[] _conditions = null!;
     private Activity?[] _links = null!;
 
@@ -83,7 +85,7 @@ public sealed class DecisionActivity : Activity
         ws.WriteVariant(_links.Length);
         for (var i = 0; i < _links.Length; i++)
         {
-            ws.Serialize(_links[i]);
+            ws.SerializeActivity(_links[i]);
         }
 
         ws.WriteFieldEnd();
@@ -115,7 +117,7 @@ public sealed class DecisionActivity : Activity
                     _links = new Activity[count];
                     for (var i = 0; i < count; i++)
                     {
-                        _links[i] = (Activity?)rs.Deserialize();
+                        _links[i] = rs.DeserializeActivity();
                     }
 
                     break;

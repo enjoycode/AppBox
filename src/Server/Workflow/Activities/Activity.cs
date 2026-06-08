@@ -4,8 +4,7 @@ namespace AppBox.Workflow;
 
 public abstract class Activity : IExecuteResult, IBinSerializable
 {
-    //TODO:加入并行分支的属性
-
+    public abstract byte Type { get; }
     public string Title { get; private set; } = string.Empty;
 
     #region ====Init Methods====

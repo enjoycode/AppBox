@@ -58,6 +58,7 @@ namespace AppBoxCore
 
         CheckoutInfo = 66,
         CheckoutResult = 67,
+
         //PendingChange = 68,
         PublishPackage = 69,
         DebugEventArgs = 70,
@@ -69,5 +70,6 @@ namespace AppBoxCore
         PermissionNode = 91,
         DataTable = 92,
         DynamicQuery = 93,
+        Activity = 94,
     }
 }
