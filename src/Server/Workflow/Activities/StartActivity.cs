@@ -19,7 +19,7 @@ public sealed class StartActivity : Activity
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
-        ws.Serialize(this.Next);
+        ws.Serialize(Next);
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)

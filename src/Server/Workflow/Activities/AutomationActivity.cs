@@ -5,7 +5,6 @@ namespace AppBox.Workflow;
 
 public sealed class AutomationActivity : Activity
 {
-    //TODO:重试次数
     private Expression? _expression;
     private Activity? _next;
 

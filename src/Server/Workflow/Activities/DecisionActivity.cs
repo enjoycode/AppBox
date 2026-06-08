@@ -5,8 +5,16 @@ namespace AppBox.Workflow;
 
 public sealed class DecisionActivity : Activity
 {
-    private Expression?[] _conditions;
-    private Activity?[] _links;
+    internal DecisionActivity() { }
+
+    internal DecisionActivity(Expression?[] conditions, Activity?[] links)
+    {
+        _conditions = conditions;
+        _links = links;
+    }
+
+    private Expression?[] _conditions = null!;
+    private Activity?[] _links = null!;
 
     internal override void InitActivity(ActivityNode node)
     {
@@ -32,9 +40,32 @@ public sealed class DecisionActivity : Activity
 
     internal override IExecuteResult? Execute(WorkflowInstance instance)
     {
-        //todo: 暂简单测试走流程1
         Logger.Debug($"执行工作流Decision: {Title}");
-        return _links[0];
+        var trueAt = -1;
+        for (var i = 0; i < _conditions.Length; i++)
+        {
+            var condition = _conditions[i];
+            if (Expression.IsNull(condition))
+            {
+                trueAt = i;
+                break;
+            }
+
+            var evaluator = new ExpressionEvaluator(instance);
+            var result = evaluator.Visit(condition!).Result; //TODO:
+            if (result.Type != AnyValue.ValueType.Boolean)
+                return new ErrorResult("Decision condition return none bool value");
+            if (result.GetBool()!.Value)
+            {
+                trueAt = i;
+                break;
+            }
+        }
+
+        if (trueAt < 0)
+            return new ErrorResult("Can't find match condition");
+
+        return _links[trueAt];
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)

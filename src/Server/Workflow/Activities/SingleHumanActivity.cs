@@ -59,10 +59,10 @@ public sealed class SingleHumanActivity : HumanActivity
 
         //2.判断是否一个都没有
         if (ids.Count == 0)
-            return new Bookmark(this, WaitAssignHuman, []);
+            return new Bookmark(WaitAssignHuman, []);
 
         //3.新建Bookmark并返回
-        return new Bookmark(this, WaitHumanAction, ids.ToArray());
+        return new Bookmark(WaitHumanAction, ids.ToArray());
     }
 
     internal override ResumeResult Resume(string bookmarkName, IHumanActionResult result)

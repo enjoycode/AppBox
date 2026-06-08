@@ -6,10 +6,9 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 {
     internal Bookmark() { }
 
-    internal Bookmark(Activity activity, string name, Guid[] orgUnits)
+    internal Bookmark(string name, Guid[] orgUnits)
     {
         Id = Guid.NewGuid();
-        Activity = activity;
         Name = name;
         OrgUnits = orgUnits;
     }
@@ -21,14 +20,12 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
     /// </summary>
     public string Name { get; private set; } = string.Empty;
 
-    public Activity Activity { get; private set; } = null!;
-
     /// <summary>
     /// 执行者的组织单元标识集合，空表示由工作流管理员进行操作
     /// </summary>
     public Guid[] OrgUnits { get; } = [];
 
-    internal ResumeResult Resume(Guid ouid, IHumanActionResult result)
+    internal ResumeResult Resume(Activity activity, Guid ouid, IHumanActionResult result)
     {
         if (OrgUnits.Length == 0)
         {
@@ -38,7 +35,7 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
         if (!OrgUnits.Contains(ouid))
             throw new Exception("当前用户不能恢复工作流实例");
 
-        return Activity.Resume(Name, result);
+        return activity.Resume(Name, result);
     }
 
     #region ====Serialization====

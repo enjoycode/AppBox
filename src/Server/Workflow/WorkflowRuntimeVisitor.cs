@@ -20,10 +20,10 @@ public readonly struct WorkflowRuntimeVisitor
 
     private readonly Dictionary<ActivityNode, Activity> _hasVisits = new();
 
-    public Activity? Visit(ActivityNode node)
+    public Activity Visit(ActivityNode node)
     {
-        if (_hasVisits.ContainsKey(node))
-            return null;
+        if (_hasVisits.TryGetValue(node, out var exists))
+            return exists;
 
         //创建相应的Activity，并加入字典表
         if (!Factory.TryGetValue(node.Type, out var creator))
@@ -49,7 +49,7 @@ public readonly struct WorkflowRuntimeVisitor
                 target = Visit(link.Target);
 
             //设置连接
-            source.LinkTo(target!, link);
+            source.LinkTo(target, link);
         }
     }
 }

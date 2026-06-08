@@ -4,6 +4,8 @@ public interface IWorkflowStore
 {
     Task InsertWorkflowInstance(WorkflowInstance instance);
 
-    Task<bool> TryLockTask();
-    Task<bool> TryUnlockTask();
+    Task UpdateWorkflowInstance(WorkflowInstance instance, Bookmark? bookmark);
+
+    // Task<bool> TryLockTask();
+    // Task<bool> TryUnlockTask();
 }
