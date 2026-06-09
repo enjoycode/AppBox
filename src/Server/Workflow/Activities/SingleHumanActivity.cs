@@ -5,13 +5,10 @@ namespace AppBox.Workflow;
 
 public sealed class SingleHumanActivity : HumanActivity
 {
-    private const string WaitAssignHuman = "WaitAssignHuman";
-    private const string WaitHumanAction = "WaitHumanAction";
-
     internal SingleHumanActivity() { }
 
-    internal SingleHumanActivity(string title, HumanSource[] humans, HumanAction[] actions, Activity?[] links)
-        : base(title, humans, actions)
+    internal SingleHumanActivity(string title, HumanActor[] actors, HumanAction[] actions, Activity?[] links)
+        : base(title, actors, actions)
     {
         _links = links;
     }
@@ -27,21 +24,6 @@ public sealed class SingleHumanActivity : HumanActivity
         _links = new Activity[Actions.Length];
     }
 
-    private int FindActionIndex(string name)
-    {
-        var index = -1;
-        for (var i = 0; i < Actions.Length; i++)
-        {
-            if (Actions[i].Name == name)
-            {
-                index = i;
-                break;
-            }
-        }
-
-        return index;
-    }
-
     internal override void LinkTo(Activity target, FlowLink link)
     {
         var index = FindActionIndex(link.Name);
@@ -55,19 +37,7 @@ public sealed class SingleHumanActivity : HumanActivity
     {
         Logger.Debug($"执行: {Title}");
         //1.找到对应的组织单元ID
-        var ids = new List<Guid>();
-        for (var i = 0; i < Humans.Length; i++)
-        {
-            var idExpression = Humans[i].OrgUnitExpression;
-            if (idExpression is ConstantExpression constant && constant.Value.Type == AnyValue.ValueType.Guid)
-            {
-                ids.Add(constant.Value.GetGuid()!.Value);
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
+        var ids = GetOrgUnits();
 
         //2.判断是否一个都没有
         if (ids.Count == 0)
@@ -77,15 +47,15 @@ public sealed class SingleHumanActivity : HumanActivity
         return new Bookmark(WaitHumanAction, ids.ToArray());
     }
 
-    internal override ResumeResult Resume(string bookmarkName, IHumanActionResult result)
+    internal override ResumeResult Resume(WorkflowInstance instance, IHumanActionResult actionResult)
     {
         Logger.Debug($"恢复: {Title}");
-        if (result is HumanActionResult humanResult)
+        if (actionResult is HumanActionResult humanResult)
         {
             //找到对应的Action
             var index = FindActionIndex(humanResult.Result);
             if (index == -1)
-                throw new Exception($"Can't find single human action result: {humanResult.Result}");
+                throw new Exception($"Can't find human action: {humanResult.Result}");
             //直接返回,不保存由调用者处理
             return new ResumeResult() { Suspended = false, CancelOthers = true, Next = _links[index] };
         }

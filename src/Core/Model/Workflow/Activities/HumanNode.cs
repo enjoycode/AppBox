@@ -14,12 +14,12 @@ public abstract class HumanNode : ActivityNode
 
     #region ====Properties====
 
-    public abstract bool IsSingleHuman { get; }
+    public abstract bool IsSingleHuman { get; } //TODO: remove
 
     /// <summary>
     /// 处理人员
     /// </summary>
-    public List<HumanSource> HumanSource { get; } = [];
+    public List<HumanActor> Actors { get; } = [];
 
     /// <summary>
     /// 用于设置人工处理时所显示的用户表单界面
@@ -75,10 +75,10 @@ public abstract class HumanNode : ActivityNode
             ws.WriteCollection(Actions);
         }
 
-        if (HumanSource.Count > 0)
+        if (Actors.Count > 0)
         {
             ws.WriteFieldId(3);
-            ws.WriteCollection(HumanSource);
+            ws.WriteCollection(Actors);
         }
 
         if (_formModelId.HasValue)
@@ -101,7 +101,7 @@ public abstract class HumanNode : ActivityNode
             {
                 case 1: rs.ReadCollection(ResultConditions); break;
                 case 2: rs.ReadCollection(Actions); break;
-                case 3: rs.ReadCollection(HumanSource); break;
+                case 3: rs.ReadCollection(Actors); break;
                 case 4: _formModelId = rs.ReadLong(); break;
                 case 0: return;
                 default: throw SerializationException.ReadUnknownField(nameof(HumanNode), propIndex);

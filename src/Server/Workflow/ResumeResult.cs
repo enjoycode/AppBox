@@ -12,6 +12,10 @@ public readonly struct ResumeResult
     /// </summary>
     public bool CancelOthers { get; init; }
 
+    // public bool HasError { get; init; } = false;
+    //
+    // public string ErrorMessage { get; init; } = string.Empty;
+
     /// <summary>
     /// 继续执行的Activity，注意：可能为null
     /// </summary>

@@ -38,7 +38,7 @@ public class WorkflowRuntimeTest
         var approveActivity = new AutomationActivity("Approve");
         var rejectActivity = new AutomationActivity("Reject");
         var singleHumanActivity = new SingleHumanActivity("经理审批",
-            [new HumanSource(Expression.Constant(_mockManagerId))],
+            [new HumanActor(Expression.Constant(_mockManagerId))],
             [new HumanAction("同意"), new HumanAction("不同意")],
             [approveActivity, rejectActivity]);
         var start = new StartActivity() { Next = singleHumanActivity };

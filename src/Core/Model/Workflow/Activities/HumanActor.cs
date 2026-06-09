@@ -3,14 +3,15 @@ namespace AppBoxCore;
 /// <summary>
 /// 人工活动的处理人员，通过表达式计算或指定组织单元
 /// </summary>
-public sealed class HumanSource : IBinSerializable
+public sealed class HumanActor : IBinSerializable
 {
-    public HumanSource() {}
-    public HumanSource(Expression? ouExpression)
+    public HumanActor() { }
+
+    public HumanActor(Expression? ouExpression)
     {
         _ouExpression = ouExpression;
     }
-    
+
     /// <summary>
     /// 是否设计时指派的，其余的则为通过表达式计算来的
     /// </summary>
@@ -27,11 +28,12 @@ public sealed class HumanSource : IBinSerializable
     private Expression? _ouExpression;
 
     /// <summary>
-    /// 通过表达式计算来的
+    /// 工作流参与者表达式
     /// </summary>
     /// <remarks>
     /// eg1: 获取部门管理者 sys.Func.GetDeptManagerId(this.Creator.Id)
     /// eg2: 获取公司管理者 sys.Func.GetOrgManagerId(this.Creator.Id)
+    /// eg3: 从工作流实例的参数获取  this.专家列表 or this.评审表实体.专家列表
     /// </remarks>
     public Expression? OrgUnitExpression
     {
@@ -112,7 +114,7 @@ public sealed class HumanSource : IBinSerializable
             {
                 case 1: _ouExpression = (Expression)rs.Deserialize()!; break;
                 case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(HumanSource), propIndex);
+                default: throw SerializationException.ReadUnknownField(nameof(HumanActor), propIndex);
             }
         } while (propIndex != 0);
     }

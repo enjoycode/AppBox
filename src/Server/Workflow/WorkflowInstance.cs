@@ -20,14 +20,14 @@ public sealed class WorkflowInstance : ExpressionContext
         StartActivity = startActivity;
     }
 
-    public Guid Id { get; set; }
-    public string Title { get; set; }
+    public Guid Id { get; private set; }
+    public string Title { get; private set; }
     public StartActivity StartActivity { get; private set; }
-    public Guid CreatorId { get; set; }
-    public string CreatorName { get; set; }
-    public DateTime CreateTime { get; set; }
+    public Guid CreatorId { get; private set; }
+    public string CreatorName { get; private set; }
+    public DateTime CreateTime { get; private set; }
     public Dictionary<string, AnyValue> Parameters { get; } = [];
-    public WorkflowStatus Status { get; set; }
+    public WorkflowStatus Status { get; private set; }
 
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly List<RunningActivity> _running = [];
@@ -191,7 +191,7 @@ public sealed class WorkflowInstance : ExpressionContext
             //检查当前用户是否允许恢复操作
             found.Bookmark!.CheckCanResume(ouid);
             //开始恢复操作
-            var resumeResult = found.Activity.Resume(found.Bookmark.Name, result);
+            var resumeResult = found.Activity.Resume(this, result);
             //根据结果处理
             if (!resumeResult.Suspended)
             {

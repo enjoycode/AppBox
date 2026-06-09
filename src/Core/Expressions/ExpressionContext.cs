@@ -4,7 +4,7 @@ namespace AppBoxCore;
 
 public interface IExpressionContext
 {
-    //TODO: ResolveParameter
+    AnyValue ResolveParameter(string parameterName);
 
     Type ResolveType(in ExpressionTypeInfo typeInfo);
 }
@@ -13,24 +13,7 @@ public class ExpressionContext : IExpressionContext
 {
     public static readonly ExpressionContext Default = new();
 
-    // private readonly Dictionary<string, Type> _knownTypes = new()
-    // {
-    //     { "bool", typeof(bool) },
-    //     { "byte", typeof(byte) },
-    //     { "sbyte", typeof(sbyte) },
-    //     { "short", typeof(short) },
-    //     { "ushort", typeof(ushort) },
-    //     { "int", typeof(int) },
-    //     { "uint", typeof(uint) },
-    //     { "long", typeof(long) },
-    //     { "ulong", typeof(ulong) },
-    //     { "float", typeof(float) },
-    //     { "double", typeof(double) },
-    //     { "decimal", typeof(decimal) },
-    //     { "char", typeof(char) },
-    //     { "string", typeof(string) },
-    //     { "object", typeof(object) },
-    // };
+    public virtual AnyValue ResolveParameter(string parameterName) => throw new NotSupportedException();
 
     private static Type GetKnownType(in ExpressionTypeInfo typeInfo) => typeInfo.Type switch
     {

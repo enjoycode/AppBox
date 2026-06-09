@@ -35,7 +35,7 @@ public abstract class Activity : IExecuteResult, IBinSerializable
         throw new NotSupportedException();
     }
 
-    internal virtual ResumeResult Resume(string bookmarkName, IHumanActionResult result)
+    internal virtual ResumeResult Resume(WorkflowInstance instance, IHumanActionResult actionResult)
     {
         throw new NotSupportedException();
     }

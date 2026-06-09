@@ -1,20 +1,24 @@
 using AppBoxCore;
+using static AppBox.Workflow.WorkflowLogger;
 
 namespace AppBox.Workflow;
 
 public abstract class HumanActivity : Activity
 {
+    protected const string WaitAssignHuman = "WaitAssignHuman"; //TODO: remove and use bookmark type
+    protected const string WaitHumanAction = "WaitHumanAction";
+
     protected HumanActivity() : base() { }
 
-    protected HumanActivity(string title, HumanSource[] humans, HumanAction[] actions, ModelId? formModelId = null) :
+    protected HumanActivity(string title, HumanActor[] actors, HumanAction[] actions, ModelId? formModelId = null) :
         base(title)
     {
-        Humans = humans;
+        Actors = actors;
         Actions = actions;
         FormModelId = formModelId;
     }
 
-    public HumanSource[] Humans { get; private set; }
+    public HumanActor[] Actors { get; private set; }
     public ModelId? FormModelId { get; private set; }
     public HumanAction[] Actions { get; private set; }
 
@@ -25,12 +29,49 @@ public abstract class HumanActivity : Activity
         var humanNode = (HumanNode)node;
         if (humanNode.Actions.Count == 0)
             throw new Exception("Can not find any Action in HumanActivity");
-        if (humanNode.HumanSource.Count == 0)
-            throw new Exception("Can not find and Human in HumanActivity");
+        if (humanNode.Actors.Count == 0)
+            throw new Exception("Can not find and Actor in HumanActivity");
 
         Actions = humanNode.Actions.ToArray();
         FormModelId = humanNode.FormModelId;
-        Humans = humanNode.HumanSource.ToArray();
+        Actors = humanNode.Actors.ToArray();
+    }
+
+    /// <summary>
+    /// 获取人员活动的参与者
+    /// </summary>
+    protected IReadOnlyList<Guid> GetOrgUnits()
+    {
+        var result = new List<Guid>();
+        for (var i = 0; i < Actors.Length; i++)
+        {
+            var idExpression = Actors[i].OrgUnitExpression;
+            if (idExpression is ConstantExpression constant && constant.Value.Type == AnyValue.ValueType.Guid)
+            {
+                result.Add(constant.Value.GetGuid()!.Value);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        return result;
+    }
+
+    protected int FindActionIndex(string name)
+    {
+        var index = -1;
+        for (var i = 0; i < Actions.Length; i++)
+        {
+            if (Actions[i].Name == name)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
     }
 
     #region ====Serialization====
@@ -40,10 +81,10 @@ public abstract class HumanActivity : Activity
         base.WriteTo(ref ws);
 
         ws.WriteFieldId(1);
-        ws.WriteVariant(Humans.Length);
-        for (var i = 0; i < Humans.Length; i++)
+        ws.WriteVariant(Actors.Length);
+        for (var i = 0; i < Actors.Length; i++)
         {
-            Humans[i].WriteTo(ref ws);
+            Actors[i].WriteTo(ref ws);
         }
 
         ws.WriteFieldId(2);
@@ -74,12 +115,12 @@ public abstract class HumanActivity : Activity
                 case 1:
                 {
                     var count = rs.ReadVariant();
-                    Humans = new HumanSource[count];
+                    Actors = new HumanActor[count];
                     for (var i = 0; i < count; i++)
                     {
-                        var who = new HumanSource();
+                        var who = new HumanActor();
                         who.ReadFrom(ref rs);
-                        Humans[i] = who;
+                        Actors[i] = who;
                     }
 
                     break;
