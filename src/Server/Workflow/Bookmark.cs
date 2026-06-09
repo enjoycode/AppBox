@@ -6,24 +6,24 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 {
     internal Bookmark() { }
 
-    internal Bookmark(string name, Guid[] orgUnits)
+    internal Bookmark(BookmarkType type, string title, Guid[] orgUnits)
     {
         Id = SequenceGuid.New();
-        Name = name;
+        Type = type;
+        Title = title;
         OrgUnits = orgUnits;
     }
 
     public Guid Id { get; private set; }
 
-    /// <summary>
-    /// 恢复点的名称，不是Activity的标题
-    /// </summary>
-    public string Name { get; private set; } = string.Empty;
+    public BookmarkType Type { get; private set; }
+
+    public string Title { get; private set; } = string.Empty;
 
     /// <summary>
     /// 执行者的组织单元标识集合，空表示由工作流管理员进行操作
     /// </summary>
-    public Guid[] OrgUnits { get; } = [];
+    public Guid[] OrgUnits { get; private set; } = [];
 
     internal void CheckCanResume(Guid ouid)
     {
@@ -40,13 +40,40 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        throw new NotImplementedException();
+        ws.WriteGuid(Id);
+        ws.WriteByte((byte)Type);
+        ws.WriteString(Title);
+        ws.WriteVariant(OrgUnits.Length);
+        foreach (var orgUnit in OrgUnits)
+            ws.WriteGuid(orgUnit);
+        ws.WriteFieldEnd();
     }
 
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        throw new NotImplementedException();
+        Id = rs.ReadGuid();
+        Type = (BookmarkType)rs.ReadByte();
+        Title = rs.ReadString() ?? string.Empty;
+        var count = rs.ReadVariant();
+        OrgUnits = new Guid[count];
+        for (var i = 0; i < count; i++)
+            OrgUnits[i] = rs.ReadGuid();
+
+        rs.ReadFieldId();
     }
 
     #endregion
+}
+
+public enum BookmarkType : byte
+{
+    /// <summary>
+    /// 等待参与者处理
+    /// </summary>
+    WaitActor,
+
+    /// <summary>
+    /// 等待工作流管理员介入
+    /// </summary>
+    WaitAdmin,
 }

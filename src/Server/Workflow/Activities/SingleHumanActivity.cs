@@ -41,10 +41,10 @@ public sealed class SingleHumanActivity : HumanActivity
 
         //2.判断是否一个都没有
         if (ids.Count == 0)
-            return new Bookmark(WaitAssignHuman, []);
+            return new Bookmark(BookmarkType.WaitAdmin, Title, []);
 
         //3.新建Bookmark并返回
-        return new Bookmark(WaitHumanAction, ids.ToArray());
+        return new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray());
     }
 
     internal override ResumeResult Resume(WorkflowInstance instance, IHumanActionResult actionResult)
