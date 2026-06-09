@@ -8,8 +8,7 @@ public sealed class WorkflowInstance : ExpressionContext
     internal WorkflowInstance() { }
 
     public WorkflowInstance(string title, StartActivity startActivity,
-        Guid creatorId, string creatorName,
-        Dictionary<string, AnyValue> parameters)
+        Guid creatorId, string creatorName, Dictionary<string, AnyValue> parameters)
     {
         Id = SequenceGuid.New();
         Title = title;
@@ -21,18 +20,22 @@ public sealed class WorkflowInstance : ExpressionContext
         StartActivity = startActivity;
     }
 
-    public Guid Id { get; private set; }
-    public string Title { get; private set; }
+    public Guid Id { get; set; }
+    public string Title { get; set; }
     public StartActivity StartActivity { get; private set; }
-    public Guid CreatorId { get; private set; }
-    public string CreatorName { get; private set; }
-    public DateTime CreateTime { get; private set; }
+    public Guid CreatorId { get; set; }
+    public string CreatorName { get; set; }
+    public DateTime CreateTime { get; set; }
     public Dictionary<string, AnyValue> Parameters { get; } = [];
-    public WorkflowStatus Status { get; private set; }
+    public WorkflowStatus Status { get; set; }
 
-    private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+    private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly List<RunningActivity> _running = [];
     private IWorkflowStore _store = null!;
+
+#if DEBUG
+    private SemaphoreSlim _suspendedOrFinished = new(0, 1);
+#endif
 
     internal async Task Start(IWorkflowStore workflowStore)
     {
@@ -69,28 +72,10 @@ public sealed class WorkflowInstance : ExpressionContext
 
                 switch (result)
                 {
-                    case null:
-                    {
-                        throw new NotImplementedException();
-                        break;
-                    }
-                    case ErrorResult error:
-                    {
-                        throw new NotImplementedException();
-                        break;
-                    }
-                    case Activity next:
-                    {
-                        _running[branchIndex] = new RunningActivity() { Activity = next };
-                        await _store.UpdateWorkflowInstance(this, null);
-                        break;
-                    }
-                    case Bookmark bookmark:
-                    {
-                        _running[branchIndex] = new RunningActivity() { Activity = activity, Bookmark = bookmark };
-                        await _store.UpdateWorkflowInstance(this, bookmark);
-                        break;
-                    }
+                    case null: await OnNullResult(branchIndex); break;
+                    case ErrorResult error: OnErrorResult(branchIndex, error); break;
+                    case Activity next: await OnNextResult(branchIndex, next); break;
+                    case Bookmark bookmark: await OnBookmarkResult(branchIndex, activity, bookmark); break;
                     default: throw new NotImplementedException();
                 }
             }
@@ -101,9 +86,101 @@ public sealed class WorkflowInstance : ExpressionContext
         });
     }
 
+    private async ValueTask OnNullResult(int branchIndex)
+    {
+        _running.RemoveAt(branchIndex);
+        //检查所有分支执行情况
+        if (_running.Count == 0)
+        {
+            await _store.FinishWorkflowInstance(this);
+#if DEBUG
+            _suspendedOrFinished.Release();
+#endif
+        }
+    }
+
+    private void OnErrorResult(int branchIndex, ErrorResult error)
+    {
+        throw new NotImplementedException();
+    }
+
+    private async Task OnNextResult(int branchIndex, Activity next)
+    {
+        _running[branchIndex] = new RunningActivity() { Activity = next };
+        await _store.UpdateWorkflowInstance(this, null);
+        Continue(next);
+    }
+
+    private async Task OnBookmarkResult(int branchIndex, Activity activity, Bookmark bookmark)
+    {
+        _running[branchIndex] = new RunningActivity() { Activity = activity, Bookmark = bookmark };
+        await _store.UpdateWorkflowInstance(this, bookmark);
+    }
+
+#if DEBUG
+    public Task WaitForSuspendedOrFinished() => _suspendedOrFinished.WaitAsync();
+#endif
+
     internal void Resume(Guid bookmarkId, Guid ouid, IHumanActionResult result) { }
 
-    internal readonly struct RunningActivity
+    #region ====Serialization for Context====
+
+    public void SerializeContext<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+    {
+        //Parameters
+        ws.WriteVariant(Parameters.Count);
+        foreach (var kv in Parameters)
+        {
+            ws.WriteString(kv.Key);
+            kv.Value.SerializeTo(ref ws);
+        }
+
+        //StartActivity
+        ws.SerializeActivity(StartActivity);
+
+        //Running
+        ws.WriteVariant(_running.Count);
+        foreach (var running in _running)
+        {
+            ws.SerializeActivity(running.Activity);
+            ws.WriteBool(running.Bookmark != null);
+            running.Bookmark?.WriteTo(ref ws);
+        }
+    }
+
+    public void DeserializeContext<TReader>(ref TReader rs) where TReader : struct, IInputStream
+    {
+        //Parameters
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
+        {
+            var key = rs.ReadString()!;
+            var value = AnyValue.ReadFrom(ref rs);
+            Parameters.Add(key, value);
+        }
+
+        //StartActivity
+        StartActivity = (StartActivity)rs.DeserializeActivity()!;
+
+        //Running
+        count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
+        {
+            var activity = rs.DeserializeActivity()!;
+            Bookmark? bookmark = null;
+            if (rs.ReadBool())
+            {
+                bookmark = new Bookmark();
+                bookmark.ReadFrom(ref rs);
+            }
+
+            _running.Add(new RunningActivity() { Activity = activity, Bookmark = bookmark });
+        }
+    }
+
+    #endregion
+
+    public readonly struct RunningActivity
     {
         public required Activity Activity { get; init; }
         public Bookmark? Bookmark { get; init; }

@@ -6,7 +6,7 @@ namespace AppBox.Workflow;
 public sealed class DecisionActivity : Activity
 {
     internal DecisionActivity() { }
-
+    
     internal DecisionActivity(Expression?[] conditions, Activity?[] links)
     {
         _conditions = conditions;
