@@ -8,8 +8,6 @@ public interface IWorkflowStore
     
     Task UpdateWorkflowInstance(WorkflowInstance instance, ResumeResult resumeResult);
     
-    Task FinishWorkflowInstance(WorkflowInstance instance);
-
     // Task<bool> TryLockTask();
     // Task<bool> TryUnlockTask();
 }

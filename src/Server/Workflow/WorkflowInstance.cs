@@ -34,7 +34,7 @@ public sealed class WorkflowInstance : ExpressionContext
     private IWorkflowStore _store = null!;
 
 #if DEBUG
-    private SemaphoreSlim _suspendedOrFinished = new(0, 1);
+    private readonly SemaphoreSlim _suspendedOrFinished = new(0, 1);
 #endif
 
     internal async Task Start(IWorkflowStore workflowStore)
@@ -118,15 +118,9 @@ public sealed class WorkflowInstance : ExpressionContext
     private async ValueTask OnNullResult(int branchIndex)
     {
         _running.RemoveAt(branchIndex);
-        //检查所有分支执行情况
         CheckStatus();
-        if (Status == WorkflowStatus.Finished)
-        {
-            await _store.FinishWorkflowInstance(this);
-#if DEBUG
-            _suspendedOrFinished.Release();
-#endif
-        }
+        await _store.UpdateWorkflowInstance(this, null);
+        TryNotifySuspendedOrFinished();
     }
 
     private void OnErrorResult(int branchIndex, ErrorResult error)
@@ -144,14 +138,18 @@ public sealed class WorkflowInstance : ExpressionContext
     private async Task OnBookmarkResult(int branchIndex, Activity activity, Bookmark bookmark)
     {
         _running[branchIndex] = new RunningActivity() { Activity = activity, Bookmark = bookmark };
-        //检查所有分支是否全部挂起
         CheckStatus();
+        await _store.UpdateWorkflowInstance(this, bookmark);
+        TryNotifySuspendedOrFinished();
+    }
+
+    [Conditional("DEBUG")]
+    private void TryNotifySuspendedOrFinished()
+    {
 #if DEBUG
-        if (Status == WorkflowStatus.Suspended)
+        if (Status is WorkflowStatus.Suspended or WorkflowStatus.Finished)
             _suspendedOrFinished.Release();
 #endif
-
-        await _store.UpdateWorkflowInstance(this, bookmark);
     }
 
 #if DEBUG
@@ -201,20 +199,18 @@ public sealed class WorkflowInstance : ExpressionContext
                     _running.RemoveAt(branchIndex);
                 else
                     _running[branchIndex] = new RunningActivity() { Activity = resumeResult.Next };
-                CheckStatus();
             }
 
             //保存实例
+            CheckStatus();
             await _store.UpdateWorkflowInstance(this, resumeResult);
             //如果有下一活动继续执行
             if (resumeResult is { Suspended: false, Next: not null })
             {
                 Continue(resumeResult.Next);
             }
-#if DEBUG
-            if (Status is WorkflowStatus.Suspended or WorkflowStatus.Finished)
-                _suspendedOrFinished.Release();
-#endif
+
+            TryNotifySuspendedOrFinished();
         }
         finally
         {

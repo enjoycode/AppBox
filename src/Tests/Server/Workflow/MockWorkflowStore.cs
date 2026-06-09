@@ -26,12 +26,6 @@ internal sealed class MockWorkflowStore : IWorkflowStore
         return Task.CompletedTask;
     }
 
-    public Task FinishWorkflowInstance(WorkflowInstance instance)
-    {
-        _instances.Remove(instance.Id);
-        return Task.CompletedTask;
-    }
-
     private static byte[] SerializeInstance(WorkflowInstance instance)
     {
         var ms = new MemoryStream();
