@@ -42,7 +42,7 @@ public sealed class DecisionActivity : Activity
 
     internal override IExecuteResult? Execute(WorkflowInstance instance)
     {
-        Logger.Debug($"执行工作流Decision: {Title}");
+        Logger.Debug($"执行: {Title}");
         var trueAt = -1;
         for (var i = 0; i < _conditions.Length; i++)
         {

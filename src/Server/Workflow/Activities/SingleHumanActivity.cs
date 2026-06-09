@@ -1,4 +1,5 @@
 using AppBoxCore;
+using static AppBox.Workflow.WorkflowLogger;
 
 namespace AppBox.Workflow;
 
@@ -52,6 +53,7 @@ public sealed class SingleHumanActivity : HumanActivity
 
     internal override IExecuteResult? Execute(WorkflowInstance instance)
     {
+        Logger.Debug($"执行: {Title}");
         //1.找到对应的组织单元ID
         var ids = new List<Guid>();
         for (var i = 0; i < Humans.Length; i++)
@@ -77,14 +79,14 @@ public sealed class SingleHumanActivity : HumanActivity
 
     internal override ResumeResult Resume(string bookmarkName, IHumanActionResult result)
     {
-        if (bookmarkName == WaitHumanAction)
+        Logger.Debug($"恢复: {Title}");
+        if (result is HumanActionResult humanResult)
         {
-            var humanResult = (HumanActionResult)result;
             //找到对应的Action
             var index = FindActionIndex(humanResult.Result);
             if (index == -1)
-                throw new Exception($"找不到单人活动提交的操作结果: {humanResult.Result}");
-            //直接返回，注意：不保存由调用者处理
+                throw new Exception($"Can't find single human action result: {humanResult.Result}");
+            //直接返回,不保存由调用者处理
             return new ResumeResult() { Suspended = false, CancelOthers = true, Next = _links[index] };
         }
         else

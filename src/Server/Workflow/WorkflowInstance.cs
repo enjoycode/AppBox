@@ -107,7 +107,12 @@ public sealed class WorkflowInstance : ExpressionContext
         }
 
         if (allSuspended)
+        {
             Status = WorkflowStatus.Suspended;
+            return;
+        }
+
+        Status = WorkflowStatus.Running;
     }
 
     private async ValueTask OnNullResult(int branchIndex)
@@ -154,9 +159,68 @@ public sealed class WorkflowInstance : ExpressionContext
     /// 等待实例挂起或完成
     /// </summary>
     public Task WaitForSuspendedOrFinished() => _suspendedOrFinished.WaitAsync();
+
+    /// <summary>
+    /// Only for test
+    /// </summary>
+    public IReadOnlyList<Bookmark> GetAllBookmarks() => _running
+        .Where(r => r.Bookmark != null)
+        .Select(r => r.Bookmark!)
+        .ToList();
 #endif
 
-    internal void Resume(Guid bookmarkId, Guid ouid, IHumanActionResult result) { }
+    internal async Task Resume(Guid bookmarkId, Guid ouid, IHumanActionResult result)
+    {
+        await _lock.WaitAsync();
+        try
+        {
+            //find bookmark
+            var branchIndex = -1;
+            for (var i = 0; i < _running.Count; i++)
+            {
+                var running = _running[i];
+                if (running.Bookmark != null && running.Bookmark.Id == bookmarkId)
+                {
+                    branchIndex = i;
+                    break;
+                }
+            }
+
+            if (branchIndex < 0)
+                throw new Exception($"Can't find bookmark: [{Id}]-[{bookmarkId}]");
+
+            var found = _running[branchIndex];
+            //检查当前用户是否允许恢复操作
+            found.Bookmark!.CheckCanResume(ouid);
+            //开始恢复操作
+            var resumeResult = found.Activity.Resume(found.Bookmark.Name, result);
+            //根据结果处理
+            if (!resumeResult.Suspended)
+            {
+                if (resumeResult.Next == null)
+                    _running.RemoveAt(branchIndex);
+                else
+                    _running[branchIndex] = new RunningActivity() { Activity = resumeResult.Next };
+                CheckStatus();
+            }
+
+            //保存实例
+            await _store.UpdateWorkflowInstance(this, resumeResult);
+            //如果有下一活动继续执行
+            if (resumeResult is { Suspended: false, Next: not null })
+            {
+                Continue(resumeResult.Next);
+            }
+#if DEBUG
+            if (Status is WorkflowStatus.Suspended or WorkflowStatus.Finished)
+                _suspendedOrFinished.Release();
+#endif
+        }
+        finally
+        {
+            _lock.Release();
+        }
+    }
 
     #region ====Serialization for Context====
 
@@ -215,7 +279,7 @@ public sealed class WorkflowInstance : ExpressionContext
 
     #endregion
 
-    public readonly struct RunningActivity
+    internal readonly struct RunningActivity
     {
         public required Activity Activity { get; init; }
         public Bookmark? Bookmark { get; init; }

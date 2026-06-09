@@ -33,7 +33,7 @@ public class WorkflowRuntimeTest
     }
 
     [Test(Description = "单人活动")]
-    public async Task TestBookmark()
+    public async Task TestSingleHuman()
     {
         var approveActivity = new AutomationActivity("Approve");
         var rejectActivity = new AutomationActivity("Reject");
@@ -44,6 +44,11 @@ public class WorkflowRuntimeTest
         var start = new StartActivity() { Next = singleHumanActivity };
         var instance = new WorkflowInstance("TestBookmark", start, _mockUserId, "Test", []);
         await instance.Start(_store);
+        await instance.WaitForSuspendedOrFinished();
+
+        var bookmarks = instance.GetAllBookmarks();
+        var bookmarkId = bookmarks.First().Id;
+        await instance.Resume(bookmarkId, _mockManagerId, new HumanActionResult() { Result = "同意", Memo = "备注" });
         await instance.WaitForSuspendedOrFinished();
     }
 }

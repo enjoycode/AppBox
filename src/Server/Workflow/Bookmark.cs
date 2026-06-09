@@ -8,7 +8,7 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 
     internal Bookmark(string name, Guid[] orgUnits)
     {
-        Id = Guid.NewGuid();
+        Id = SequenceGuid.New();
         Name = name;
         OrgUnits = orgUnits;
     }
@@ -25,7 +25,7 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
     /// </summary>
     public Guid[] OrgUnits { get; } = [];
 
-    internal ResumeResult Resume(Activity activity, Guid ouid, IHumanActionResult result)
+    internal void CheckCanResume(Guid ouid)
     {
         if (OrgUnits.Length == 0)
         {
@@ -34,8 +34,6 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 
         if (!OrgUnits.Contains(ouid))
             throw new Exception("当前用户不能恢复工作流实例");
-
-        return activity.Resume(Name, result);
     }
 
     #region ====Serialization====

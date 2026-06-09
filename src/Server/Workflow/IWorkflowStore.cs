@@ -6,6 +6,8 @@ public interface IWorkflowStore
 
     Task UpdateWorkflowInstance(WorkflowInstance instance, Bookmark? bookmark);
     
+    Task UpdateWorkflowInstance(WorkflowInstance instance, ResumeResult resumeResult);
+    
     Task FinishWorkflowInstance(WorkflowInstance instance);
 
     // Task<bool> TryLockTask();

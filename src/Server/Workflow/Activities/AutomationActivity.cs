@@ -34,7 +34,7 @@ public sealed class AutomationActivity : Activity
     internal override IExecuteResult? Execute(WorkflowInstance instance)
     {
         //TODO: 实现执行表达式
-        Logger.Debug($"执行工作流Automation: {Title}");
+        Logger.Debug($"执行: {Title}");
 
         return _next;
     }
