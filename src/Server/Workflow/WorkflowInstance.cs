@@ -86,11 +86,36 @@ public sealed class WorkflowInstance : ExpressionContext
         });
     }
 
+    private void CheckStatus()
+    {
+        //是否已完成
+        if (_running.Count == 0)
+        {
+            Status = WorkflowStatus.Finished;
+            return;
+        }
+
+        //是否全部挂起
+        var allSuspended = true;
+        foreach (var running in _running)
+        {
+            if (!running.IsWaiting)
+            {
+                allSuspended = false;
+                break;
+            }
+        }
+
+        if (allSuspended)
+            Status = WorkflowStatus.Suspended;
+    }
+
     private async ValueTask OnNullResult(int branchIndex)
     {
         _running.RemoveAt(branchIndex);
         //检查所有分支执行情况
-        if (_running.Count == 0)
+        CheckStatus();
+        if (Status == WorkflowStatus.Finished)
         {
             await _store.FinishWorkflowInstance(this);
 #if DEBUG
@@ -114,10 +139,20 @@ public sealed class WorkflowInstance : ExpressionContext
     private async Task OnBookmarkResult(int branchIndex, Activity activity, Bookmark bookmark)
     {
         _running[branchIndex] = new RunningActivity() { Activity = activity, Bookmark = bookmark };
+        //检查所有分支是否全部挂起
+        CheckStatus();
+#if DEBUG
+        if (Status == WorkflowStatus.Suspended)
+            _suspendedOrFinished.Release();
+#endif
+
         await _store.UpdateWorkflowInstance(this, bookmark);
     }
 
 #if DEBUG
+    /// <summary>
+    /// 等待实例挂起或完成
+    /// </summary>
     public Task WaitForSuspendedOrFinished() => _suspendedOrFinished.WaitAsync();
 #endif
 
@@ -184,5 +219,6 @@ public sealed class WorkflowInstance : ExpressionContext
     {
         public required Activity Activity { get; init; }
         public Bookmark? Bookmark { get; init; }
+        public bool IsWaiting => Bookmark != null || Activity is JoinActivity;
     }
 }

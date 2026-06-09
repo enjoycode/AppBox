@@ -5,6 +5,13 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class HumanAction : IBinSerializable
 {
+    public HumanAction() { }
+
+    public HumanAction(string name)
+    {
+        _name = name;
+    }
+
     private string? _originalName;
 
     private string _name = string.Empty;

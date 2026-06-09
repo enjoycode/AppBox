@@ -4,9 +4,19 @@ namespace AppBox.Workflow;
 
 public abstract class HumanActivity : Activity
 {
-    internal HumanSource[] Humans { get; private set; }
-    internal ModelId? FormModelId { get; private set; }
-    internal HumanAction[] Actions { get; private set; }
+    protected HumanActivity() : base() { }
+
+    protected HumanActivity(string title, HumanSource[] humans, HumanAction[] actions, ModelId? formModelId = null) :
+        base(title)
+    {
+        Humans = humans;
+        Actions = actions;
+        FormModelId = formModelId;
+    }
+
+    public HumanSource[] Humans { get; private set; }
+    public ModelId? FormModelId { get; private set; }
+    public HumanAction[] Actions { get; private set; }
 
     internal override void InitActivity(ActivityNode node)
     {

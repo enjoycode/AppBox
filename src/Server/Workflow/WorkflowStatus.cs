@@ -5,8 +5,14 @@ public enum WorkflowStatus : byte
     Running,
     Suspended,
     Finished,
+
     /// <summary>
-    /// 异常或其他需要工作流管理员介入
+    /// 需要工作流管理员介入
     /// </summary>
-    WaitAdminResume
+    WaitAdminResume,
+
+    /// <summary>
+    /// 发生异常中止
+    /// </summary>
+    Failed,
 }

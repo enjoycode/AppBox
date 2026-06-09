@@ -5,6 +5,14 @@ namespace AppBox.Workflow;
 
 public sealed class AutomationActivity : Activity
 {
+    internal AutomationActivity() { }
+
+    internal AutomationActivity(string title, Expression? expression = null, Activity? next = null) : base(title)
+    {
+        _expression = expression;
+        _next = next;
+    }
+
     private Expression? _expression;
     private Activity? _next;
 

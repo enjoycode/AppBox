@@ -5,6 +5,12 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class HumanSource : IBinSerializable
 {
+    public HumanSource() {}
+    public HumanSource(Expression? ouExpression)
+    {
+        _ouExpression = ouExpression;
+    }
+    
     /// <summary>
     /// 是否设计时指派的，其余的则为通过表达式计算来的
     /// </summary>
@@ -14,10 +20,7 @@ public sealed class HumanSource : IBinSerializable
         {
             if (Expression.IsNull(OrgUnitExpression))
                 return false;
-            var exp = OrgUnitExpression as ConstantExpression;
-            if (!Expression.IsNull(exp) && exp.Value is Guid)
-                return true;
-            return false;
+            return OrgUnitExpression is ConstantExpression { Value.Type: AnyValue.ValueType.Guid };
         }
     }
 

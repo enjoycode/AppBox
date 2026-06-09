@@ -4,8 +4,15 @@ namespace AppBox.Workflow;
 
 public abstract class Activity : IExecuteResult, IBinSerializable
 {
+    protected Activity() { }
+
+    protected Activity(string title)
+    {
+        Title = title;
+    }
+
     public abstract byte Type { get; }
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; private set; } = string.Empty;
 
     #region ====Init Methods====
 

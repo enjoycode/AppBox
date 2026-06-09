@@ -7,7 +7,15 @@ public sealed class SingleHumanActivity : HumanActivity
     private const string WaitAssignHuman = "WaitAssignHuman";
     private const string WaitHumanAction = "WaitHumanAction";
 
-    private Activity[] _links;
+    internal SingleHumanActivity() { }
+
+    internal SingleHumanActivity(string title, HumanSource[] humans, HumanAction[] actions, Activity?[] links)
+        : base(title, humans, actions)
+    {
+        _links = links;
+    }
+
+    private Activity?[] _links;
 
     public override byte Type => ActivityType.SingleHumanActivity;
 
