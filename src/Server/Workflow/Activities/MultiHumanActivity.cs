@@ -9,9 +9,10 @@ public sealed class MultiHumanActivity : HumanActivity
     internal MultiHumanActivity() { }
 
     internal MultiHumanActivity(string title, HumanActor[] actors, HumanAction[] actions,
-        Expression?[] conditions, Activity?[] links)
+        Expression?[] conditions, Activity?[] links, bool waitAllActor = false)
         : base(title, actors, actions)
     {
+        _waitAllActor = waitAllActor;
         _conditions = conditions;
         _links = links;
 
@@ -23,6 +24,11 @@ public sealed class MultiHumanActivity : HumanActivity
     /// 记录当前节点参与人员总数(作为计算结果的条件表达式的参数)
     /// </summary>
     private int _actorCount;
+
+    /// <summary>
+    /// 是否必须等待所有参与者处理再判断处理结果，比如用于一票否决的场景
+    /// </summary>
+    private bool _waitAllActor;
 
     /// <summary>
     /// 记录每个Action的结果次数(作为计算结果的条件表达式的参数)
@@ -43,6 +49,7 @@ public sealed class MultiHumanActivity : HumanActivity
         base.InitActivity(node);
 
         var multiHumanNode = (MultiHumanNode)node;
+        _waitAllActor = multiHumanNode.WaitAllActor;
         _conditions = new Expression[multiHumanNode.ResultConditions.Count];
         _links = new Activity[multiHumanNode.ResultConditions.Count];
         for (var i = 0; i < multiHumanNode.ResultConditions.Count; i++)
@@ -90,9 +97,12 @@ public sealed class MultiHumanActivity : HumanActivity
             throw new Exception($"Can't find human action: {action}");
         _actionResults[action] += 1;
 
-        //开始计算条件表达式，注意最后一个必须在所有参与者处理后作为之前条件都不成立
         var currentActorCount = _actionResults.Values.Sum();
+        //先判断是否必须等待所有参与者处理
+        if (_waitAllActor && currentActorCount != _actorCount)
+            return new ResumeResult() { Suspended = true, CancelOthers = false, Next = null };
 
+        //开始计算条件表达式，注意最后一个必须在所有参与者处理后作为之前条件都不成立
         var trueAt = -1;
         for (var i = 0; i < _conditions.Length; i++)
         {
@@ -155,6 +165,10 @@ public sealed class MultiHumanActivity : HumanActivity
         for (var i = 0; i < _conditions.Length; i++)
             ws.SerializeExpression(_conditions[i]);
 
+        //waitAllActor
+        ws.WriteFieldId(5);
+        ws.WriteBool(_waitAllActor);
+
         ws.WriteFieldEnd();
     }
 
@@ -202,6 +216,9 @@ public sealed class MultiHumanActivity : HumanActivity
 
                     break;
                 }
+                case 5:
+                    _waitAllActor = rs.ReadBool();
+                    break;
                 case 0: return;
                 default: throw SerializationException.ReadUnknownField(nameof(SingleHumanActivity), propIndex);
             }
