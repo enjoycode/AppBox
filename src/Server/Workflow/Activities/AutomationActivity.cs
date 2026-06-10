@@ -31,12 +31,12 @@ public sealed class AutomationActivity : Activity
         _next = target;
     }
 
-    internal override IExecuteResult? Execute(WorkflowInstance instance)
+    internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
         //TODO: 实现执行表达式
         Logger.Debug($"执行: {Title}");
 
-        return _next;
+        return new ValueTask<IExecuteResult?>(_next);
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)

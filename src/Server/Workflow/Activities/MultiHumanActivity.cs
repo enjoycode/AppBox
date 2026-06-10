@@ -63,7 +63,7 @@ public sealed class MultiHumanActivity : HumanActivity
         _links[index] = target;
     }
 
-    internal override IExecuteResult? Execute(WorkflowInstance instance)
+    internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
         Logger.Debug($"执行: {Title}");
         //1.找到对应的组织单元ID
@@ -72,13 +72,13 @@ public sealed class MultiHumanActivity : HumanActivity
 
         //2.判断是否一个都没有
         if (ids.Count == 0)
-            return new Bookmark(BookmarkType.WaitAdmin, Title, []);
+            return new ValueTask<IExecuteResult?>(new Bookmark(BookmarkType.WaitAdmin, Title, []));
 
         //3.新建Bookmark并返回
-        return new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray());
+        return new ValueTask<IExecuteResult?>(new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray()));
     }
 
-    internal override ResumeResult Resume(WorkflowInstance instance, IHumanActionResult actionResult)
+    internal override async ValueTask<ResumeResult> Resume(WorkflowInstance instance, IHumanActionResult actionResult)
     {
         Logger.Debug($"恢复: {Title}");
         if (actionResult is not HumanActionResult humanResult)
@@ -110,7 +110,7 @@ public sealed class MultiHumanActivity : HumanActivity
 
             var expressionContext = new MultiHumanActivityExpressionContext(instance, this);
             var evaluator = new ExpressionEvaluator(expressionContext);
-            var value = evaluator.Visit(condition!).Result; //TODO:
+            var value = await evaluator.Visit(condition!);
             Debug.Assert(value.Type == AnyValue.ValueType.Boolean);
             if (value.GetBool()!.Value)
             {

@@ -21,10 +21,10 @@ public sealed class WorkflowInstance : ExpressionContext
     }
 
     public Guid Id { get; private set; }
-    public string Title { get; private set; }
-    public StartActivity StartActivity { get; private set; }
+    public string Title { get; private set; } = string.Empty;
+    public StartActivity StartActivity { get; private set; } = null!;
     public Guid CreatorId { get; private set; }
-    public string CreatorName { get; private set; }
+    public string CreatorName { get; private set; } = string.Empty;
     public DateTime CreateTime { get; private set; }
     public Dictionary<string, AnyValue> Parameters { get; } = [];
     public WorkflowStatus Status { get; private set; }
@@ -54,7 +54,7 @@ public sealed class WorkflowInstance : ExpressionContext
     {
         Task.Run(async () =>
         {
-            var result = activity.Execute(this);
+            var result = await activity.Execute(this);
             await _lock.WaitAsync();
             try
             {
@@ -191,7 +191,7 @@ public sealed class WorkflowInstance : ExpressionContext
             //检查当前用户是否允许恢复操作
             found.Bookmark!.CheckCanResume(ouid);
             //开始恢复操作
-            var resumeResult = found.Activity.Resume(this, result);
+            var resumeResult = await found.Activity.Resume(this, result);
             //根据结果处理
             if (!resumeResult.Suspended)
             {

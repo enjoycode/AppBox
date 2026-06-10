@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AppBoxCore;
 using static AppBox.Workflow.WorkflowLogger;
 
@@ -40,7 +41,7 @@ public sealed class DecisionActivity : Activity
         _links[index] = target;
     }
 
-    internal override IExecuteResult? Execute(WorkflowInstance instance)
+    internal override async ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
         Logger.Debug($"执行: {Title}");
         var trueAt = -1;
@@ -54,9 +55,8 @@ public sealed class DecisionActivity : Activity
             }
 
             var evaluator = new ExpressionEvaluator(instance);
-            var result = evaluator.Visit(condition!).Result; //TODO:
-            if (result.Type != AnyValue.ValueType.Boolean)
-                return new ErrorResult("Decision condition return none bool value");
+            var result = await evaluator.Visit(condition!);
+            Debug.Assert(result.Type == AnyValue.ValueType.Boolean);
             if (result.GetBool()!.Value)
             {
                 trueAt = i;
