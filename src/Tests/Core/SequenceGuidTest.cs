@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using AppBoxCore;
 using NUnit.Framework;
 
 namespace Tests.Core;
@@ -9,7 +10,7 @@ public class SequenceGuidTest
     [Test]
     public void GenSequenceIdTest()
     {
-        var gen = new SequenceGuid();
+        var gen = new MsSequenceGuid();
         var id1 = gen.Next();
         var id2 = gen.Next();
         Console.WriteLine(id1);
@@ -17,7 +18,15 @@ public class SequenceGuidTest
         Assert.IsTrue(id2 > id1);
     }
 
-    private class SequenceGuid
+    [Test]
+    public void SequenceIdTest()
+    {
+        var id1 = SequenceGuid.New();
+        var id2 = SequenceGuid.New();
+        Assert.IsTrue(id2 > id1);
+    }
+
+    private class MsSequenceGuid
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
