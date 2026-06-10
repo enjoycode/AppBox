@@ -33,6 +33,9 @@ partial class Expression
         Expression[] arguments, ExpressionTypeInfo typeInfo)
         => new(instance, indexerName, arguments, typeInfo);
 
+    public static IndexExpression ArrayAccess(Expression instance, Expression[] arguments, ExpressionTypeInfo typeInfo)
+        => new(instance, string.Empty, arguments, typeInfo);
+
     public static MemberExpression InstanceField(Expression instance, string memberName,
         ExpressionTypeInfo typeInfo) =>
         new(ExpressionTypeInfo.Empty, instance, memberName, true, typeInfo);

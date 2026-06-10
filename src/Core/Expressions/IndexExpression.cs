@@ -35,7 +35,7 @@ public sealed class IndexExpression : Expression
 
     public override LinqExpression ToLinqExpression(IExpressionContext ctx)
     {
-        if (IsStatic || IsArray)
+        if (IsStatic)
             throw new NotImplementedException();
 
         var instanceType = ctx.ResolveType(Instance!.TypeInfo);
@@ -45,14 +45,19 @@ public sealed class IndexExpression : Expression
             argTypes[i] = ctx.ResolveType(Arguments[i].TypeInfo);
         }
 
-        var indexerPropertyInfo = instanceType.GetProperty(IndexerName, argTypes)!;
         var args = new LinqExpression[Arguments.Length];
         for (var i = 0; i < args.Length; i++)
         {
             args[i] = Arguments[i].ToLinqExpression(ctx)!;
         }
 
-        return LinqExpression.Property(Instance.ToLinqExpression(ctx), indexerPropertyInfo, args);
+        if (!IsArray)
+        {
+            var indexerPropertyInfo = instanceType.GetProperty(IndexerName, argTypes)!;
+            return LinqExpression.Property(Instance.ToLinqExpression(ctx), indexerPropertyInfo, args);
+        }
+
+        return LinqExpression.ArrayAccess(Instance.ToLinqExpression(ctx)!, args);
     }
 
     public override void ToCode(StringBuilder sb, int preTabs)

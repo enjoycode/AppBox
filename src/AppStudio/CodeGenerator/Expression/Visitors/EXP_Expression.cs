@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AppBoxDesign.CodeGenerator;
@@ -49,6 +48,34 @@ partial class ExpressionParser
         return isField
             ? Expression.InstanceField(owner.Expression, memberName, typeInfo)
             : Expression.InstanceProperty(owner.Expression, memberName, typeInfo);
+    }
+
+    public override ParseResult VisitElementAccessExpression(ElementAccessExpressionSyntax node)
+    {
+        var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
+        var typeInfo = TryGetTypeInfoWithConverted(node)!.Value;
+        var owner = node.Expression.Accept(this);
+        var args = new Expression[node.ArgumentList.Arguments.Count];
+        for (var i = 0; i < args.Length; i++)
+        {
+            args[i] = node.ArgumentList.Arguments[i].Expression.Accept(this).Expression;
+        }
+
+        //Indexer
+        if (symbol is IPropertySymbol propertySymbol)
+        {
+            if (propertySymbol.IsIndexer)
+            {
+                return Expression.InstancePropertyIndexer(owner.Expression,
+                    propertySymbol.MetadataName, args, typeInfo);
+            }
+        }
+
+        //ArrayAccess
+        if (owner is { IsExpression: true, Expression.TypeInfo.Type: ExpressionTypeInfo.KnownType.Array })
+            return Expression.ArrayAccess(owner.Expression, args, typeInfo);
+
+        throw new NotImplementedException();
     }
 
     public override ParseResult VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)

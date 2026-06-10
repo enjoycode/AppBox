@@ -18,6 +18,12 @@ partial class ExpressionParser
         if (symbol is ITypeSymbol typeSymbol)
             return MakeTypeInfo(typeSymbol);
 
+        if (symbol is IParameterSymbol parameterSymbol)
+        {
+            var typeInfo = TryGetTypeInfoWithConverted(node)!.Value;
+            return Expression.Parameter(node.Identifier.Text, typeInfo);
+        }
+
         throw new NotImplementedException();
     }
 

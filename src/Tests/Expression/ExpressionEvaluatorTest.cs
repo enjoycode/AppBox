@@ -3,7 +3,6 @@ using AppBoxCore;
 using AppBoxDesign;
 using AppBoxDesign.CodeGenerator;
 using NUnit.Framework;
-using LinqExpression = System.Linq.Expressions.Expression;
 
 namespace Tests.Core;
 
@@ -18,11 +17,24 @@ public class ExpressionEvaluatorTest
     private static async Task EvalSingleLine(string lineCode, string returnType = "void",
         Func<AnyValue, bool>? assert = null)
     {
+        var exp = ParseSingleLine(lineCode, returnType);
+
+        var ts = Stopwatch.GetTimestamp();
+        var evaluator = new ExpressionEvaluator(ExpressionContext.Default);
+        var result = await evaluator.Visit(exp);
+        Console.WriteLine($"Eval used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
+
+        assert?.Invoke(result);
+    }
+
+    private static Expression ParseSingleLine(string lineCode, string returnType = "void", string parameters = "")
+    {
         var code = $$$"""
                       using System;
                       using System.Threading.Tasks;
+                      using System.Collections.Generic;
                       static class C{
-                        static {{{returnType}}} M(){
+                        static {{{returnType}}} M({{{parameters}}}){
                             {{{lineCode}}};
                         }
                       }
@@ -31,13 +43,7 @@ public class ExpressionEvaluatorTest
         var ts = Stopwatch.GetTimestamp();
         var exp = ExpressionParser.ParseCode(code, lineCode.StartsWith("return "));
         Console.WriteLine($"Parse used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
-
-        ts = Stopwatch.GetTimestamp();
-        var evaluator = new ExpressionEvaluator(ExpressionContext.Default);
-        var result = await evaluator.Visit(exp);
-        Console.WriteLine($"Eval used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
-
-        assert?.Invoke(result);
+        return exp;
     }
 
     [Test]
@@ -63,4 +69,25 @@ public class ExpressionEvaluatorTest
     [Test]
     public Task AwaitResultTest() => EvalSingleLine("return await Task.FromResult(123)", "async Task<int>",
         res => res.GetInt()!.Value == 123);
+
+    [Test]
+    public void ParseIndexerTest1()
+    {
+        var exp = ParseSingleLine("return map[\"key\"]", "int", "Dictionary<string,int> map");
+        Assert.IsTrue(exp is IndexExpression);
+    }
+
+    [Test]
+    public void ParseIndexerTest2()
+    {
+        var exp = ParseSingleLine("return list[0]", "int", "List<int> list");
+        Assert.IsTrue(exp is IndexExpression);
+    }
+
+    [Test]
+    public void ParseArrayAccessTest()
+    {
+        var exp = ParseSingleLine("return array[0]", "int", "int[] array");
+        Assert.IsTrue(exp is IndexExpression);
+    }
 }
