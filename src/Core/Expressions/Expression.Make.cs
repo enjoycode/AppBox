@@ -11,6 +11,12 @@ partial class Expression
     public static ParameterExpression Parameter(string name, ExpressionTypeInfo typeInfo) =>
         new(name, typeInfo);
 
+    public static BinaryExpression GreaterThan(Expression left, Expression right)
+        => new(left, right, BinaryOperatorType.Greater);
+
+    public static BinaryExpression Divide(Expression left, Expression right)
+        => new(left, right, BinaryOperatorType.Divide, left.TypeInfo);
+
     public static MemberExpression StaticProperty(ExpressionTypeInfo staticType, string memberName,
         ExpressionTypeInfo typeInfo) =>
         new(staticType, null, memberName, false, typeInfo);
@@ -22,6 +28,10 @@ partial class Expression
     public static MemberExpression InstanceProperty(Expression instance, string memberName,
         ExpressionTypeInfo typeInfo) =>
         new(ExpressionTypeInfo.Empty, instance, memberName, false, typeInfo);
+
+    public static IndexExpression InstancePropertyIndexer(Expression instance, string indexerName,
+        Expression[] arguments, ExpressionTypeInfo typeInfo)
+        => new(instance, indexerName, arguments, typeInfo);
 
     public static MemberExpression InstanceField(Expression instance, string memberName,
         ExpressionTypeInfo typeInfo) =>

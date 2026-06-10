@@ -46,19 +46,20 @@ public class ExpressionContext : IExpressionContext
             case ExpressionTypeInfo.KnownType.Empty: throw new NotSupportedException();
             case ExpressionTypeInfo.KnownType.Array:
             {
+                //TODO: fix multi dim
                 if (!typeInfo.HasTypes) return typeof(object[]);
-                var elementType = GetKnownType(typeInfo.Types![0]);
+                var elementType = ResolveType(typeInfo.Types![0]);
                 return elementType.MakeArrayType();
             }
             case ExpressionTypeInfo.KnownType.List:
             {
-                var genericType = GetKnownType(typeInfo.Types![0]);
+                var genericType = ResolveType(typeInfo.Types![0]);
                 return typeof(List<>).MakeGenericType(genericType);
             }
             case ExpressionTypeInfo.KnownType.Dictionary:
             {
-                var genericType1 = GetKnownType(typeInfo.Types![0]);
-                var genericType2 = GetKnownType(typeInfo.Types![1]);
+                var genericType1 = ResolveType(typeInfo.Types![0]);
+                var genericType2 = ResolveType(typeInfo.Types![1]);
                 return typeof(Dictionary<,>).MakeGenericType(genericType1, genericType2);
             }
             case ExpressionTypeInfo.KnownType.Unknown:

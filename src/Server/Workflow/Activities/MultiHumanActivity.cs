@@ -6,6 +6,19 @@ namespace AppBox.Workflow;
 
 public sealed class MultiHumanActivity : HumanActivity
 {
+    internal MultiHumanActivity() { }
+
+    internal MultiHumanActivity(string title, HumanActor[] actors, HumanAction[] actions,
+        Expression?[] conditions, Activity?[] links)
+        : base(title, actors, actions)
+    {
+        _conditions = conditions;
+        _links = links;
+
+        foreach (var action in Actions)
+            _actionResults.Add(action.Name, 0);
+    }
+
     /// <summary>
     /// 记录当前节点参与人员总数(作为计算结果的条件表达式的参数)
     /// </summary>

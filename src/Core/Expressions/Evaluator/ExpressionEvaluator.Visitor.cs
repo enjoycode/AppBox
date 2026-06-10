@@ -2,12 +2,15 @@ namespace AppBoxCore;
 
 public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<AnyValue>>
 {
-    protected override ValueTask<AnyValue> VisitConstant(ConstantExpression constantExpression) => 
+    protected override ValueTask<AnyValue> VisitConstant(ConstantExpression constantExpression) =>
         constantExpression.TypeInfo.IsConverted
-        ? new ValueTask<AnyValue>(ConvertTo(constantExpression.Value, constantExpression.TypeInfo))
-        : new ValueTask<AnyValue>(constantExpression.Value);
+            ? new ValueTask<AnyValue>(ConvertTo(constantExpression.Value, constantExpression.TypeInfo))
+            : new ValueTask<AnyValue>(constantExpression.Value);
 
-    protected override ValueTask<AnyValue> VisitMemberAccess(MemberExpression memberExpression)
+    protected override ValueTask<AnyValue> VisitParameter(ParameterExpression parameterExpression) =>
+        new(ResolveParameter(parameterExpression.Name));
+
+    protected override async ValueTask<AnyValue> VisitMemberAccess(MemberExpression memberExpression)
     {
         var memberName = memberExpression.MemberName;
         var isField = memberExpression.IsField;
@@ -17,44 +20,68 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
             if (isField)
             {
                 var fieldInfo = staticType.GetField(memberName)!;
-                return new ValueTask<AnyValue>(AnyValue.From(fieldInfo.GetValue(null)));
+                return AnyValue.From(fieldInfo.GetValue(null));
             }
 
             var propInfo = staticType.GetProperty(memberName)!;
-            return new(AnyValue.From(propInfo.GetValue(null)));
+            return AnyValue.From(propInfo.GetValue(null));
         }
         else
         {
-            var instance = Visit(memberExpression.Instance!).Result;
+            var instance = await Visit(memberExpression.Instance!);
             if (instance.IsEmpty) throw new NullReferenceException();
             var instanceType = instance.GetRuntimeType();
             if (isField)
             {
                 var fieldInfo = instanceType.GetField(memberName)!;
-                return new ValueTask<AnyValue>(AnyValue.From(fieldInfo.GetValue(instance.BoxedValue)));
+                return AnyValue.From(fieldInfo.GetValue(instance.BoxedValue));
             }
 
-            var propInfo = instanceType.GetField(memberName)!;
-            return new(AnyValue.From(propInfo.GetValue(instance.BoxedValue)));
+            var propInfo = instanceType.GetProperty(memberName)!;
+            return AnyValue.From(propInfo.GetValue(instance.BoxedValue));
         }
     }
 
-    protected override ValueTask<AnyValue> VisitBinary(BinaryExpression binaryExpression)
+    protected override async ValueTask<AnyValue> VisitIndex(IndexExpression indexExpression)
     {
-        var leftValue = Visit(binaryExpression.LeftOperand).Result;
-        switch (binaryExpression.BinaryType)
+        if (indexExpression.IsStatic || indexExpression.IsArray)
+            throw new NotImplementedException();
+
+        var instance = await Visit(indexExpression.Instance!);
+        var instanceType = instance.GetRuntimeType();
+        var args = new object?[indexExpression.Arguments.Length];
+        var argTypes = new Type[indexExpression.Arguments.Length];
+        for (var i = 0; i < args.Length; i++)
         {
-            case BinaryOperatorType.Add:
-            {
-                var rightValue = Visit(binaryExpression.RightOperand).Result;
-                return new ValueTask<AnyValue>(BinaryAdd(leftValue, rightValue));
-            }
-            default:
-                throw new NotImplementedException();
+            args[i] = (await Visit(indexExpression.Arguments[i])).BoxedValue;
+            argTypes[i] = ResolveType(indexExpression.Arguments[i].TypeInfo);
         }
+
+        var indexer = instanceType.GetProperty(indexExpression.IndexerName, argTypes)!;
+        return AnyValue.From(indexer.GetValue(instance.BoxedValue, args));
     }
 
-    protected override ValueTask<AnyValue> VisitMethodCall(MethodCallExpression methodCallExpression)
+    protected override async ValueTask<AnyValue> VisitBinary(BinaryExpression binaryExpression)
+    {
+        var leftValue = await Visit(binaryExpression.LeftOperand);
+        var rightValue = await Visit(binaryExpression.RightOperand);
+        var result = binaryExpression.BinaryType switch
+        {
+            BinaryOperatorType.Add => BinaryAdd(leftValue, rightValue),
+            BinaryOperatorType.Subtract => BinarySubtract(leftValue, rightValue),
+            BinaryOperatorType.Multiply => BinaryMultiply(leftValue, rightValue),
+            BinaryOperatorType.Divide => BinaryDivide(leftValue, rightValue),
+            BinaryOperatorType.Greater => BinaryGreaterThan(leftValue, rightValue),
+            BinaryOperatorType.GreaterOrEqual => BinaryGreaterThanOrEqual(leftValue, rightValue),
+            BinaryOperatorType.Less => BinaryLessThan(leftValue, rightValue),
+            BinaryOperatorType.LessOrEqual => BinaryLessThanOrEqual(leftValue, rightValue),
+            BinaryOperatorType.Equal => BinaryEqual(leftValue, rightValue),
+            _ => throw new NotImplementedException(binaryExpression.BinaryType.ToString())
+        };
+        return result;
+    }
+
+    protected override async ValueTask<AnyValue> VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         // 测试编译表达式
         // var linqExpression = methodCallExpression.ToLinqExpression(ExpressionContext.Default)!;
@@ -71,22 +98,22 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
             var methodInfo = GetMethodInfo(staticType, methodCallExpression);
             var args = GetMethodArgs(methodCallExpression);
             var result = methodInfo.Invoke(null, args);
-            return new(AnyValue.From(result));
+            return AnyValue.From(result);
         }
         else
         {
-            var target = Visit(methodCallExpression.Instance!).Result.BoxedValue!;
+            var target = (await Visit(methodCallExpression.Instance!)).BoxedValue!;
             var targetType = target.GetType();
             var methodInfo = GetMethodInfo(targetType, methodCallExpression);
             var args = GetMethodArgs(methodCallExpression);
             var result = methodInfo.Invoke(target, args);
-            return new(AnyValue.From(result));
+            return AnyValue.From(result);
         }
     }
 
     protected override async ValueTask<AnyValue> VisitAwait(AwaitExpression awaitExpression)
     {
-        var taskObj = Visit(awaitExpression.Expression).Result.BoxedValue!;
+        var taskObj = (await Visit(awaitExpression.Expression)).BoxedValue!;
         var taskType = taskObj.GetType();
         if (taskType.IsValueType) //ValueTask or ValueTask<T>
         {

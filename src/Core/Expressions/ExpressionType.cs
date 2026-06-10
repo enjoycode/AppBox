@@ -8,6 +8,7 @@ public enum ExpressionType : byte
     NewExpression = 3,
     MemberExpression = 4,
     MethodCallExpression = 5,
+    IndexExpression = 6,
     //LambdaExpression,
     //BlockExpression,
     //EventAction,

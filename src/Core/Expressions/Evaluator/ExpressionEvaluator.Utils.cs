@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace AppBoxCore;
@@ -21,8 +22,89 @@ partial class ExpressionEvaluator
     {
         return left.Type switch
         {
-            AnyValue.ValueType.Int32 => left.GetInt()!.Value + right.GetInt()!.Value,
-            AnyValue.ValueType.Double => left.GetDouble()!.Value + right.GetDouble()!.Value,
+            AnyValue.ValueType.Int32 => AnyValue.From(left.GetInt()!.Value + right.GetInt()!.Value),
+            AnyValue.ValueType.Double => AnyValue.From(left.GetDouble()!.Value + right.GetDouble()!.Value),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static AnyValue BinarySubtract(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => AnyValue.From(left.GetInt()!.Value - right.GetInt()!.Value),
+            AnyValue.ValueType.Double => AnyValue.From(left.GetDouble()!.Value - right.GetDouble()!.Value),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static AnyValue BinaryMultiply(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => AnyValue.From(left.GetInt()!.Value * right.GetInt()!.Value),
+            AnyValue.ValueType.Double => AnyValue.From(left.GetDouble()!.Value * right.GetDouble()!.Value),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static AnyValue BinaryDivide(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => AnyValue.From(left.GetInt()!.Value / right.GetInt()!.Value),
+            AnyValue.ValueType.Double => AnyValue.From(left.GetDouble()!.Value / right.GetDouble()!.Value),
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static AnyValue BinaryGreaterThan(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => left.GetInt()!.Value > right.GetInt()!.Value,
+            AnyValue.ValueType.Double => left.GetDouble()!.Value > right.GetDouble()!.Value,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static AnyValue BinaryGreaterThanOrEqual(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => left.GetInt()!.Value >= right.GetInt()!.Value,
+            AnyValue.ValueType.Double => left.GetDouble()!.Value >= right.GetDouble()!.Value,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static AnyValue BinaryLessThan(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => left.GetInt()!.Value < right.GetInt()!.Value,
+            AnyValue.ValueType.Double => left.GetDouble()!.Value < right.GetDouble()!.Value,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    private static AnyValue BinaryLessThanOrEqual(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => left.GetInt()!.Value <= right.GetInt()!.Value,
+            AnyValue.ValueType.Double => left.GetDouble()!.Value <= right.GetDouble()!.Value,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
+    private static AnyValue BinaryEqual(AnyValue left, AnyValue right)
+    {
+        return left.Type switch
+        {
+            AnyValue.ValueType.Int32 => left.GetInt()!.Value == right.GetInt()!.Value,
+            AnyValue.ValueType.Double => left.GetDouble()!.Value == right.GetDouble()!.Value,
             _ => throw new NotImplementedException()
         };
     }

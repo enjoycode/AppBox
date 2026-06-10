@@ -9,7 +9,9 @@ public class WorkflowRuntimeTest
 {
     private readonly MockWorkflowStore _store = new();
     private readonly Guid _mockUserId = Guid.NewGuid();
-    private readonly Guid _mockManagerId = Guid.NewGuid();
+    private readonly Guid _mockManager1Id = Guid.NewGuid();
+    private readonly Guid _mockManager2Id = Guid.NewGuid();
+    private readonly Guid _mockManager3Id = Guid.NewGuid();
 
     [SetUp]
     public void Setup()
@@ -35,20 +37,66 @@ public class WorkflowRuntimeTest
     [Test(Description = "单人活动")]
     public async Task TestSingleHuman()
     {
-        var approveActivity = new AutomationActivity("Approve");
-        var rejectActivity = new AutomationActivity("Reject");
+        var approveActivity = new AutomationActivity("通过");
+        var rejectActivity = new AutomationActivity("拒绝");
         var singleHumanActivity = new SingleHumanActivity("经理审批",
-            [new HumanActor(Expression.Constant(_mockManagerId))],
+            [new HumanActor(Expression.Constant(_mockManager1Id))],
             [new HumanAction("同意"), new HumanAction("不同意")],
             [approveActivity, rejectActivity]);
         var start = new StartActivity() { Next = singleHumanActivity };
-        var instance = new WorkflowInstance("TestBookmark", start, _mockUserId, "Test", []);
+        var instance = new WorkflowInstance("TestSingleHuman", start, _mockUserId, "Test", []);
         await instance.Start(_store);
         await instance.WaitForSuspendedOrFinished();
 
         var bookmarks = instance.GetAllBookmarks();
         var bookmarkId = bookmarks.First().Id;
-        await instance.Resume(bookmarkId, _mockManagerId, new HumanActionResult() { Result = "同意", Memo = "备注" });
+        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult() { Result = "同意", Memo = "备注" });
+        await instance.WaitForSuspendedOrFinished();
+    }
+
+    [Test(Description = "多人活动")]
+    public async Task TestMultipleHuman()
+    {
+        var approveActivity = new AutomationActivity("通过");
+        var rejectActivity = new AutomationActivity("拒绝");
+        var resultsParameter = Expression.Parameter("results",
+            new ExpressionTypeInfo(ExpressionTypeInfo.KnownType.Dictionary, types:
+            [
+                ExpressionTypeInfo.String,
+                ExpressionTypeInfo.Int32
+            ]));
+        var actorCountParameter = Expression.Parameter("actorCount", ExpressionTypeInfo.Int32);
+        var itemAccess = Expression.InstancePropertyIndexer(resultsParameter, "Item",
+            [Expression.Constant("同意")], ExpressionTypeInfo.Int32);
+        var multiHumanActivity = new MultiHumanActivity("专家会签",
+            [
+                new HumanActor(Expression.Constant(_mockManager1Id)),
+                new HumanActor(Expression.Constant(_mockManager2Id)),
+                new HumanActor(Expression.Constant(_mockManager3Id))
+            ],
+            [new HumanAction("同意"), new HumanAction("不同意")],
+            [
+                Expression.GreaterThan(
+                    itemAccess,
+                    Expression.Divide(actorCountParameter, Expression.Constant(2))
+                ),
+                null
+            ],
+            [approveActivity, rejectActivity]
+        );
+
+        var start = new StartActivity() { Next = multiHumanActivity };
+        var instance = new WorkflowInstance("TestMultiHuman", start, _mockUserId, "Test", []);
+        await instance.Start(_store);
+        await instance.WaitForSuspendedOrFinished();
+
+        var bookmarks = instance.GetAllBookmarks();
+        var bookmarkId = bookmarks.First().Id;
+        //审批者1递交
+        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult() { Result = "同意", Memo = "备注1" });
+        await instance.WaitForSuspendedOrFinished();
+        //审批者2递交
+        await instance.Resume(bookmarkId, _mockManager2Id, new HumanActionResult() { Result = "同意", Memo = "备注2" });
         await instance.WaitForSuspendedOrFinished();
     }
 }

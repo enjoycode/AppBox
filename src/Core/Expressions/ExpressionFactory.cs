@@ -5,6 +5,7 @@ public static class ExpressionFactory
     private static readonly Dictionary<ExpressionType, Func<Expression>> Factories = new()
     {
         { ExpressionType.ConstantExpression, () => new ConstantExpression() },
+        { ExpressionType.IndexExpression, () => new IndexExpression() },
         { ExpressionType.ParameterExpression, () => new ParameterExpression() },
         { ExpressionType.BinaryExpression, () => new BinaryExpression() },
         { ExpressionType.NewExpression, () => new NewExpression() },

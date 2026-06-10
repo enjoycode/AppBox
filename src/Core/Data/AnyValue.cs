@@ -460,7 +460,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
             case ValueType.Double: return typeof(double);
             case ValueType.Decimal: return typeof(decimal);
             case ValueType.Guid: return typeof(Guid);
-            default: return typeof(object);
+            default: return ObjectValue!.GetType();
         }
     }
 

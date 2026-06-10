@@ -38,5 +38,7 @@ partial class ExpressionEvaluator
     public void AddIdentifier(string name, AnyValue value)
         => _blockStacks[^1].AddIdentifier(name, value);
 
+    public AnyValue ResolveParameter(string name) => _expressionContext.ResolveParameter(name);
+
     public Type ResolveType(ExpressionTypeInfo typeInfo) => _expressionContext.ResolveType(typeInfo);
 }
