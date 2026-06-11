@@ -6,12 +6,12 @@ public class FlowLink : IBinSerializable
 {
     internal FlowLink() { }
 
-    internal FlowLink(string name)
+    internal FlowLink(string title)
     {
-        Name = name;
+        Title = title;
     }
 
-    public string? Name { get; set; }
+    public string? Title { get; set; }
 
     private string? _sourceConnector;
 
@@ -38,10 +38,10 @@ public class FlowLink : IBinSerializable
 
     public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        if (!string.IsNullOrEmpty(Name))
+        if (!string.IsNullOrEmpty(Title))
         {
             ws.WriteFieldId(1);
-            ws.WriteString(Name);
+            ws.WriteString(Title);
         }
 
         if (!string.IsNullOrEmpty(_sourceConnector))
@@ -74,7 +74,7 @@ public class FlowLink : IBinSerializable
             propIndex = rs.ReadFieldId();
             switch (propIndex)
             {
-                case 1: Name = rs.ReadString(); break;
+                case 1: Title = rs.ReadString(); break;
                 case 2: _sourceConnector = rs.ReadString(); break;
                 case 3: _targetConnector = rs.ReadString(); break;
                 case 4:
@@ -95,6 +95,13 @@ public class FlowLink : IBinSerializable
 /// </summary>
 public sealed class ConditionLink : FlowLink
 {
+    public ConditionLink() { }
+
+    internal ConditionLink(string title)
+    {
+        Title = title;
+    }
+
     /// <summary>
     /// Null表式Else分支
     /// </summary>

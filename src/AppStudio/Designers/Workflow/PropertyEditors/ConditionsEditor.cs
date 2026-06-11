@@ -11,7 +11,7 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
         new(new ConditionsEditor(ctx, prop), VerticalAlignment.Top);
 
     public ConditionsEditor(DesignContext designContext, IDiagramProperty propertyItem)
-        : base(propertyItem, c => c.Name ?? "[Unnamed]")
+        : base(propertyItem, c => c.Title ?? "[Unnamed]")
     {
         _designContext = designContext;
     }
@@ -64,7 +64,7 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
             Height = 400;
 
 
-            _nameState = new RxProxy<string>(() => link.Name ?? "[Unnamed]", v => link.Name = v);
+            _nameState = new RxProxy<string>(() => link.Title ?? "[Unnamed]", v => link.Title = v);
             var expressionInfo = MakeExpressionInfo(workflowModel, node, link);
             _expressionEditor = new ExpressionEditor(designContext, expressionInfo);
         }

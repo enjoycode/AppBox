@@ -11,6 +11,8 @@ internal sealed class WorkflowValidator
     private readonly List<ForkJoinPair> _forkJoinPairs = [];
     private readonly List<ErrorInfo> _errors = [];
 
+    public int VisitedNodesCount => _visits.Count;
+
     public IReadOnlyList<ErrorInfo> Validate(StartNode startNode)
     {
         //添加默认分支
@@ -276,8 +278,8 @@ internal sealed class WorkflowValidator
             {
                 if (Link == null) return Node.ToString();
                 return IsIncomingLink
-                    ? $"{Link.Name} --> {Node}"
-                    : $"{Node} --> {Link.Name}";
+                    ? $"{Link.Title} --> {Node}"
+                    : $"{Node} --> {Link.Title}";
             }
         }
     }

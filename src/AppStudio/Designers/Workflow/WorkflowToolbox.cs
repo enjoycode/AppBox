@@ -44,11 +44,11 @@ internal sealed class WorkflowToolbox : View, IDiagramToolbox
         node.Title = "条件判断";
         //建立默认的两个条件分支
         var cTrue = new ConditionLink();
-        cTrue.Name = "是";
+        cTrue.Title = "是";
         cTrue.Condition = new ConstantExpression(true);
         node.Conditions.Add(cTrue);
         var cFalse = new ConditionLink();
-        cFalse.Name = "否";
+        cFalse.Title = "否";
         node.Conditions.Add(cFalse);
         return node;
     }

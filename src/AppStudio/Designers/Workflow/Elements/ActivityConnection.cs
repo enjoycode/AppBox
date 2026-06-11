@@ -41,7 +41,7 @@ internal sealed class ActivityConnection : DiagramConnection, IActivityConnectio
 
     public override string? Title
     {
-        get => Link?.Name;
+        get => Link?.Title;
         set
         {
             throw new NotSupportedException(); //暂不支持修改

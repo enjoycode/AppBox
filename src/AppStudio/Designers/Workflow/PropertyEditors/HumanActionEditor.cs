@@ -30,7 +30,7 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
         }
 
         //同步模型添加ConditionLink
-        var link = new ConditionLink() { Name = actionName.Value };
+        var link = new ConditionLink() { Title = actionName.Value };
         HumanNode.ResultConditions.Add(link);
 
         DataSources.Add(new HumanAction() { Name = actionName.Value });
@@ -58,8 +58,8 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
         }
 
         //同步更新FlowLink和Action的名称
-        var link = HumanNode.ResultConditions.Single(t => t.Name == action.Name);
-        link.Name = actionName.Value;
+        var link = HumanNode.ResultConditions.Single(t => t.Title == action.Name);
+        link.Title = actionName.Value;
         action.Name = actionName.Value;
         //TODO: should repaint target ActivityConnection
     }
@@ -73,7 +73,7 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
         //TODO: 多人活动需要判断删除的有没有在ResultConditions的表达式内引用到，有引用则不允许删除
 
         //找到对应的ConditionLink
-        var link = HumanNode.ResultConditions.Single(t => t.Name == action.Name);
+        var link = HumanNode.ResultConditions.Single(t => t.Title == action.Name);
         //从现有的连接线查找，从画布中移除
         var connections = ActivityDesigner.Surface!.GetConnections().Cast<ActivityConnection>();
         var connection = connections.SingleOrDefault(t => t.Link == link);

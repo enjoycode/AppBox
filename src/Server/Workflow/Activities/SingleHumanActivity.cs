@@ -26,9 +26,9 @@ public sealed class SingleHumanActivity : HumanActivity
 
     internal override void LinkTo(Activity target, FlowLink link)
     {
-        var index = FindActionIndex(link.Name);
+        var index = FindActionIndex(link.Title);
         if (index == -1)
-            throw new Exception($"Can not find Action with name: {link.Name}");
+            throw new Exception($"Can not find Action with name: {link.Title}");
 
         _links[index] = target;
     }

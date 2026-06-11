@@ -10,6 +10,15 @@ public sealed class SingleHumanNode : HumanNode
         Title = "单人活动";
     }
 
+    /// <summary>
+    /// Only for test
+    /// </summary>
+    internal SingleHumanNode(string title, ConditionLink[] conditions)
+    {
+        Title = title;
+        ResultConditions.AddRange(conditions);
+    }
+
     public override byte Type => ActivityType.SingleHumanActivity;
 
     public override bool IsSingleHuman => true;

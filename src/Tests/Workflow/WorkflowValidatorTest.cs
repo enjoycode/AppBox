@@ -14,8 +14,8 @@ public class WorkflowValidatorTest
         }
     }
 
-    [Test]
-    public void TestClosedLoop()
+    [Test(Description = "闭环测试，防止死循环")]
+    public void TestCircledLoop()
     {
         //          ┌─────┐            
         //          │  A  ├───────────┐
@@ -27,6 +27,27 @@ public class WorkflowValidatorTest
         // │ r │    └─────┘ │ ┌─────┐  
         // │ t │            └►│  B2 │  
         // └───┘              └─────┘  
+
+        var startNode = new StartNode();
+        var nodeB = new SingleHumanNode("经理审批", [
+            new ConditionLink("同意") { Condition = Expression.Constant(true) },
+            new ConditionLink("拒绝")
+        ]);
+        var nodeB1 = new AutomationNode("B1");
+        var nodeB2 = new AutomationNode("B2");
+        var nodeA = new AutomationNode("A");
+
+        startNode.Next.Target = nodeB;
+        nodeB.ResultConditions[0].Target = nodeB1;
+        nodeB.ResultConditions[1].Target = nodeB2;
+        nodeB1.Next.Target = nodeA;
+        nodeA.Next.Target = nodeB;
+
+        var validator = new WorkflowValidator();
+        var errors = validator.Validate(startNode);
+        DumpErrors(errors);
+        Assert.IsTrue(errors.Count == 0);
+        Assert.IsTrue(validator.VisitedNodesCount == 5);
     }
 
     [Test]
@@ -69,5 +90,6 @@ public class WorkflowValidatorTest
         var errors = validator.Validate(startNode);
         DumpErrors(errors);
         Assert.IsTrue(errors.Any(e => e.ErrorCode == WorkflowValidator.ErrorCode.MultiForkNodeLinkToOneJoinNode));
+        Assert.IsTrue(validator.VisitedNodesCount == 8);
     }
 }

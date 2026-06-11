@@ -65,7 +65,7 @@ public sealed class MultiHumanActivity : HumanActivity
     {
         var index = _conditions.IndexOf(((ConditionLink)link).Condition);
         if (index == -1)
-            throw new Exception($"Can not find Condition with name: {link.Name}");
+            throw new Exception($"Can not find Condition with name: {link.Title}");
 
         _links[index] = target;
     }
