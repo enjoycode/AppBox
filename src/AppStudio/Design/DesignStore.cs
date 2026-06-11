@@ -75,7 +75,7 @@ internal sealed class DesignStore : IDesignUIService
     /// <summary>
     ///  问题列表控制器
     /// </summary>
-    internal readonly DataGridController<CodeProblem> ProblemsController = new();
+    internal readonly DataGridController<IModelProblem> ProblemsController = new();
 
     /// <summary>
     /// 引用列表控制器
@@ -150,7 +150,7 @@ internal sealed class DesignStore : IDesignUIService
         }
     }
 
-    internal void UpdateProblems(ModelNode modelNode, IList<CodeProblem> problems)
+    internal void UpdateProblems(ModelNode modelNode, IList<IModelProblem> problems)
     {
         //TODO:暂简单实现
         ProblemsController.DataSource = problems;
@@ -169,10 +169,10 @@ internal sealed class DesignStore : IDesignUIService
             OpenOrActiveDesigner(node, reference);
     }
 
-    internal void GotoProblem(CodeProblem problem)
+    internal void GotoProblem(IModelProblem problem)
     {
         var designer = ActiveDesigner; //TODO:暂仅限当前激活的设计器
-        if (designer is ICodeDesigner codeDesigner)
+        if (designer is IDesignerWithProblems codeDesigner)
             codeDesigner.GotoProblem(problem);
     }
 

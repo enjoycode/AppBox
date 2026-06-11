@@ -40,7 +40,7 @@ internal sealed class BottomPad : View
 
     private Widget BuildBody(string title) => title switch
     {
-        BottomPadNames.Problems => new DataGrid<CodeProblem>(_designStore.ProblemsController)
+        BottomPadNames.Problems => new DataGrid<IModelProblem>(_designStore.ProblemsController)
             .AddIconColumn(string.Empty,
                 p => p.IsError ? MaterialIcons.Dangerous : MaterialIcons.Report,
                 26,

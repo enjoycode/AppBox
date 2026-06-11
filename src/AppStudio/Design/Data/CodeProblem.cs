@@ -1,16 +1,20 @@
-using System;
-using AppBoxCore;
-
 namespace AppBoxDesign;
 
-internal struct CodeProblem
+internal interface IModelProblem
 {
-    internal int StartLine;
-    internal int StartColumn;
-    internal int EndLine;
-    internal int EndColumn;
-    internal bool IsError;
-    internal string Message;
+    bool IsError { get; }
+    string Message { get; }
+    string Position { get; }
+}
 
-    internal string Position => $"[{StartLine + 1}, {StartColumn}] - [{EndLine + 1}, {EndColumn}]";
+internal sealed class CodeProblem : IModelProblem
+{
+    public int StartLine { get; init; }
+    public int StartColumn { get; init; }
+    public int EndLine { get; init; }
+    public int EndColumn { get; init; }
+    public bool IsError { get; init; }
+    public string Message { get; init; } = string.Empty;
+
+    public string Position => $"[{StartLine + 1}, {StartColumn}] - [{EndLine + 1}, {EndColumn}]";
 }

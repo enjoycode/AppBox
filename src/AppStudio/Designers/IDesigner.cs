@@ -32,12 +32,12 @@ internal interface IModelDesigner : IDesigner
     Widget? GetToolboxPad();
 }
 
-internal interface ICodeDesigner : IModelDesigner
+internal interface IDesignerWithProblems : IModelDesigner
 {
-    void GotoProblem(CodeProblem problem);
+    void GotoProblem(IModelProblem problem);
 }
 
-internal interface IDebuggableCodeDesigner : ICodeDesigner
+internal interface IDebuggableCodeDesigner : IDesignerWithProblems
 {
     void OnDebugEvent(IDebugEventArgs eventArgs);
 

@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 internal static class GetProblems
 {
-    internal static async Task<IList<CodeProblem>> Execute(DesignContext context, ModelNode modelNode)
+    internal static async Task<IList<IModelProblem>> Execute(DesignContext context, ModelNode modelNode)
     {
         var document = context.Workspace.CurrentSolution.GetDocument(modelNode.RoslynDocumentId)!;
         var semanticModel = await document.GetSemanticModelAsync();
@@ -13,7 +13,7 @@ internal static class GetProblems
             .ToList();
     }
 
-    private static CodeProblem MakeProblem(Diagnostic diagnostic)
+    private static IModelProblem MakeProblem(Diagnostic diagnostic)
     {
         var span = diagnostic.Location.GetMappedLineSpan();
         return new CodeProblem()

@@ -4,7 +4,7 @@ using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
+internal sealed class ViewCodeDesigner : View, IDesignerWithProblems, IAIGeneratable
 {
     public ViewCodeDesigner(DesignContext designContext, ModelNode modelNode)
     {
@@ -145,8 +145,9 @@ internal sealed class ViewCodeDesigner : View, ICodeDesigner, IAIGeneratable
             GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, location);
     }
 
-    public void GotoProblem(CodeProblem problem)
+    public void GotoProblem(IModelProblem modelProblem)
     {
+        var problem = (CodeProblem)modelProblem;
         _codeEditorController.SetCaret(problem.StartLine, problem.StartColumn);
         if (problem.StartLine == problem.EndLine && problem.StartColumn == problem.EndColumn)
             _codeEditorController.ClearSelection();

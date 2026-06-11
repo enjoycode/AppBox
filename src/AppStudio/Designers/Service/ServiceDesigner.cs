@@ -164,8 +164,9 @@ internal sealed class ServiceDesigner : View, IDebuggableCodeDesigner
             GotoDefinitionCommand.RunOnCodeEditor(_codeEditorController, location);
     }
 
-    public void GotoProblem(CodeProblem problem)
+    public void GotoProblem(IModelProblem modelProblem)
     {
+        var problem = (CodeProblem)modelProblem;
         _codeEditorController.SetCaret(problem.StartLine, problem.StartColumn);
         if (problem.StartLine == problem.EndLine && problem.StartColumn == problem.EndColumn)
             _codeEditorController.ClearSelection();
