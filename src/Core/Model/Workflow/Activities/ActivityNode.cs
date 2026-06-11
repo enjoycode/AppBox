@@ -21,8 +21,8 @@ public abstract class ActivityNode : IBinSerializable
     /// <summary>
     /// 获取源自本身的可供连接至其他节点的FlowLink，仅供设计时调用
     /// </summary>
-    public IEnumerable<FlowLink> GetAvailableOutLinks() =>
-        GetOutLinks().Where(t => t.SourceConnection == null);
+    public virtual IEnumerable<FlowLink> GetAvailableOutLinks() =>
+        GetOutLinks().Where(t => t.DiagramConnection == null);
 
     #region ====Serialization====
 

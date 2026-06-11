@@ -4,7 +4,7 @@ using PixUI;
 namespace AppBoxDesign;
 
 /// <summary>
-/// 用于将WorkflowModel转换为相应的画布元素
+/// 用于将Workflow各节点转换为相应的画布元素
 /// </summary>
 internal sealed class WorkflowDesignVisitor
 {

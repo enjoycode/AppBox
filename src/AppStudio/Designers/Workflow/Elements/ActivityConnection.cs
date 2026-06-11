@@ -6,7 +6,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 用于工作流设计器的连接线，监测Source及Target的改变，修改相应的模型的流转
 /// </summary>
-internal sealed class ActivityConnection : DiagramConnection
+internal sealed class ActivityConnection : DiagramConnection, IActivityConnection
 {
     public ActivityConnection()
     {
@@ -23,8 +23,8 @@ internal sealed class ActivityConnection : DiagramConnection
     internal ActivityConnection(FlowLink link, ActivityDesigner source, ActivityDesigner target) : this()
     {
         _isLoading = true;
-        _sourceLink = link;
-        _sourceLink.SourceConnection = this;
+        Link = link;
+        Link.DiagramConnection = this;
         SourceConnectorPosition = link.SourceConnector;
         Source = source;
         TargetConnectorPosition = link.TargetConnector;
@@ -32,41 +32,40 @@ internal sealed class ActivityConnection : DiagramConnection
         _isLoading = false;
     }
 
-    private FlowLink? _preSourceLink; //todo:临时方案用于解决移动已连接源至相同的源但Connector不同
+    private FlowLink? _preSourceLink; //TODO:临时方案用于解决移动已连接源至相同的源但Connector不同
     private IShape? _preSource; //同上组合
 
-    private FlowLink? _sourceLink;
     private bool _isLoading;
 
-    public FlowLink? Link => _sourceLink;
+    public FlowLink? Link { get; private set; }
 
     public override string? Title
     {
-        get => _sourceLink?.Name;
+        get => Link?.Name;
         set
         {
             throw new NotSupportedException(); //暂不支持修改
-            // if (_sourceLink != null)
+            // if (Link != null)
             // {
             //     //暂直接修改单人活动的连接名称所对应的Action.Name
             //     var designer = (ActivityDesigner)Source!;
             //     if (designer.Model is SingleHumanActivityModel singleHumanActivityModel)
             //     {
-            //         var act = singleHumanActivityModel.Actions.Single(t => t.Name == _sourceLink.Name);
+            //         var act = singleHumanActivityModel.Actions.Single(t => t.Name == Link.Name);
             //         act.Name = value ?? string.Empty;
             //         act.AcceptChanges();
             //     }
             //
-            //     _sourceLink.Name = value;
+            //     Link.Name = value;
             // }
         }
     }
 
     internal void DetachSourceLink()
     {
-        if (_sourceLink != null)
+        if (Link != null)
         {
-            _sourceLink.SourceConnection = null;
+            Link.DiagramConnection = null;
         }
         else
         {
@@ -79,13 +78,13 @@ internal sealed class ActivityConnection : DiagramConnection
     {
         if (Source != null && Target != null)
         {
-            _sourceLink?.Target = null;
+            Link?.Target = null;
         }
 
         if (Source != null)
         {
-            _sourceLink?.SourceConnection = null;
-            _sourceLink = null;
+            Link?.DiagramConnection = null;
+            Link = null;
         }
         else
         {
@@ -118,33 +117,33 @@ internal sealed class ActivityConnection : DiagramConnection
             if (_preSourceLink != null)
             {
                 if (Source == _preSource) //还是相同的源，只不过连接到不同的Connector
-                    _sourceLink = _preSourceLink;
+                    Link = _preSourceLink;
 
                 _preSource = null;
                 _preSourceLink = null;
             }
 
-            if (_sourceLink == null)
-                _sourceLink = availableConnections[0];
-            _sourceLink.SourceConnection = this;
+            if (Link == null)
+                Link = availableConnections[0];
+            Link.DiagramConnection = this;
 
             //再判断目标有没有
             if (Target != null)
             {
                 ActivityNode targetNode = ((ActivityDesigner)Target).Node;
-                _sourceLink.SourceConnector = SourceConnectorPosition;
-                _sourceLink.TargetConnector = TargetConnectorPosition;
-                _sourceLink.Target = targetNode;
+                Link.SourceConnector = SourceConnectorPosition;
+                Link.TargetConnector = TargetConnectorPosition;
+                Link.Target = targetNode;
             }
         }
         else if (oldSourceModel != null && newSourceModel == null) //non null -> null
         {
-            _preSourceLink = _sourceLink;
+            _preSourceLink = Link;
             _preSource = oldSource;
 
-            _sourceLink.Target = null;
-            _sourceLink.SourceConnection = null; //互相清空引用
-            _sourceLink = null;
+            Link.Target = null;
+            Link.DiagramConnection = null; //互相清空引用
+            Link = null;
         }
     }
 
@@ -157,20 +156,20 @@ internal sealed class ActivityConnection : DiagramConnection
 
         if (Source != null)
         {
-            var sourceModel = ((ActivityDesigner)Source).Node;
-            var oldTargetModel = oldTarget == null ? null : ((ActivityDesigner)oldTarget).Node;
-            var newTargetModel = Target == null ? null : ((ActivityDesigner)Target).Node;
+            // var sourceNode = ((ActivityDesigner)Source).Node;
+            var oldTargetNode = oldTarget == null ? null : ((ActivityDesigner)oldTarget).Node;
+            var newTargetNode = Target == null ? null : ((ActivityDesigner)Target).Node;
 
             //注意：不可能存在 non null -> non null，设计器拖动首尾点时自动清空
-            if (oldTargetModel == null && newTargetModel != null) //null -> non null
+            if (oldTargetNode == null && newTargetNode != null) //null -> non null
             {
-                _sourceLink.SourceConnector = SourceConnectorPosition;
-                _sourceLink.TargetConnector = TargetConnectorPosition;
-                _sourceLink.Target = newTargetModel;
+                Link.SourceConnector = SourceConnectorPosition;
+                Link.TargetConnector = TargetConnectorPosition;
+                Link.Target = newTargetNode;
             }
-            else if (oldTargetModel != null && newTargetModel == null) //non null -> null
+            else if (oldTargetNode != null && newTargetNode == null) //non null -> null
             {
-                _sourceLink.Target = null;
+                Link.Target = null;
             }
         }
     }
@@ -182,8 +181,7 @@ internal sealed class ActivityConnection : DiagramConnection
         if (_isLoading)
             return;
 
-        if (_sourceLink != null)
-            _sourceLink.SourceConnector = newPosition;
+        Link?.SourceConnector = newPosition ?? string.Empty;
     }
 
     protected override void OnTargetConnectorPositionChanged(string? newPosition, string? oldPosition)
@@ -193,7 +191,6 @@ internal sealed class ActivityConnection : DiagramConnection
         if (_isLoading)
             return;
 
-        if (_sourceLink != null)
-            _sourceLink.TargetConnector = newPosition;
+        Link?.TargetConnector = newPosition ?? string.Empty;
     }
 }

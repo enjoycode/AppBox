@@ -12,10 +12,5 @@ public sealed class SingleHumanNode : HumanNode
 
     public override byte Type => ActivityType.SingleHumanActivity;
 
-    public new List<ConditionLink> ResultConditions
-    {
-        get { return base.ResultConditions; }
-    }
-
     public override bool IsSingleHuman => true;
 }

@@ -5,14 +5,11 @@
 /// </summary>
 public sealed class StartNode : ActivityNode
 {
-    public StartNode()
-    {
-        Next = new FlowLink();
-    }
+    public StartNode() { }
 
     public override byte Type => ActivityType.StartActivity;
 
-    public FlowLink Next { get; }
+    public FlowLink Next { get; } = new();
 
     public override IEnumerable<FlowLink> GetOutLinks()
     {

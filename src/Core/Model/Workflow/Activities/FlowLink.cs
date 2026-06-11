@@ -1,5 +1,7 @@
 ﻿namespace AppBoxCore;
 
+public interface IActivityConnection { }
+
 public class FlowLink : IBinSerializable
 {
     public string? Name { get; set; }
@@ -25,7 +27,7 @@ public class FlowLink : IBinSerializable
     /// <summary>
     /// 仅用于设计时，源自本身的设计时连接线IConnection
     /// </summary>
-    public object? SourceConnection;
+    public IActivityConnection? DiagramConnection;
 
     public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
@@ -90,6 +92,8 @@ public sealed class ConditionLink : FlowLink
     /// Null表式Else分支
     /// </summary>
     public Expression? Condition { get; set; }
+
+    public bool IsDefault => Expression.IsNull(Condition);
 
     public override void WriteTo<TWriter>(ref TWriter ws)
     {

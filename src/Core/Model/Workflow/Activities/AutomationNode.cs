@@ -12,7 +12,14 @@ public sealed class AutomationNode : ActivityNode
 
     public override byte Type => ActivityType.AutomationActivity;
 
+    public FlowLink Next { get; } = new();
+
     public Expression? Expression { get; set; }
+
+    public override IEnumerable<FlowLink> GetOutLinks()
+    {
+        yield return Next;
+    }
 
     #region ====Serialization====
 
@@ -24,6 +31,12 @@ public sealed class AutomationNode : ActivityNode
         {
             ws.WriteFieldId(1);
             ws.Serialize(Expression);
+        }
+
+        if (Next.Target != null)
+        {
+            ws.WriteFieldId(2);
+            Next.WriteTo(ref ws);
         }
 
         ws.WriteFieldEnd();
@@ -40,6 +53,7 @@ public sealed class AutomationNode : ActivityNode
             switch (propIndex)
             {
                 case 1: Expression = (Expression)rs.Deserialize()!; break;
+                case 2: Next.ReadFrom(ref rs); break;
                 case 0: break;
                 default: throw SerializationException.ReadUnknownField(nameof(AutomationNode), propIndex);
             }
