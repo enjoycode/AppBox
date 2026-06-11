@@ -2,6 +2,14 @@ namespace AppBoxCore;
 
 public sealed class ForkNode : ActivityNode
 {
+    internal ForkNode() { }
+
+    internal ForkNode(string title, FlowLink[] branches)
+    {
+        Title = title;
+        Branches.AddRange(branches);
+    }
+
     public override byte Type => ActivityType.ForkActivity;
 
     /// <summary>

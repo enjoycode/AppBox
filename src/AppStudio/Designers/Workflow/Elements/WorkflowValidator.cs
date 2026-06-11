@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class WorkflowValidator
 {
-    private readonly HashSet<ActivityNode> _visits = [];
+    private readonly Dictionary<ActivityNode, BranchInfo> _visits = [];
     private readonly List<ForkJoinPair> _forkJoinPairs = [];
     private readonly List<ErrorInfo> _errors = [];
 
@@ -20,7 +20,8 @@ internal sealed class WorkflowValidator
         //验证分支有效性
         foreach (var pair in _forkJoinPairs)
         {
-            pair.CheckAllBranchLinkToJoinNode();
+            if (!pair.CheckAllBranchLinkToJoinNode())
+                AddError(pair.ForkNode, ErrorCode.ForkNodeNotAllBranchesLinkToJoinNode);
         }
 
         return _errors;
@@ -28,8 +29,14 @@ internal sealed class WorkflowValidator
 
     private void Visit(FlowLink? incomingLink, ActivityNode node, BranchInfo branch)
     {
-        if (!_visits.Add(node))
+        if (!_visits.TryAdd(node, branch))
+        {
+            //特殊处理JoinNode，允许重复Visit
+            if (node is JoinNode joinNode)
+                VisitJoinNode(incomingLink!, joinNode, branch, _visits[node]);
+
             return;
+        }
 
         //根据节点类型处理
         switch (node)
@@ -49,7 +56,7 @@ internal sealed class WorkflowValidator
         //先判断有无连接至目标
         if (startNode.Next.Target == null)
         {
-            AddError(startNode, "开始节点未连接至其他节点");
+            AddError(startNode, ErrorCode.StartNodeWithoutNext);
             return;
         }
 
@@ -77,7 +84,7 @@ internal sealed class WorkflowValidator
         var outlinks = node.GetOutLinks().Cast<ConditionLink>().ToArray();
         if (outlinks.Length == 0)
         {
-            AddError(node, $"{node.GetType().Name}无条件分支");
+            AddError(node, ErrorCode.WithoutAnyCondition);
             return;
         }
 
@@ -95,9 +102,9 @@ internal sealed class WorkflowValidator
             }
         }
 
-        if (elseBranchCount > 1) AddError(node, $"{node.GetType().Name}的Else条件重复");
-        if (elseBranchIndex == -1) AddError(node, $"{node.GetType().Name}的Else条件不存在");
-        if (elseBranchIndex != outlinks.Length - 1) AddError(node, $"{node.GetType().Name}的Else条件必须最后一个");
+        if (elseBranchCount > 1) AddError(node, ErrorCode.MultiElseCondition);
+        if (elseBranchIndex == -1) AddError(node, ErrorCode.WithoutElseCondition);
+        if (elseBranchIndex != outlinks.Length - 1) AddError(node, ErrorCode.ElseConditionMustBeLastOne);
 
         foreach (var outlink in outlinks)
             VisitLink(outlink, branch);
@@ -116,34 +123,36 @@ internal sealed class WorkflowValidator
         forkNode.Branches.RemoveAll(b => b.Target == null);
         if (forkNode.Branches.Count == 0)
         {
-            AddError(forkNode, "ForkNode无并行分支", null);
+            AddError(forkNode, ErrorCode.ForkNodeWithoutAnyBranch);
             return;
         }
 
+        var forkJoinPair = new ForkJoinPair() { ForkNode = forkNode };
+        _forkJoinPairs.Add(forkJoinPair);
         for (var i = 0; i < forkNode.Branches.Count; i++)
         {
-            var forkJoinPair = new ForkJoinPair() { ForkNode = forkNode };
-            _forkJoinPairs.Add(forkJoinPair);
             var forkBranch = new BranchInfo() { Parent = branch, ForkJoinPair = forkJoinPair, BranchIndex = i + 1 };
             VisitLink(forkNode.Branches[i], forkBranch);
         }
     }
 
-    private void VisitJoinNode(FlowLink incomingLink, JoinNode joinNode, BranchInfo branch)
+    private void VisitJoinNode(FlowLink incomingLink, JoinNode joinNode, BranchInfo branch,
+        BranchInfo? existsBranch = null)
     {
         if (branch.Parent == null || branch.ForkJoinPair == null)
         {
-            AddError(joinNode, "默认分支连接至JoinNode", null);
+            AddError(joinNode, ErrorCode.DefaultBranchLinkToJoinNode);
             return; //暂不处理后续
         }
 
-        if (!branch.ForkJoinPair.OnVisitJoinNode(joinNode, branch, out var error))
+        if (!branch.ForkJoinPair.OnVisitJoinNode(joinNode, existsBranch, out var error))
         {
             AddError(joinNode, error, incomingLink, true);
             return; //暂不处理后续
         }
 
-        VisitLink(joinNode.Next, branch.Parent);
+        if (existsBranch == null) //非重复Visit
+            VisitLink(joinNode.Next, branch.Parent);
     }
 
     private void VisitLink(FlowLink outgoingLink, BranchInfo branch)
@@ -154,8 +163,8 @@ internal sealed class WorkflowValidator
         }
     }
 
-    private void AddError(ActivityNode node, string message, FlowLink? link = null, bool isIncomingLink = false) =>
-        _errors.Add(new ErrorInfo() { Node = node, Message = message, Link = link, IsIncomingLink = isIncomingLink });
+    private void AddError(ActivityNode node, ErrorCode error, FlowLink? link = null, bool isIncomingLink = false) =>
+        _errors.Add(new ErrorInfo() { Node = node, ErrorCode = error, Link = link, IsIncomingLink = isIncomingLink });
 
     internal sealed class ForkJoinPair
     {
@@ -163,7 +172,6 @@ internal sealed class WorkflowValidator
 
         public JoinNode? JoinNode { get; private set; }
 
-        // public List<BranchInfo> IncomingForJoinNode { get; } = [];
         private int _childrenBranchCount; //比如Decision或人员活动节点附加的分支数量
         private int _incomingCountForJoinNode; //连接至JoinNode的分支数量
 
@@ -172,8 +180,7 @@ internal sealed class WorkflowValidator
         /// <summary>
         /// 处理连接的JoinNode
         /// </summary>
-        /// <returns>false=JoinNode已存在且不相同</returns>
-        public bool OnVisitJoinNode(JoinNode joinNode, BranchInfo branch, out string error)
+        public bool OnVisitJoinNode(JoinNode joinNode, BranchInfo? existsBranch, out ErrorCode error)
         {
             // 1.不同的ForkNode连接至相同的JoinNode, 下图A->Join与B->Join
             //              ┌─────┐                       ┌───┐
@@ -189,9 +196,9 @@ internal sealed class WorkflowValidator
             //              │ k │ │    ┌─────┐  │  │ n │  │   │
             //              └───┘ └───►│  C  ├──┘  └───┘  └───┘
             //                         └─────┘                 
-            if (branch.ForkJoinPair != this)
+            if (existsBranch != null && existsBranch.ForkJoinPair != this)
             {
-                error = "不同的ForkNode连接至相同的JoinNode";
+                error = ErrorCode.MultiForkNodeLinkToOneJoinNode;
                 return false;
             }
 
@@ -211,14 +218,13 @@ internal sealed class WorkflowValidator
             //                           └───┘
             if (JoinNode != null && JoinNode != joinNode)
             {
-                error = "ForkNode连接至不同的JoinNode";
+                error = ErrorCode.OneForkNodeLinkToMultiJoinNode;
                 return false;
             }
 
             JoinNode ??= joinNode;
-            //IncomingForJoinNode.Add(branch);
             _incomingCountForJoinNode++;
-            error = string.Empty;
+            error = ErrorCode.None;
             return true;
         }
 
@@ -257,9 +263,10 @@ internal sealed class WorkflowValidator
 
     internal sealed class ErrorInfo : IModelProblem
     {
+        public required ErrorCode ErrorCode { get; init; }
         public required ActivityNode Node { get; init; }
         public FlowLink? Link { get; init; }
-        public string Message { get; init; } = string.Empty;
+        public string Message => ErrorCode.ToString();
         public bool IsIncomingLink { get; init; }
         public bool IsError => true;
 
@@ -267,11 +274,66 @@ internal sealed class WorkflowValidator
         {
             get
             {
-                if (Link == null) return $"{Node.GetType().Name}: {Node.Title}";
+                if (Link == null) return Node.ToString();
                 return IsIncomingLink
-                    ? $"{Link.Name} --> {Node.GetType().Name}: {Node.Title}"
-                    : $"{Node.GetType().Name}: {Node.Title} --> {Link.Name}";
+                    ? $"{Link.Name} --> {Node}"
+                    : $"{Node} --> {Link.Name}";
             }
         }
+    }
+
+    internal enum ErrorCode : byte
+    {
+        None = 0,
+
+        /// <summary>
+        /// StartNode未连接至其他节点
+        /// </summary>
+        StartNodeWithoutNext,
+
+        /// <summary>
+        /// 不同的ForkNode连接至相同的JoinNode
+        /// </summary>
+        MultiForkNodeLinkToOneJoinNode,
+
+        /// <summary>
+        /// 相同的ForkNode连接至不同的JoinNode
+        /// </summary>
+        OneForkNodeLinkToMultiJoinNode,
+
+        /// <summary>
+        /// ForkNode无任何分支
+        /// </summary>
+        ForkNodeWithoutAnyBranch,
+
+        /// <summary>
+        /// ForkNode的所有分支未全部连接至JoinNode
+        /// </summary>
+        ForkNodeNotAllBranchesLinkToJoinNode,
+
+        /// <summary>
+        /// 默认分支连接至JoinNode
+        /// </summary>
+        DefaultBranchLinkToJoinNode,
+
+        /// <summary>
+        /// 无任何条件
+        /// </summary>
+        WithoutAnyCondition,
+
+        /// <summary>
+        /// 多个Else条件(DecisionNode and HumanNode)
+        /// </summary>
+        MultiElseCondition,
+
+        /// <summary>
+        /// 无Else条件
+        /// </summary>
+        WithoutElseCondition,
+
+        /// <summary>
+        /// Else条件必须是最后一个
+        /// </summary>
+        ElseConditionMustBeLastOne,
     }
 }

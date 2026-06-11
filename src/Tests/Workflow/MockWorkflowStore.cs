@@ -1,7 +1,7 @@
 using AppBox.Workflow;
 using AppBoxCore;
 
-namespace Tests.Server.Workflow;
+namespace Tests.Workflow;
 
 internal sealed class MockWorkflowStore : IWorkflowStore
 {

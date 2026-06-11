@@ -1,0 +1,73 @@
+using AppBoxCore;
+using AppBoxDesign;
+using NUnit.Framework;
+
+namespace Tests.Workflow;
+
+public class WorkflowValidatorTest
+{
+    private void DumpErrors(IReadOnlyList<WorkflowValidator.ErrorInfo> errors)
+    {
+        foreach (var error in errors)
+        {
+            Console.WriteLine($"Node:{error.Node}, Msg:{error.Message}, Pos:{error.Position}");
+        }
+    }
+
+    [Test]
+    public void TestClosedLoop()
+    {
+        //          ┌─────┐            
+        //          │  A  ├───────────┐
+        //          └──┬──┘           │
+        // ┌───┐       │      ┌─────┐ │
+        // │ S │       ▼    ┌►│  B1 ├─┘
+        // │ t │    ┌─────┐ │ └─────┘  
+        // │ a ├───►│  B  ├─┤          
+        // │ r │    └─────┘ │ ┌─────┐  
+        // │ t │            └►│  B2 │  
+        // └───┘              └─────┘  
+    }
+
+    [Test]
+    public void TestMultiForkNodeToOneJoinNode()
+    {
+        //              ┌─────┐                       ┌───┐
+        //         ┌───►│  A  ├──────────────────────►│   │
+        //         │    └─────┘                       │   │
+        // ┌───┐   │               ┌─────┐            │   │
+        // │ F │   │          ┌───►│  B  ├───────────►│ J │
+        // │ o ├───┤          │    └─────┘            │ o │
+        // │ r │   │    ┌───┐ │                ┌───┐  │ i │
+        // │ k │   │    │ F │ │                │ J │  │ n │
+        // └───┘   └───►│ o ├─┤             ┌─►│ o ├─►│   │
+        //              │ r │ │             │  │ i │  │   │
+        //              │ k │ │    ┌─────┐  │  │ n │  │   │
+        //              └───┘ └───►│  C  ├──┘  └───┘  └───┘
+        //                         └─────┘                 
+
+        var startNode = new StartNode();
+        var forkNode1 = new ForkNode("并行1", [new FlowLink("并行1.1"), new FlowLink("并行1.2")]);
+        var nodeA = new AutomationNode("A");
+        var forkNode2 = new ForkNode("并行2", [new FlowLink("并行2.1"), new FlowLink("并行2.2")]);
+        var nodeB = new AutomationNode("B");
+        var nodeC = new AutomationNode("C");
+        var joinNode2 = new JoinNode("Join2");
+        var joinNode1 = new JoinNode("Join1");
+
+        startNode.Next.Target = forkNode1;
+        forkNode1.Branches[0].Target = nodeA;
+        forkNode1.Branches[1].Target = forkNode2;
+        nodeA.Next.Target = joinNode1;
+        forkNode2.Branches[0].Target = nodeB;
+        forkNode2.Branches[1].Target = nodeC;
+        nodeB.Next.Target = joinNode1;
+        nodeC.Next.Target = joinNode2;
+        joinNode2.Next.Target = joinNode1;
+
+        var validator = new WorkflowValidator();
+        var errors = validator.Validate(startNode);
+        DumpErrors(errors);
+        Assert.IsTrue(errors.Any(e => e.ErrorCode == WorkflowValidator.ErrorCode.MultiForkNodeLinkToOneJoinNode));
+    }
+}

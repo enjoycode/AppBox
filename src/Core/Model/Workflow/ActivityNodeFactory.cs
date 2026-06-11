@@ -20,6 +20,8 @@ public static class ActivityNodeFactory
         Register(ActivityType.DecisionActivity, () => new DecisionNode());
         Register(ActivityType.SingleHumanActivity, () => new SingleHumanNode());
         Register(ActivityType.MultiHumanActivity, () => new MultiHumanNode());
+        Register(ActivityType.ForkActivity, () => new ForkNode());
+        Register(ActivityType.JoinActivity, () => new JoinNode());
     }
 
     private static readonly Dictionary<byte, Func<ActivityNode>> Map = [];

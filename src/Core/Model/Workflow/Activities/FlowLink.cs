@@ -4,6 +4,13 @@ public interface IActivityConnection { }
 
 public class FlowLink : IBinSerializable
 {
+    internal FlowLink() { }
+
+    internal FlowLink(string name)
+    {
+        Name = name;
+    }
+
     public string? Name { get; set; }
 
     private string? _sourceConnector;

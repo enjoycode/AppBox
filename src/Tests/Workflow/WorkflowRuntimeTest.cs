@@ -3,7 +3,7 @@ using AppBoxCore;
 using NanoLog;
 using NUnit.Framework;
 
-namespace Tests.Server.Workflow;
+namespace Tests.Workflow;
 
 public class WorkflowRuntimeTest
 {

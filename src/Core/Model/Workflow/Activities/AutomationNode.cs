@@ -10,6 +10,11 @@ public sealed class AutomationNode : ActivityNode
         Title = "机器活动";
     }
 
+    internal AutomationNode(string title)
+    {
+        Title = title;
+    }
+
     public override byte Type => ActivityType.AutomationActivity;
 
     public FlowLink Next { get; } = new();

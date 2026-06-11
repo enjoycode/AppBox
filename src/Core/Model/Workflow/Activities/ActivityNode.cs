@@ -6,7 +6,7 @@ public abstract class ActivityNode : IBinSerializable
 
     public abstract byte Type { get; }
 
-    public string Title { get; set; } = string.Empty;
+    public string Title { get; internal set; } = string.Empty;
 
     public float X { get; set; }
     public float Y { get; set; }
@@ -23,6 +23,8 @@ public abstract class ActivityNode : IBinSerializable
     /// </summary>
     public virtual IEnumerable<FlowLink> GetAvailableOutLinks() =>
         GetOutLinks().Where(t => t.DiagramConnection == null);
+
+    public override string ToString() => $"{GetType().Name}[{Title}]";
 
     #region ====Serialization====
 
