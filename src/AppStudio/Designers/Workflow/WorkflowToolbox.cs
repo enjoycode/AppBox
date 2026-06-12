@@ -35,6 +35,8 @@ internal sealed class WorkflowToolbox : View, IDiagramToolbox
         new() { Name = "Automation", Creator = () => new ActivityDesigner(new AutomationNode()), Icon = MaterialIcons.Settings },
         new() { Name = "SingleHuman", Creator = () => new ActivityDesigner(new SingleHumanNode()) ,Icon = MaterialIcons.Person },
         new() { Name = "MultiHuman", Creator = () => new ActivityDesigner(new MultiHumanNode()) ,Icon = MaterialIcons.Group },
+        new() { Name = "Fork", Creator = () => new ActivityDesigner(new ForkNode()), Icon = MaterialIcons.CallSplit},
+        new() {Name = "Join", Creator = () => new ActivityDesigner(new JoinNode()), Icon = MaterialIcons.CallMerge},
         //@formatter:on
     ];
 

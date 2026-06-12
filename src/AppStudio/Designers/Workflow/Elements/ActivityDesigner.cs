@@ -26,6 +26,8 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         AutomationNode => "AutomationActivity",
         SingleHumanNode => "SingleHumanActivity",
         MultiHumanNode => "MultiHumanActivity",
+        ForkNode => "ForkActivity",
+        JoinNode => "JoinActivity",
         _ => base.TypeName
     };
 
@@ -33,7 +35,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
     {
         get
         {
-            if (Node is StartNode) return DesignBehavior.CanMove;
+            if (Node is StartNode or ForkNode or JoinNode) return DesignBehavior.CanMove;
             return DesignBehavior.CanMove | DesignBehavior.CanResize;
         }
     }
@@ -44,6 +46,10 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 
         //设为默认大小
         var defaultSize = new Size(80, 40);
+        if (Node is StartNode)
+            defaultSize = new Size(30, 30);
+        else if (Node is ForkNode or JoinNode)
+            defaultSize = new Size(15, 30);
         SetBounds(Node.X, Node.Y, defaultSize.Width, defaultSize.Height, BoundsSpecified.Size);
     }
 
@@ -136,24 +142,32 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         properties[0] = new DiagramProperty(this, "X", BoundsEditor.Factory)
         {
             ValueGetter = () => Location.X,
-            ValueSetter = v => SetBounds((float)v!, Location.Y, Bounds.Width, Bounds.Height, BoundsSpecified.X)
+            ValueSetter = DesignBehavior.HasFlag(DesignBehavior.CanMove)
+                ? v => SetBounds((float)v!, Location.Y, Bounds.Width, Bounds.Height, BoundsSpecified.X)
+                : null
         };
         properties[1] = new DiagramProperty(this, "Y", BoundsEditor.Factory)
         {
             ValueGetter = () => Location.Y,
-            ValueSetter = v => SetBounds(Location.X, (float)v!, Bounds.Width, Bounds.Height, BoundsSpecified.Y)
+            ValueSetter = DesignBehavior.HasFlag(DesignBehavior.CanMove)
+                ? v => SetBounds(Location.X, (float)v!, Bounds.Width, Bounds.Height, BoundsSpecified.Y)
+                : null
         };
         if (Node is not StartNode)
         {
             properties[2] = new DiagramProperty(this, "Width", BoundsEditor.Factory)
             {
                 ValueGetter = () => Bounds.Width,
-                ValueSetter = v => SetBounds(Location.X, Location.Y, (float)v!, Bounds.Height, BoundsSpecified.Width)
+                ValueSetter = DesignBehavior.HasFlag(DesignBehavior.CanResize)
+                    ? v => SetBounds(Location.X, Location.Y, (float)v!, Bounds.Height, BoundsSpecified.Width)
+                    : null
             };
             properties[3] = new DiagramProperty(this, "Height", BoundsEditor.Factory)
             {
                 ValueGetter = () => Bounds.Height,
-                ValueSetter = v => SetBounds(Location.X, Location.Y, Bounds.Width, (float)v!, BoundsSpecified.Height)
+                ValueSetter = DesignBehavior.HasFlag(DesignBehavior.CanResize)
+                    ? v => SetBounds(Location.X, Location.Y, Bounds.Width, (float)v!, BoundsSpecified.Height)
+                    : null
             };
         }
 
@@ -242,6 +256,12 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
                 break;
             case MultiHumanNode:
                 ActivityPainter.PaintMultiHumanActivity(canvas, Bounds.Size, Node.Title);
+                break;
+            case ForkNode:
+                ActivityPainter.PaintForkActivity(canvas, Bounds.Size, Node.Title);
+                break;
+            case JoinNode:
+                ActivityPainter.PaintJoinActivity(canvas, Bounds.Size, Node.Title);
                 break;
             default:
                 base.Paint(canvas);

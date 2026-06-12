@@ -10,6 +10,8 @@ internal static class ActivityPainter
     private static readonly IPath SingleHumanIconPath = CreateSingleHumanIconPath();
     private static readonly IPath MultiHumanIconPath = CreateMultiHumanIconPath();
     private static readonly IPath StartArrowPath = CreateArrowPath();
+    private static readonly IPath ForkIconPath = CreateForkIconPath();
+    private static readonly IPath JoinIconPath = CreateJoinIconPath();
     private static readonly Color BorderColor = 0xFF0A3210;
     private static readonly Color FillColor = 0xFF28C840;
     private static readonly Color DecisionFillColor = 0xFF00A3E7;
@@ -73,6 +75,24 @@ internal static class ActivityPainter
         return path;
     }
 
+    private static IPath CreateForkIconPath()
+    {
+        var path = Path.ParseSvgPathData(
+            "M14 4l2.29 2.29l-2.88 2.88l1.42 1.42l2.88-2.88L20 10V4zm-4 0H4v6l2.29-2.29l4.71 4.7V20h2v-8.41l-5.29-5.3z");
+        path.Transform(Matrix3.CreateScale(0.8f, 0.8f));
+        path.Transform(Matrix3.CreateRotationDegrees(90));
+        return path;
+    }
+
+    private static IPath CreateJoinIconPath()
+    {
+        var path = Path.ParseSvgPathData(
+            "M17 20.41L18.41 19L15 15.59L13.59 17L17 20.41zM7.5 8H11v5.59L5.59 19L7 20.41l6-6V8h3.5L12 3.5L7.5 8z");
+        path.Transform(Matrix3.CreateScale(0.8f, 0.8f));
+        path.Transform(Matrix3.CreateRotationDegrees(90));
+        return path;
+    }
+
     private static void PaintTitle(ICanvas canvas, Size size, string title, float offsetX, float offsetY)
     {
         using var para = TextPainter.BuildParagraph(title, size.Width, 12,
@@ -102,13 +122,13 @@ internal static class ActivityPainter
             PaintTitle(canvas, size, title, 0, 0);
     }
 
-    private static void PaintIcon(ICanvas canvas, IPath icon, Size size, float offsetX, float offsetY)
+    private static void PaintIcon(ICanvas canvas, IPath icon, Size size, float offsetX, float offsetY, Color color)
     {
         const float iconHeight = 36f;
         var x = offsetX;
         var y = (size.Height - iconHeight) / 2f + offsetY;
         canvas.Translate(x, y);
-        canvas.FillPath(IconColor, icon);
+        canvas.FillPath(color, icon);
         canvas.Translate(-x, -y);
     }
 
@@ -119,7 +139,7 @@ internal static class ActivityPainter
         canvas.FillRoundRectangle(AutomationFillColor, rect, radius, radius);
         canvas.DrawRoundRectangle(BorderColor, rect, radius, radius, BorderWidth);
 
-        PaintIcon(canvas, AutomationIconPath, size, 0, 30);
+        PaintIcon(canvas, AutomationIconPath, size, 0, 30, IconColor);
 
         if (!string.IsNullOrEmpty(title))
         {
@@ -135,7 +155,8 @@ internal static class ActivityPainter
         canvas.FillRoundRectangle(HumanFillColor, rect, radius, radius);
         canvas.DrawRoundRectangle(BorderColor, rect, radius, radius, BorderWidth);
 
-        PaintIcon(canvas, isSingleHuman ? SingleHumanIconPath : MultiHumanIconPath, size, isSingleHuman ? 0 : 1, 30);
+        PaintIcon(canvas, isSingleHuman ? SingleHumanIconPath : MultiHumanIconPath, size, isSingleHuman ? 0 : 1, 30,
+            IconColor);
 
         if (!string.IsNullOrEmpty(title))
         {
@@ -149,4 +170,32 @@ internal static class ActivityPainter
 
     public static void PaintMultiHumanActivity(ICanvas canvas, Size size, string title) =>
         PaintHumanActivity(canvas, size, title, false);
+
+    public static void PaintForkActivity(ICanvas canvas, Size size, string title)
+    {
+        var rect = Rect.FromLS(Point.Empty, new Size(size.Width * 2, size.Height));
+        using var harfCircle = Path.Create();
+        harfCircle.AddArc(rect, 90, 180);
+        harfCircle.LineTo(rect.MidX, rect.MidY);
+        harfCircle.Close();
+
+        canvas.FillPath(BorderColor, harfCircle);
+        // canvas.DrawPath(BorderColor, BorderWidth, harfCircle);
+
+        PaintIcon(canvas, ForkIconPath, size, 17f, 8f, Colors.White);
+    }
+
+    public static void PaintJoinActivity(ICanvas canvas, Size size, string title)
+    {
+        var rect = Rect.FromLS(new Point(-size.Width, 0), new Size(size.Width * 2, size.Height));
+        using var harfCircle = Path.Create();
+        harfCircle.AddArc(rect, 270, 180);
+        harfCircle.LineTo(rect.MidX, rect.MidY);
+        harfCircle.Close();
+
+        canvas.FillPath(BorderColor, harfCircle);
+        // canvas.DrawPath(BorderColor, BorderWidth, harfCircle);
+
+        PaintIcon(canvas, JoinIconPath, size, 17f, 8f, Colors.White);
+    }
 }
