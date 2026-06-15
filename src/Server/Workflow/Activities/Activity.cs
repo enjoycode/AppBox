@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBox.Workflow;
 
-public abstract class Activity : IExecuteResult, IBinSerializable
+public abstract class Activity : IBinSerializable
 {
     protected Activity() { }
 
@@ -21,7 +21,7 @@ public abstract class Activity : IExecuteResult, IBinSerializable
         Title = string.IsNullOrEmpty(node.Title) ? string.Empty : node.Title;
     }
 
-    internal virtual void LinkTo(Activity target, FlowLink link)
+    internal virtual void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
         throw new NotSupportedException();
     }

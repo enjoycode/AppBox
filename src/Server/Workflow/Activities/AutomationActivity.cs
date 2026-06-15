@@ -26,7 +26,7 @@ public sealed class AutomationActivity : Activity
         _expression = automationNode.Expression;
     }
 
-    internal override void LinkTo(Activity target, FlowLink link)
+    internal override void LinkTo(Activity target, FlowLink link, int index)
     {
         _next = target;
     }
@@ -36,7 +36,7 @@ public sealed class AutomationActivity : Activity
         //TODO: 实现执行表达式
         Logger.Debug($"执行: {Title}");
 
-        return new ValueTask<IExecuteResult?>(_next);
+        return new ValueTask<IExecuteResult?>(new NextResult() { Next = _next });
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)

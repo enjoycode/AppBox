@@ -8,14 +8,14 @@ public sealed class StartActivity : Activity
 
     public Activity Next { get; set; } = null!;
 
-    internal override void LinkTo(Activity target, FlowLink link)
+    internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
         Next = target;
     }
 
     internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
-        return new ValueTask<IExecuteResult?>(Next);
+        return new ValueTask<IExecuteResult?>(new NextResult() { Next = Next });
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)

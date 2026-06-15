@@ -2,6 +2,29 @@ using AppBoxCore;
 
 namespace AppBox.Workflow;
 
+public interface IExecuteResult { }
+
+internal sealed class ErrorResult : IExecuteResult
+{
+    public ErrorResult(string error) { }
+}
+
+internal sealed class NextResult : IExecuteResult
+{
+    public Activity? Next { get; init; }
+}
+
+internal sealed class ForkResult : IExecuteResult
+{
+    public required Activity[] Branches { get; init; }
+}
+
+internal sealed class JoinResult : IExecuteResult
+{
+    public required bool IsAllJoined { get; init; }
+    public Activity? Next { get; init; }
+}
+
 public sealed class Bookmark : IExecuteResult, IBinSerializable
 {
     internal Bookmark() { }

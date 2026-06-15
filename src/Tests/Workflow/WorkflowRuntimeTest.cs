@@ -49,7 +49,7 @@ public class WorkflowRuntimeTest
         await instance.WaitForSuspendedOrFinished();
 
         var bookmarks = instance.GetAllBookmarks();
-        var bookmarkId = bookmarks.First().Id;
+        var bookmarkId = bookmarks[0].Id;
         await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult() { Result = "同意", Memo = "备注" });
         await instance.WaitForSuspendedOrFinished();
     }
@@ -97,6 +97,34 @@ public class WorkflowRuntimeTest
         await instance.WaitForSuspendedOrFinished();
         //审批者2递交
         await instance.Resume(bookmarkId, _mockManager2Id, new HumanActionResult() { Result = "同意", Memo = "备注2" });
+        await instance.WaitForSuspendedOrFinished();
+    }
+
+    [Test(Description = "并行")]
+    public async Task TestForkJoin()
+    {
+        //join
+        var joinActivity = new JoinActivity("聚合", 2, null);
+        //branch1
+        var autoActivity = new AutomationActivity("抄送", null, joinActivity);
+        //branch2
+        var approveActivity = new AutomationActivity("通过", null, joinActivity);
+        var rejectActivity = new AutomationActivity("拒绝", null, joinActivity);
+        var singleHumanActivity = new SingleHumanActivity("经理审批",
+            [new HumanActor(Expression.Constant(_mockManager1Id))],
+            [new HumanAction("同意"), new HumanAction("不同意")],
+            [approveActivity, rejectActivity]);
+        //fork
+        var forkActivity = new ForkActivity("并行", [autoActivity, singleHumanActivity]);
+        var start = new StartActivity() { Next = forkActivity };
+
+        var instance = new WorkflowInstance("TestSingleHuman", start, _mockUserId, "Test", []);
+        await instance.Start(_store);
+        await instance.WaitForSuspendedOrFinished();
+
+        var bookmarks = instance.GetAllBookmarks();
+        var bookmarkId = bookmarks[0].Id;
+        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult() { Result = "同意", Memo = "备注" });
         await instance.WaitForSuspendedOrFinished();
     }
 }

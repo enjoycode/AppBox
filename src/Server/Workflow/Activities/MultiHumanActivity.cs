@@ -61,7 +61,7 @@ public sealed class MultiHumanActivity : HumanActivity
             _actionResults.Add(action.Name, 0);
     }
 
-    internal override void LinkTo(Activity target, FlowLink link)
+    internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
         var index = _conditions.IndexOf(((ConditionLink)link).Condition);
         if (index == -1)

@@ -4,7 +4,7 @@ public interface IActivityConnection { }
 
 public class FlowLink : IBinSerializable
 {
-    internal FlowLink() { }
+    public FlowLink() { }
 
     internal FlowLink(string title)
     {

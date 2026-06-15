@@ -11,6 +11,8 @@ internal sealed class WorkflowValidator
     private readonly List<ForkJoinPair> _forkJoinPairs = [];
     private readonly List<ErrorInfo> _errors = [];
 
+    public bool HasError => _errors.Any(e => e.IsError);
+
     public int VisitedNodesCount => _visits.Count;
 
     public IReadOnlyList<ErrorInfo> Validate(StartNode startNode)
@@ -24,6 +26,7 @@ internal sealed class WorkflowValidator
         {
             if (!pair.CheckAllBranchLinkToJoinNode())
                 AddError(pair.ForkNode, ErrorCode.ForkNodeNotAllBranchesLinkToJoinNode);
+            pair.JoinNode?.ForkBranchesCount = pair.ForkNode.Branches.Count;
         }
 
         return _errors;

@@ -20,15 +20,15 @@ public readonly struct WorkflowRuntimeVisitor
         _hasVisits.Add(node, activity);
 
         //处理连接
-        foreach (var link in node.GetOutLinks())
+        foreach (var (index, link) in node.GetOutLinks().Index())
         {
-            VisitLink(activity, link);
+            VisitLink(activity, link, index);
         }
 
         return activity;
     }
 
-    private void VisitLink(Activity source, FlowLink link)
+    private void VisitLink(Activity source, FlowLink link, int index)
     {
         if (link.Target != null)
         {
@@ -36,7 +36,7 @@ public readonly struct WorkflowRuntimeVisitor
                 target = Visit(link.Target);
 
             //设置连接
-            source.LinkTo(target, link);
+            source.LinkTo(target, link, index);
         }
     }
 }

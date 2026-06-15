@@ -29,4 +29,33 @@ public sealed class ForkNode : ActivityNode
 
         return Branches.Where(t => t.DiagramConnection == null);
     }
+
+    #region ====Serialization====
+
+    public override void WriteTo<TWriter>(ref TWriter ws)
+    {
+        base.WriteTo(ref ws);
+        
+        ws.WriteFieldId(1);
+        ws.WriteCollection(Branches);
+        
+        ws.WriteFieldEnd();
+    }
+    public override void ReadFrom<TReader>(ref TReader rs)
+    {
+        base.ReadFrom(ref rs);
+
+        do
+        {
+            var fieldId = rs.ReadFieldId();
+            switch (fieldId)
+            {
+                case 1: rs.ReadCollection(Branches); break;
+                case 0: return;
+                default: throw SerializationException.ReadUnknownField(nameof(ForkNode), fieldId);
+            }
+        } while (true);
+    }
+
+    #endregion
 }

@@ -32,7 +32,7 @@ public sealed class DecisionActivity : Activity
         }
     }
 
-    internal override void LinkTo(Activity target, FlowLink link)
+    internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
         var index = _conditions.IndexOf(((ConditionLink)link).Condition);
         if (index == -1)
@@ -67,7 +67,7 @@ public sealed class DecisionActivity : Activity
         if (trueAt < 0)
             return new ErrorResult("Can't find match condition");
 
-        return _links[trueAt];
+        return new NextResult() { Next = _links[trueAt] };
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)

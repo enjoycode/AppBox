@@ -10,8 +10,6 @@ public sealed class DecisionNode : ActivityNode
 
     public override IEnumerable<FlowLink> GetOutLinks() => Conditions;
 
-    //TODO:验证时只允许存在一个Else分支
-
     #region ====Serialization====
 
     public override void WriteTo<TWriter>(ref TWriter ws)

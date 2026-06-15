@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using AppBoxCore;
+using static AppBox.Workflow.WorkflowLogger;
 
 namespace AppBox.Workflow;
 
@@ -72,12 +73,18 @@ public sealed class WorkflowInstance : ExpressionContext
 
                 switch (result)
                 {
-                    case null: await OnNullResult(branchIndex); break;
                     case ErrorResult error: OnErrorResult(branchIndex, error); break;
-                    case Activity next: await OnNextResult(branchIndex, next); break;
+                    case NextResult next: await OnNextResult(branchIndex, next.Next); break;
                     case Bookmark bookmark: await OnBookmarkResult(branchIndex, activity, bookmark); break;
+                    case ForkResult forkResult: await OnForkResult(branchIndex, forkResult); break;
+                    case JoinResult joinResult: await OnJoinResult(branchIndex, activity, joinResult); break;
                     default: throw new NotImplementedException();
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"{activity.GetType().Name}.Execute() Error: {ex.Message}");
+                //TODO:
             }
             finally
             {
@@ -115,22 +122,24 @@ public sealed class WorkflowInstance : ExpressionContext
         Status = WorkflowStatus.Running;
     }
 
-    private async ValueTask OnNullResult(int branchIndex)
-    {
-        _running.RemoveAt(branchIndex);
-        CheckStatus();
-        await _store.UpdateWorkflowInstance(this, null);
-        TryNotifySuspendedOrFinished();
-    }
-
     private void OnErrorResult(int branchIndex, ErrorResult error)
     {
         throw new NotImplementedException();
     }
 
-    private async Task OnNextResult(int branchIndex, Activity next)
+    private async Task OnNextResult(int branchIndex, Activity? next)
     {
+        if (next == null)
+        {
+            _running.RemoveAt(branchIndex);
+            CheckStatus();
+            await _store.UpdateWorkflowInstance(this, null);
+            TryNotifySuspendedOrFinished();
+            return;
+        }
+
         _running[branchIndex] = new RunningActivity() { Activity = next };
+        CheckStatus();
         await _store.UpdateWorkflowInstance(this, null);
         Continue(next);
     }
@@ -141,6 +150,50 @@ public sealed class WorkflowInstance : ExpressionContext
         CheckStatus();
         await _store.UpdateWorkflowInstance(this, bookmark);
         TryNotifySuspendedOrFinished();
+    }
+
+    private async Task OnForkResult(int branchIndex, ForkResult forkResult)
+    {
+        //先移除旧分支
+        _running.RemoveAt(branchIndex);
+        //再添加新分支
+        foreach (var branch in forkResult.Branches)
+            _running.Add(new RunningActivity() { Activity = branch });
+
+        CheckStatus();
+        await _store.UpdateWorkflowInstance(this, null);
+
+        foreach (var branch in forkResult.Branches)
+            Continue(branch);
+    }
+
+    private async Task OnJoinResult(int branchIndex, Activity join, JoinResult joinResult)
+    {
+        Debug.Assert(join is JoinActivity);
+        if (!joinResult.IsAllJoined)
+        {
+            _running[branchIndex] = new RunningActivity() { Activity = join };
+            CheckStatus();
+            await _store.UpdateWorkflowInstance(this, null);
+            return;
+        }
+
+        //先移除所有相同的Join分支
+        var removed = _running.RemoveAll(r => r.Activity == join);
+        Debug.Assert(removed == ((JoinActivity)join).ForkBranchesCount);
+
+        if (joinResult.Next == null)
+        {
+            CheckStatus();
+            await _store.UpdateWorkflowInstance(this, null);
+            TryNotifySuspendedOrFinished();
+            return;
+        }
+
+        _running.Add(new RunningActivity() { Activity = joinResult.Next });
+        CheckStatus();
+        await _store.UpdateWorkflowInstance(this, null);
+        Continue(joinResult.Next);
     }
 
     [Conditional("DEBUG")]
