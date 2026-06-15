@@ -24,6 +24,7 @@ internal static class ReferenceService
             ModelType.View => FindViewReferences(ctx, modelNode),
             ModelType.Permission => Task.FromResult<List<Reference>>([]),
             ModelType.Report => Task.FromResult<List<Reference>>([]),
+            ModelType.Workflow => Task.FromResult<List<Reference>>([]),
             _ => throw new NotImplementedException($"查找模型引用: {modelNode.Model.ModelType}")
         };
     }

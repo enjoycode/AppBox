@@ -5,10 +5,7 @@ namespace AppBox.Workflow;
 
 public abstract class HumanActivity : Activity
 {
-    protected const string WaitAssignHuman = "WaitAssignHuman"; //TODO: remove and use bookmark type
-    protected const string WaitHumanAction = "WaitHumanAction";
-
-    protected HumanActivity() : base() { }
+    protected HumanActivity() { }
 
     protected HumanActivity(string title, HumanActor[] actors, HumanAction[] actions, ModelId? formModelId = null) :
         base(title)
@@ -18,9 +15,9 @@ public abstract class HumanActivity : Activity
         FormModelId = formModelId;
     }
 
-    public HumanActor[] Actors { get; private set; }
+    public HumanActor[] Actors { get; private set; } = null!;
     public ModelId? FormModelId { get; private set; }
-    public HumanAction[] Actions { get; private set; }
+    public HumanAction[] Actions { get; private set; } = null!;
 
     internal override void InitActivity(ActivityNode node)
     {

@@ -18,40 +18,33 @@ public sealed class WorkflowModel : ModelBase
 
     public List<WorkflowParameter> Parameters { get; } = [];
 
+    /// <summary>
+    /// 是否验证为有效的，在引擎执行前如果无效不允许执行
+    /// </summary>
+    public bool IsValid { get; internal set; }
+
     #region ====Serialization====
 
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
 
-        ws.WriteFieldId(1);
+        ws.WriteBool(IsValid);
         StartNode.WriteTo(ref ws);
+        ws.WriteCollection(Parameters);
 
-        if (Parameters.Count > 0)
-        {
-            ws.WriteFieldId(2);
-            ws.WriteCollection(Parameters);
-        }
-
-        ws.WriteFieldEnd();
+        ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
 
-        int propIndex;
-        do
-        {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: StartNode.ReadFrom(ref rs); break;
-                case 2: rs.ReadCollection(Parameters); break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(WorkflowModel), propIndex);
-            }
-        } while (propIndex != 0);
+        IsValid = rs.ReadBool();
+        StartNode.ReadFrom(ref rs);
+        rs.ReadCollection(Parameters);
+
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

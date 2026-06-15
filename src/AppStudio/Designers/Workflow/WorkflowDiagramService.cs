@@ -65,4 +65,12 @@ internal sealed class WorkflowDiagramService : IDiagramService
         Surface.SelectionService.ClearSelection();
         Surface.Repaint(); //TODO:考虑合并重绘区域，暂全部刷新
     }
+
+    internal void SelectNode(ActivityNode node)
+    {
+        var item = Surface.GetShapes().Cast<ActivityDesigner>()
+            .FirstOrDefault(r => r.Node == node);
+        if (item != null)
+            Surface.SelectionService.SelectItem(item);
+    }
 }

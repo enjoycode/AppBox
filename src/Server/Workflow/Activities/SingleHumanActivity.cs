@@ -13,7 +13,7 @@ public sealed class SingleHumanActivity : HumanActivity
         _links = links;
     }
 
-    private Activity?[] _links;
+    private Activity?[] _links = null!;
 
     public override byte Type => ActivityType.SingleHumanActivity;
 

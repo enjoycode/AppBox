@@ -4,7 +4,7 @@ using PixUI.Diagram;
 
 namespace AppBoxDesign;
 
-internal sealed class WorkflowDesigner : View, IModelDesigner
+internal sealed class WorkflowDesigner : View, IDesignerWithProblems
 {
     public WorkflowDesigner(DesignContext designContext, ModelNode modelNode)
     {
@@ -29,9 +29,11 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
     }
 
     private readonly DesignContext _designContext;
+    private DesignStore DesignStore => (DesignStore)_designContext.DesignUIService;
     private readonly WorkflowDiagramService _diagramService;
     private bool _hasLoaded;
     public ModelNode ModelNode { get; }
+    private WorkflowModel Model => (WorkflowModel)ModelNode.Model;
 
     private Container BuildCommandBar() => new()
     {
@@ -42,6 +44,7 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
         {
             Children =
             [
+                new Button("Validate") { OnTap = _ => OnValidate() },
                 new Button("Layout")
             ]
         }
@@ -70,6 +73,20 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
         _diagramService.OnLoaded();
     }
 
+    private void OnValidate()
+    {
+        var validator = new WorkflowValidator();
+        var problems = validator.Validate(Model.StartNode);
+        Model.IsValid = !validator.HasError;
+        DesignStore.UpdateProblems(ModelNode, problems.Cast<IModelProblem>().ToList());
+    }
+
+    public void GotoProblem(IModelProblem problem)
+    {
+        var errorInfo = (WorkflowValidator.ErrorInfo)problem;
+        _diagramService.SelectNode(errorInfo.Node);
+    }
+
     #region ====IModelDesigner====
 
     public Widget? GetOutlinePad() => null;
@@ -78,6 +95,7 @@ internal sealed class WorkflowDesigner : View, IModelDesigner
 
     public Task SaveAsync()
     {
+        OnValidate();
         return ModelNode.SaveAsync(null);
     }
 

@@ -24,7 +24,8 @@ public abstract class ActivityNode : IBinSerializable
     public virtual IEnumerable<FlowLink> GetAvailableOutLinks() =>
         GetOutLinks().Where(t => t.DiagramConnection == null);
 
-    public override string ToString() => $"{GetType().Name}[{Title}]";
+    public override string ToString() =>
+        string.IsNullOrEmpty(Title) ? GetType().Name : $"{GetType().Name}[\"{Title}\"]";
 
     #region ====Serialization====
 
