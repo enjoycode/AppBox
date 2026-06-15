@@ -30,12 +30,14 @@ public sealed class WorkflowInstance : ExpressionContext
     public Dictionary<string, AnyValue> Parameters { get; } = [];
     public WorkflowStatus Status { get; private set; }
 
+    public event Action<SuspendedOrFinishedEventArgs>? SuspendedOrFinished;
+
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly List<RunningActivity> _running = [];
     private IWorkflowStore _store = null!;
 
 #if DEBUG
-    private readonly SemaphoreSlim _suspendedOrFinished = new(0, 1);
+    private readonly SemaphoreSlim _suspendedOrFinishedWait = new(0, 1);
 #endif
 
     internal async Task Start(IWorkflowStore workflowStore)
@@ -83,7 +85,7 @@ public sealed class WorkflowInstance : ExpressionContext
             }
             catch (Exception ex)
             {
-                Logger.Error($"{activity.GetType().Name}.Execute() Error: {ex.Message}");
+                Logger.Error($"[{Id}]{activity.GetType().Name}.Execute() Error: {ex.Message}");
                 //TODO:
             }
             finally
@@ -196,20 +198,24 @@ public sealed class WorkflowInstance : ExpressionContext
         Continue(joinResult.Next);
     }
 
-    [Conditional("DEBUG")]
     private void TryNotifySuspendedOrFinished()
     {
-#if DEBUG
+        if (Status == WorkflowStatus.Running) return;
+
         if (Status is WorkflowStatus.Suspended or WorkflowStatus.Finished)
-            _suspendedOrFinished.Release();
+        {
+            SuspendedOrFinished?.Invoke(new SuspendedOrFinishedEventArgs() { InstanceId = Id, Status = Status });
+#if DEBUG
+            _suspendedOrFinishedWait.Release();
 #endif
+        }
     }
 
 #if DEBUG
     /// <summary>
     /// 等待实例挂起或完成
     /// </summary>
-    public Task WaitForSuspendedOrFinished() => _suspendedOrFinished.WaitAsync();
+    public Task WaitForSuspendedOrFinished() => _suspendedOrFinishedWait.WaitAsync();
 
     /// <summary>
     /// Only for test
@@ -264,6 +270,11 @@ public sealed class WorkflowInstance : ExpressionContext
             }
 
             TryNotifySuspendedOrFinished();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error($"[{Id}]Resume: {ex.Message}");
+            //TODO:
         }
         finally
         {
@@ -333,5 +344,11 @@ public sealed class WorkflowInstance : ExpressionContext
         public required Activity Activity { get; init; }
         public Bookmark? Bookmark { get; init; }
         public bool IsWaiting => Bookmark != null || Activity is JoinActivity;
+    }
+
+    public readonly struct SuspendedOrFinishedEventArgs
+    {
+        public required Guid InstanceId { get; init; }
+        public required WorkflowStatus Status { get; init; }
     }
 }
