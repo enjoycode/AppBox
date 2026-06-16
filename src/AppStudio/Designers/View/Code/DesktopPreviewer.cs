@@ -13,13 +13,13 @@ internal sealed class DesktopPreviewer : View //TODO: rename to EmbedPreviewer
         _controller = controller;
         _controller.InvalidateAction = Run;
 
-        Child = new Container { Child = Loading }.RefBy(ref _containerRef);
+        Child = new Container { Child = MakeLoading() }.RefBy(ref _containerRef);
     }
 
     private readonly PreviewController _controller;
     private readonly Container _containerRef = null!;
     private ViewAssemblyLoader? _assemblyLoader;
-    private static readonly Widget Loading = new Center { Child = new Text("Loading....") };
+    private static Widget MakeLoading() => new Center { Child = new Text("Loading....") };
 
     private async void Run()
     {
