@@ -85,7 +85,10 @@ public sealed class PipeBytesReader : IDisposable
 
             var isDivided = segment.IsDivided();
             if (isDivided)
+            {
+                current = null;
                 yield return segment.First!;
+            }
         }
     }
 
@@ -96,6 +99,7 @@ public sealed class PipeBytesReader : IDisposable
             await toStream
                 .WriteAsync(segment.Memory[PipeSegmentHeader.HeaderSize..], ct)
                 .ConfigureAwait(false);
+            segment.ReturnOne();
         }
     }
 
