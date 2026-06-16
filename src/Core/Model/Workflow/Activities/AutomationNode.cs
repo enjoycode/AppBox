@@ -32,17 +32,8 @@ public sealed class AutomationNode : ActivityNode
     {
         base.WriteTo(ref ws);
 
-        if (!Expression.IsNull(Expression))
-        {
-            ws.WriteFieldId(1);
-            ws.Serialize(Expression);
-        }
-
-        if (Next.Target != null)
-        {
-            ws.WriteFieldId(2);
-            Next.WriteTo(ref ws);
-        }
+        ws.SerializeExpression(Expression);
+        Next.WriteTo(ref ws);
 
         ws.WriteFieldEnd();
     }
@@ -51,18 +42,10 @@ public sealed class AutomationNode : ActivityNode
     {
         base.ReadFrom(ref rs);
 
-        var propIndex = 0;
-        do
-        {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: Expression = (Expression)rs.Deserialize()!; break;
-                case 2: Next.ReadFrom(ref rs); break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(AutomationNode), propIndex);
-            }
-        } while (propIndex != 0);
+        Expression = (Expression?)rs.Deserialize();
+        Next.ReadFrom(ref rs);
+
+        rs.ReadFieldId();
     }
 
     #endregion

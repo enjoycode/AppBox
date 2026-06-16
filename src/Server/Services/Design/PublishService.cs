@@ -351,14 +351,15 @@ internal static class PublishService
     {
         //读取映射表
         var viewAssemblyMap = new List<MapItem>();
-        await foreach (var segemt in reader.GetObjectsAsync())
+        await foreach (var segment in reader.GetObjectsAsync())
         {
-            var rs = new MessageReadStream(segemt, PipeSegmentHeader.HeaderSize);
+            var rs = new MessageReadStream(segment, PipeSegmentHeader.HeaderSize);
             var asmFlag = (AssemblyPlatform)rs.ReadByte();
             var asmName = rs.ReadString()!;
             var dataLen = rs.ReadVariant();
             var data = new byte[dataLen];
             rs.ReadBytes(data);
+            rs.Free();
             viewAssemblyMap.Add(new MapItem(asmName, asmFlag, data));
         }
 

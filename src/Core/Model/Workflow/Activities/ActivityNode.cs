@@ -31,39 +31,24 @@ public abstract class ActivityNode : IBinSerializable
 
     public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        ws.WriteFieldId(1);
         ws.WriteString(Title);
-        ws.WriteFieldId(2);
         ws.WriteFloat(X);
         ws.WriteFloat(Y);
-        ws.WriteFieldId(3);
         ws.WriteFloat(W);
         ws.WriteFloat(H);
-
+        
         ws.WriteFieldEnd();
     }
 
     public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        var propIndex = 0;
-        do
-        {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: Title = rs.ReadString()!; break;
-                case 2:
-                    X = rs.ReadFloat();
-                    Y = rs.ReadFloat();
-                    break;
-                case 3:
-                    W = rs.ReadFloat();
-                    H = rs.ReadFloat();
-                    break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(ActivityNode), propIndex);
-            }
-        } while (propIndex != 0);
+        Title = rs.ReadString() ?? string.Empty;
+        X = rs.ReadFloat();
+        Y = rs.ReadFloat();
+        W = rs.ReadFloat();
+        H = rs.ReadFloat();
+
+        rs.ReadFieldId();
     }
 
     #endregion

@@ -34,7 +34,7 @@ public sealed class DecisionActivity : Activity
 
     internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
-        var index = _conditions.IndexOf(((ConditionLink)link).Condition);
+        var index = _conditions.IndexOf(link.Condition);
         if (index == -1)
             throw new Exception($"Can not find Condition with name: {link.Title}");
 

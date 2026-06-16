@@ -30,12 +30,7 @@ public sealed class JoinNode : ActivityNode
         base.WriteTo(ref ws);
 
         ws.WriteVariant(ForkBranchesCount);
-
-        if (Next.Target != null)
-        {
-            ws.WriteFieldId(1);
-            Next.WriteTo(ref ws);
-        }
+        Next.WriteTo(ref ws);
 
         ws.WriteFieldEnd();
     }
@@ -45,18 +40,9 @@ public sealed class JoinNode : ActivityNode
         base.ReadFrom(ref rs);
 
         ForkBranchesCount = rs.ReadVariant();
+        Next.ReadFrom(ref rs);
 
-        var propIndex = 0;
-        do
-        {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: Next.ReadFrom(ref rs); break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(JoinNode), propIndex);
-            }
-        } while (propIndex != 0);
+        rs.ReadFieldId();
     }
 
     #endregion

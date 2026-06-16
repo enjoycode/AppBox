@@ -95,28 +95,14 @@ public sealed class HumanActor : IBinSerializable
 
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        if (!Expression.IsNull(_ouExpression))
-        {
-            ws.WriteFieldId(1);
-            ws.Serialize(_ouExpression);
-        }
-
+        ws.SerializeExpression(_ouExpression);
         ws.WriteFieldEnd();
     }
 
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        var propIndex = 0;
-        do
-        {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: _ouExpression = (Expression)rs.Deserialize()!; break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(HumanActor), propIndex);
-            }
-        } while (propIndex != 0);
+        _ouExpression = (Expression?)rs.Deserialize();
+        rs.ReadFieldId();
     }
 
     #endregion

@@ -2,7 +2,7 @@
 
 public interface IActivityConnection { }
 
-public class FlowLink : IBinSerializable
+public sealed class FlowLink : IBinSerializable
 {
     public FlowLink() { }
 
@@ -11,131 +11,90 @@ public class FlowLink : IBinSerializable
         Title = title;
     }
 
-    public string? Title { get; set; }
+    public string? Title { get; internal set; }
 
-    private string? _sourceConnector;
+    public Connector SourceConnector { get; internal set; }
 
-    public string SourceConnector
-    {
-        get => string.IsNullOrEmpty(_sourceConnector) ? "Auto" : _sourceConnector;
-        set => _sourceConnector = value;
-    }
-
-    private string? _targetConnector;
-
-    public string TargetConnector
-    {
-        get => string.IsNullOrEmpty(_targetConnector) ? "Auto" : _targetConnector;
-        set => _targetConnector = value;
-    }
-
-    public ActivityNode? Target;
+    public Connector TargetConnector { get; internal set; }
+    
+    public ConnectionType LinkType { get; internal set; }
 
     /// <summary>
-    /// 仅用于设计时，源自本身的设计时连接线IConnection
+    /// 修改过的连接点 [X1, Y1, X2, Y2...],不包括开始与结束点
     /// </summary>
-    public IActivityConnection? DiagramConnection;
-
-    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
-    {
-        if (!string.IsNullOrEmpty(Title))
-        {
-            ws.WriteFieldId(1);
-            ws.WriteString(Title);
-        }
-
-        if (!string.IsNullOrEmpty(_sourceConnector))
-        {
-            ws.WriteFieldId(2);
-            ws.WriteString(_sourceConnector);
-        }
-
-        if (!string.IsNullOrEmpty(_targetConnector))
-        {
-            ws.WriteFieldId(3);
-            ws.WriteString(_targetConnector);
-        }
-
-        if (Target != null)
-        {
-            ws.WriteFieldId(4);
-            ws.WriteByte(Target.Type);
-            Target.WriteTo(ref ws);
-        }
-
-        ws.WriteFieldEnd();
-    }
-
-    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
-    {
-        var propIndex = 0;
-        do
-        {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: Title = rs.ReadString(); break;
-                case 2: _sourceConnector = rs.ReadString(); break;
-                case 3: _targetConnector = rs.ReadString(); break;
-                case 4:
-                {
-                    Target = ActivityNodeFactory.Make(rs.ReadByte());
-                    Target.ReadFrom(ref rs);
-                    break;
-                }
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(FlowLink), propIndex);
-            }
-        } while (propIndex != 0);
-    }
-}
-
-/// <summary>
-/// 条件分支
-/// </summary>
-public sealed class ConditionLink : FlowLink
-{
-    public ConditionLink() { }
-
-    internal ConditionLink(string title)
-    {
-        Title = title;
-    }
+    public List<float> Points { get; } = [];
 
     /// <summary>
-    /// Null表式Else分支
+    /// 连接的目标节点
+    /// </summary>
+    public ActivityNode? Target { get; internal set; }
+
+    /// <summary>
+    /// 条件表达式, Null表式Else分支
     /// </summary>
     public Expression? Condition { get; set; }
 
     public bool IsDefault => Expression.IsNull(Condition);
 
-    public override void WriteTo<TWriter>(ref TWriter ws)
-    {
-        base.WriteTo(ref ws);
+    /// <summary>
+    /// 仅用于设计时，源自本身的设计时连接线IConnection
+    /// </summary>
+    public IActivityConnection? DiagramConnection { get; internal set; }
 
-        if (!Expression.IsNull(Condition))
+    #region ====Serialization====
+
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+    {
+        ws.WriteString(Title);
+        ws.WriteByte((byte)LinkType);
+        ws.WriteByte((byte)SourceConnector);
+        ws.WriteByte((byte)TargetConnector);
+        ws.SerializeExpression(Condition);
+        ws.SerializeActivityNode(Target);
+        
+        ws.WriteVariant(Points.Count);
+        for (var i = 0; i < Points.Count; i++)
         {
-            ws.WriteFieldId(1);
-            ws.SerializeExpression(Condition);
+            ws.WriteFloat(Points[i]);
         }
 
         ws.WriteFieldEnd();
     }
 
-    public override void ReadFrom<TReader>(ref TReader rs)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        base.ReadFrom(ref rs);
+        Title = rs.ReadString();
+        LinkType = (ConnectionType)rs.ReadByte();
+        SourceConnector = (Connector)rs.ReadByte();
+        TargetConnector = (Connector)rs.ReadByte();
+        Condition = (Expression?)rs.Deserialize();
+        Target = rs.DeserializeActivityNode();
 
-        var propIndex = 0;
-        do
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: Condition = (Expression)rs.Deserialize()!; break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(ConditionLink), propIndex);
-            }
-        } while (propIndex != 0);
+            Points.Add(rs.ReadFloat());
+        }
+
+        rs.ReadFieldId();
+    }
+
+    #endregion
+
+    public enum ConnectionType : byte
+    {
+        Polyline,
+        Bezier,
+        Spline,
+    }
+
+    public enum Connector : byte
+    {
+        Auto = 0,
+        Left,
+        Top,
+        Right,
+        Bottom,
+        Gliding
     }
 }

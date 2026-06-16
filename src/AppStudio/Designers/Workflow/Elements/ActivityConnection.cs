@@ -25,9 +25,9 @@ internal sealed class ActivityConnection : DiagramConnection, IActivityConnectio
         _isLoading = true;
         Link = link;
         Link.DiagramConnection = this;
-        SourceConnectorPosition = link.SourceConnector;
+        SourceConnectorPosition = link.SourceConnector.ToString();
         Source = source;
-        TargetConnectorPosition = link.TargetConnector;
+        TargetConnectorPosition = link.TargetConnector.ToString();
         Target = target;
         _isLoading = false;
     }
@@ -131,8 +131,12 @@ internal sealed class ActivityConnection : DiagramConnection, IActivityConnectio
             if (Target != null)
             {
                 ActivityNode targetNode = ((ActivityDesigner)Target).Node;
-                Link.SourceConnector = SourceConnectorPosition;
-                Link.TargetConnector = TargetConnectorPosition;
+                Link.SourceConnector = string.IsNullOrEmpty(SourceConnectorPosition)
+                    ? FlowLink.Connector.Auto
+                    : Enum.Parse<FlowLink.Connector>(SourceConnectorPosition);
+                Link.TargetConnector = string.IsNullOrEmpty(TargetConnectorPosition)
+                    ? FlowLink.Connector.Auto
+                    : Enum.Parse<FlowLink.Connector>(TargetConnectorPosition);
                 Link.Target = targetNode;
             }
         }
@@ -163,8 +167,12 @@ internal sealed class ActivityConnection : DiagramConnection, IActivityConnectio
             //注意：不可能存在 non null -> non null，设计器拖动首尾点时自动清空
             if (oldTargetNode == null && newTargetNode != null) //null -> non null
             {
-                Link.SourceConnector = SourceConnectorPosition;
-                Link.TargetConnector = TargetConnectorPosition;
+                Link.SourceConnector = string.IsNullOrEmpty(SourceConnectorPosition)
+                    ? FlowLink.Connector.Auto
+                    : Enum.Parse<FlowLink.Connector>(SourceConnectorPosition);
+                Link.TargetConnector = string.IsNullOrEmpty(TargetConnectorPosition)
+                    ? FlowLink.Connector.Auto
+                    : Enum.Parse<FlowLink.Connector>(TargetConnectorPosition);
                 Link.Target = newTargetNode;
             }
             else if (oldTargetNode != null && newTargetNode == null) //non null -> null
@@ -181,7 +189,9 @@ internal sealed class ActivityConnection : DiagramConnection, IActivityConnectio
         if (_isLoading)
             return;
 
-        Link?.SourceConnector = newPosition ?? string.Empty;
+        Link?.SourceConnector = string.IsNullOrEmpty(newPosition)
+            ? FlowLink.Connector.Auto
+            : Enum.Parse<FlowLink.Connector>(newPosition);
     }
 
     protected override void OnTargetConnectorPositionChanged(string? newPosition, string? oldPosition)
@@ -191,6 +201,8 @@ internal sealed class ActivityConnection : DiagramConnection, IActivityConnectio
         if (_isLoading)
             return;
 
-        Link?.TargetConnector = newPosition ?? string.Empty;
+        Link?.TargetConnector = string.IsNullOrEmpty(newPosition)
+            ? FlowLink.Connector.Auto
+            : Enum.Parse<FlowLink.Connector>(newPosition);
     }
 }

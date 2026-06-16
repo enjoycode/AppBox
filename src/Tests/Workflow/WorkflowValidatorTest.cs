@@ -30,8 +30,8 @@ public class WorkflowValidatorTest
 
         var startNode = new StartNode();
         var nodeB = new SingleHumanNode("经理审批", [
-            new ConditionLink("同意") { Condition = Expression.Constant(true) },
-            new ConditionLink("拒绝")
+            new FlowLink("同意") { Condition = Expression.Constant(true) },
+            new FlowLink("拒绝")
         ]);
         var nodeB1 = new AutomationNode("B1");
         var nodeB2 = new AutomationNode("B2");

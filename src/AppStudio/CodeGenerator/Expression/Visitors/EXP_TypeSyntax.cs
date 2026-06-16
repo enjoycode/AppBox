@@ -18,7 +18,8 @@ partial class ExpressionParser
         if (symbol is ITypeSymbol typeSymbol)
             return MakeTypeInfo(typeSymbol);
 
-        if (symbol is IParameterSymbol parameterSymbol)
+        //暂Property和Field转换为ParameterExpression
+        if (symbol is IParameterSymbol or IPropertySymbol or IFieldSymbol)
         {
             var typeInfo = TryGetTypeInfoWithConverted(node)!.Value;
             return Expression.Parameter(node.Identifier.Text, typeInfo);

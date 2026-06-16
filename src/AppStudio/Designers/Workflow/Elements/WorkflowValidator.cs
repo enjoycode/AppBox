@@ -86,7 +86,7 @@ internal sealed class WorkflowValidator
 
     private void VisitNodeWithConditionLinks(ActivityNode node, BranchInfo branch)
     {
-        var outlinks = node.GetOutLinks().Cast<ConditionLink>().ToArray();
+        var outlinks = node.GetOutLinks().ToArray();
         if (outlinks.Length == 0)
         {
             AddError(node, ErrorCode.WithoutAnyCondition);

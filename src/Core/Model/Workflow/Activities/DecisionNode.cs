@@ -6,7 +6,7 @@ public sealed class DecisionNode : ActivityNode
 
     public override byte Type => ActivityType.DecisionActivity;
 
-    public List<ConditionLink> Conditions { get; } = [];
+    public List<FlowLink> Conditions { get; } = [];
 
     public override IEnumerable<FlowLink> GetOutLinks() => Conditions;
 
@@ -16,7 +16,6 @@ public sealed class DecisionNode : ActivityNode
     {
         base.WriteTo(ref ws);
 
-        ws.WriteFieldId(1);
         ws.WriteCollection(Conditions);
 
         ws.WriteFieldEnd();
@@ -26,16 +25,9 @@ public sealed class DecisionNode : ActivityNode
     {
         base.ReadFrom(ref rs);
 
-        do
-        {
-            var fieldId = rs.ReadFieldId();
-            switch (fieldId)
-            {
-                case 1: rs.ReadCollection(Conditions); break;
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(DecisionNode), fieldId);
-            }
-        } while (true);
+        rs.ReadCollection(Conditions);
+
+        rs.ReadFieldId();
     }
 
     #endregion

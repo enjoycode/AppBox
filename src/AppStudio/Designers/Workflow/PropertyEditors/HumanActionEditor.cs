@@ -30,7 +30,7 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
         }
 
         //同步模型添加ConditionLink
-        var link = new ConditionLink() { Title = actionName.Value };
+        var link = new FlowLink() { Title = actionName.Value };
         HumanNode.ResultConditions.Add(link);
 
         DataSources.Add(new HumanAction() { Name = actionName.Value });

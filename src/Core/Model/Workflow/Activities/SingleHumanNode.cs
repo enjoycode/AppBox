@@ -13,13 +13,11 @@ public sealed class SingleHumanNode : HumanNode
     /// <summary>
     /// Only for test
     /// </summary>
-    internal SingleHumanNode(string title, ConditionLink[] conditions)
+    internal SingleHumanNode(string title, FlowLink[] conditions)
     {
         Title = title;
         ResultConditions.AddRange(conditions);
     }
 
     public override byte Type => ActivityType.SingleHumanActivity;
-
-    public override bool IsSingleHuman => true;
 }

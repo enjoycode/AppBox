@@ -40,6 +40,7 @@ namespace AppBoxCore
         Expression = 25,
 
         //----设计时及模型相关----
+        ActivityNode = 49,
         DataStoreModel = 50,
         ApplicationModel = 51,
         ModelFolder = 52,

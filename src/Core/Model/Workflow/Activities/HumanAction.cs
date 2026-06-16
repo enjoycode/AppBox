@@ -38,25 +38,14 @@ public sealed class HumanAction : IBinSerializable
 
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        ws.WriteFieldId(1);
         ws.WriteString(_name);
-
         ws.WriteFieldEnd();
     }
 
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        var propIndex = 0;
-        do
-        {
-            propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: _name = rs.ReadString() ?? string.Empty; break;
-                case 0: break;
-                default: throw SerializationException.ReadUnknownField(nameof(HumanAction), propIndex);
-            }
-        } while (propIndex != 0);
+        _name = rs.ReadString() ?? string.Empty;
+        rs.ReadFieldId();
     }
 
     #endregion

@@ -5,7 +5,7 @@ using PixUI;
 
 namespace AppBoxDesign.Workflow;
 
-internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
+internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
 {
     internal static EditorFactory Factory => (ctx, prop) =>
         new(new ConditionsEditor(ctx, prop), VerticalAlignment.Top);
@@ -57,7 +57,7 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
     private sealed class ConditionDialog : Dialog
     {
         public ConditionDialog(DesignContext designContext, WorkflowModel workflowModel, ActivityNode node,
-            ConditionLink link)
+            FlowLink link)
         {
             Title.Value = "Condition Editor";
             Width = 580;
@@ -75,7 +75,7 @@ internal sealed class ConditionsEditor : ListEditorBase<ConditionLink>
         public Expression? ParseToExpression() => _expressionEditor.ParseToExpression();
 
         private static ExpressionInfo MakeExpressionInfo(WorkflowModel workflowModel, ActivityNode activityNode,
-            ConditionLink link)
+            FlowLink link)
         {
             // var methodName = "Expression";
             // if (activityNode is DecisionNode decisionNode && CodeUtil.IsValidIdentifier(decisionNode.Title))
