@@ -15,6 +15,8 @@ public static class SerializationExtension
 
         if (ws.CheckSerialized(activity)) return;
 
+        ws.Context.AddToSerialized(activity);
+
         ws.WriteByte((byte)PayloadType.Activity);
         ws.WriteByte(activity.Type);
         activity.WriteTo(ref ws);
@@ -32,6 +34,7 @@ public static class SerializationExtension
 
         var type = reader.ReadByte();
         var activity = ActivityFactory.Make(type);
+        reader.Context.AddToDeserialized(activity);
         activity.ReadFrom(ref reader);
         return activity;
     }
