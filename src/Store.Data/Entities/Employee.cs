@@ -61,7 +61,7 @@ internal sealed class Employee : SqlEntity, IEntity
     internal const short ACCOUNT_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
     internal const short PASSWORD_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
 
-    private static readonly short[] MemberIds = { ID_ID, NAME_ID, MALE_ID, BIRTHDAY_ID, ACCOUNT_ID, PASSWORD_ID };
+    private static readonly short[] MemberIds = [ID_ID, NAME_ID, MALE_ID, BIRTHDAY_ID, ACCOUNT_ID, PASSWORD_ID];
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;

@@ -14,7 +14,7 @@ namespace AppBoxStore;
 internal static class StoreInitiator
 {
 #if !FUTURE
-    internal const ushort PK_Member_Id = 0; //暂为0
+    internal const ushort PK_MEMBER_ID = 0; //暂为0
 #endif
 
     internal static async Task InitAsync(
@@ -200,62 +200,61 @@ internal static class StoreInitiator
     private static EntityModel CreateEmployeeModel(ApplicationModel app)
     {
 #if FUTURE
-        var emploee = new EntityModel(Consts.SYS_EMPLOEE_MODEL_ID, Consts.EMPLOEE, EntityStoreType.StoreWithMvcc);
+        var employee = new EntityModel(Consts.SYS_EMPLOEE_MODEL_ID, Consts.EMPLOEE, EntityStoreType.StoreWithMvcc);
 #else
-        var emploee = new EntityModel(Employee.MODELID, nameof(Employee));
-        emploee.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
+        var employee = new EntityModel(Employee.MODELID, nameof(Employee));
+        employee.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 
-        var id = new EntityFieldMember(emploee, nameof(Employee.Id), EntityFieldType.Guid, false);
-        emploee.AddSysMember(id, Employee.ID_ID);
+        var id = new EntityFieldMember(employee, nameof(Employee.Id), EntityFieldType.Guid, false);
+        employee.AddSysMember(id, Employee.ID_ID);
         //add pk
-        emploee.SqlStoreOptions!.SetPrimaryKeys([new PrimaryKeyField(id.MemberId, false)]);
+        employee.SqlStoreOptions!.SetPrimaryKeys([new PrimaryKeyField(id.MemberId, false)]);
 #endif
 
         //Add members
-        var name = new EntityFieldMember(emploee, nameof(Employee.Name), EntityFieldType.String, false);
+        var name = new EntityFieldMember(employee, nameof(Employee.Name), EntityFieldType.String, false);
 #if !FUTURE
         name.Length = 20;
 #endif
-        emploee.AddSysMember(name, Employee.NAME_ID);
+        employee.AddSysMember(name, Employee.NAME_ID);
 
-        var male = new EntityFieldMember(emploee, nameof(Employee.Male), EntityFieldType.Bool, false);
-        emploee.AddSysMember(male, Employee.MALE_ID);
+        var male = new EntityFieldMember(employee, nameof(Employee.Male), EntityFieldType.Bool, false);
+        employee.AddSysMember(male, Employee.MALE_ID);
 
-        var birthday = new EntityFieldMember(emploee, nameof(Employee.Birthday),
+        var birthday = new EntityFieldMember(employee, nameof(Employee.Birthday),
             EntityFieldType.DateTime, true);
-        emploee.AddSysMember(birthday, Employee.BIRTHDAY_ID);
+        employee.AddSysMember(birthday, Employee.BIRTHDAY_ID);
 
         var account =
-            new EntityFieldMember(emploee, nameof(Employee.Account), EntityFieldType.String, true);
-        emploee.AddSysMember(account, Employee.ACCOUNT_ID);
+            new EntityFieldMember(employee, nameof(Employee.Account), EntityFieldType.String, true);
+        employee.AddSysMember(account, Employee.ACCOUNT_ID);
 
         var password =
-            new EntityFieldMember(emploee, nameof(Employee.Password), EntityFieldType.Binary, true);
-        emploee.AddSysMember(password, Employee.PASSWORD_ID);
+            new EntityFieldMember(employee, nameof(Employee.Password), EntityFieldType.Binary, true);
+        employee.AddSysMember(password, Employee.PASSWORD_ID);
 
         // var orgunits = new EntitySetMember(emploee, "OrgUnits", OrgUnit.MODELID, OrgUnit.BASE_ID);
-        // emploee.AddSysMember(orgunits, Employee.);
+        // employee.AddSysMember(orgunits, Employee.);
 
         //Add indexes
 #if FUTURE
-        var ui_account = new EntityIndexModel(emploee, "UI_Account", true,
+        var uiAccount = new EntityIndexModel(emploee, "UI_Account", true,
                                                    new FieldWithOrder[] { new FieldWithOrder(Consts.EMPLOEE_ACCOUNT_ID) },
                                                    new ushort[] { Consts.EMPLOEE_PASSWORD_ID });
         emploee.SysStoreOptions.AddSysIndex(emploee, ui_account, Consts.EMPLOEE_UI_ACCOUNT_ID);
 #else
-        var ui_account = new SqlIndex(emploee, "UI_Account", true,
+        var uiAccount = new SqlIndex(employee, "UI_Account", true,
             [new OrderedField(Employee.ACCOUNT_ID)], [Employee.PASSWORD_ID]);
-        emploee.SqlStoreOptions.AddIndex(ui_account);
+        employee.SqlStoreOptions.AddIndex(uiAccount);
 #endif
 
-        return emploee;
+        return employee;
     }
 
     private static EntityModel CreateEnterpriseModel(ApplicationModel app)
     {
 #if FUTURE
-            var model =
- new EntityModel(Consts.SYS_ENTERPRISE_MODEL_ID, Consts.ENTERPRISE, EntityStoreType.StoreWithMvcc);
+        var model = new EntityModel(Consts.SYS_ENTERPRISE_MODEL_ID, Consts.ENTERPRISE, EntityStoreType.StoreWithMvcc);
 #else
         var model = new EntityModel(Enterprise.MODELID, nameof(Enterprise));
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
@@ -272,9 +271,13 @@ internal static class StoreInitiator
 #endif
         model.AddSysMember(name, Enterprise.NAME_ID);
 
-        var address =
-            new EntityFieldMember(model, nameof(Enterprise.Address), EntityFieldType.String, true);
+        var address = new EntityFieldMember(model, nameof(Enterprise.Address), EntityFieldType.String, true);
         model.AddSysMember(address, Enterprise.ADDRESS_ID);
+
+        var managerId = new EntityFieldMember(model, nameof(Enterprise.ManagerId), EntityFieldType.Guid, true, true);
+        model.AddSysMember(managerId, Enterprise.MANAGERID_ID);
+        var manager = new EntityRefMember(model, nameof(Enterprise.Manager), OrgUnit.MODELID, [managerId.MemberId]);
+        model.AddSysMember(manager, Enterprise.MANAGER_ID);
 
         return model;
     }
@@ -282,13 +285,12 @@ internal static class StoreInitiator
     private static EntityModel CreateWorkgroupModel(ApplicationModel app)
     {
 #if FUTURE
-            var model =
- new EntityModel(Consts.SYS_WORKGROUP_MODEL_ID, Consts.WORKGROUP, EntityStoreType.StoreWithMvcc);
+        var model = new EntityModel(Consts.SYS_WORKGROUP_MODEL_ID, Consts.WORKGROUP, EntityStoreType.StoreWithMvcc);
 #else
         var model = new EntityModel(Workgroup.MODELID, nameof(Workgroup));
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
 
-        var id = new EntityFieldMember(model, nameof(Workgroup.Id), EntityFieldType.Guid, false);
+        var id = new EntityFieldMember(model, nameof(Workgroup.Id), EntityFieldType.Guid, false, true);
         model.AddSysMember(id, Workgroup.ID_ID);
         //add pk
         model.SqlStoreOptions!.SetPrimaryKeys([new PrimaryKeyField(id.MemberId, false)]);
@@ -299,6 +301,11 @@ internal static class StoreInitiator
         name.Length = 50;
 #endif
         model.AddSysMember(name, Workgroup.NAME_ID);
+
+        var managerId = new EntityFieldMember(model, nameof(Workgroup.ManagerId), EntityFieldType.Guid, true);
+        model.AddSysMember(managerId, Workgroup.MANAGERID_ID);
+        var manager = new EntityRefMember(model, nameof(Workgroup.Manager), OrgUnit.MODELID, [managerId.MemberId]);
+        model.AddSysMember(manager, Workgroup.MANAGER_ID);
 
         return model;
     }
@@ -327,22 +334,19 @@ internal static class StoreInitiator
 #endif
         model.AddSysMember(name, OrgUnit.NAME_ID);
 
-        var baseType =
-            new EntityFieldMember(model, nameof(OrgUnit.BaseType), EntityFieldType.Long, false);
+        var baseType = new EntityFieldMember(model, nameof(OrgUnit.BaseType), EntityFieldType.Long, false);
         model.AddSysMember(baseType, OrgUnit.BASETYPE_ID);
-        var Base = new EntityRefMember(model, nameof(OrgUnit.Base),
+        var baseRef = new EntityRefMember(model, nameof(OrgUnit.Base),
             [Enterprise.MODELID, Workgroup.MODELID, Employee.MODELID],
             [id.MemberId], baseType.MemberId, false);
-        model.AddSysMember(Base, OrgUnit.BASE_ID);
+        model.AddSysMember(baseRef, OrgUnit.BASE_ID);
 
-        var parentId = new EntityFieldMember(model, nameof(OrgUnit.ParentId), fkType, true);
+        var parentId = new EntityFieldMember(model, nameof(OrgUnit.ParentId), fkType, true, true);
         model.AddSysMember(parentId, OrgUnit.PARENTID_ID);
-        var parent = new EntityRefMember(model, nameof(OrgUnit.Parent), OrgUnit.MODELID,
-            [parentId.MemberId]);
+        var parent = new EntityRefMember(model, nameof(OrgUnit.Parent), OrgUnit.MODELID, [parentId.MemberId]);
         model.AddSysMember(parent, OrgUnit.PARENT_ID);
 
-        var children =
-            new EntitySetMember(model, nameof(OrgUnit.Children), OrgUnit.MODELID, parent.MemberId);
+        var children = new EntitySetMember(model, nameof(OrgUnit.Children), OrgUnit.MODELID, parent.MemberId);
         model.AddSysMember(children, OrgUnit.CHILDREN_ID);
 
         return model;
@@ -429,7 +433,7 @@ internal static class StoreInitiator
         var ui_nodeType_targetId = new SqlIndex(model, "UI_NodeType_TargetId", true,
         [
             new OrderedField(Checkout.NODE_TYPE_ID),
-                new OrderedField(Checkout.TARGET_ID)
+            new OrderedField(Checkout.TARGET_ID)
         ]);
         model.SqlStoreOptions!.AddIndex(ui_nodeType_targetId);
 
@@ -494,7 +498,7 @@ internal static class StoreInitiator
         var asmData = Resources.GetBytes("Resources.Views.HomePage.dll");
         await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, "1", asmData, txn);
 
-        var jsonData = JsonSerializer.SerializeToUtf8Bytes(new string[] { "1" });
+        var jsonData = JsonSerializer.SerializeToUtf8Bytes(new[] { "1" });
         await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ViewAssemblies, "sys.HomePage", jsonData, txn);
     }
 }

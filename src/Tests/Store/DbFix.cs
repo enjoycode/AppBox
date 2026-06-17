@@ -7,6 +7,7 @@ using AppBoxClient;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxStore;
+using AppBoxStore.Entities;
 using NUnit.Framework;
 using PixUI;
 using Path = System.IO.Path;
@@ -21,6 +22,31 @@ public class DbFix
     }
 
     // 临时用于修复一些错误的模型数据
+
+    // [Test]
+    // public async Task FixIsForeignKey()
+    // {
+    //     var isForeignKeyProperty = typeof(EntityFieldMember).GetProperty(nameof(EntityFieldMember.IsForeignKey))!;
+    //     
+    //     var enterprise = (EntityModel) await MetaStore.Provider.LoadModelAsync(Enterprise.MODELID);
+    //     var member = enterprise.GetMember("ManagerId");
+    //     isForeignKeyProperty.SetValue(member, true);
+    //     
+    //     var workgroup = (EntityModel) await MetaStore.Provider.LoadModelAsync(Workgroup.MODELID);
+    //     member = workgroup.GetMember("ManagerId");
+    //     isForeignKeyProperty.SetValue(member, true);
+    //     
+    //     var orgUnit = (EntityModel) await MetaStore.Provider.LoadModelAsync(OrgUnit.MODELID);
+    //     member = orgUnit.GetMember("ParentId");
+    //     isForeignKeyProperty.SetValue(member, true);
+    //     
+    //     var txn = await SqlStore.Default.BeginTransactionAsync();
+    //     await MetaStore.Provider.UpdateModelAsync(enterprise, txn);
+    //     await MetaStore.Provider.UpdateModelAsync(workgroup, txn);
+    //     await MetaStore.Provider.UpdateModelAsync(orgUnit, txn);
+    //     await txn.CommitAsync();
+    // }
+
     // [Test]
     // public async Task UpdateModel()
     // {
