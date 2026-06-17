@@ -29,9 +29,12 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
             return;
         }
 
-        //同步模型添加ConditionLink
-        var link = new FlowLink() { Title = actionName.Value };
-        HumanNode.ResultConditions.Add(link);
+        //如果是单人活动,同步模型添加ConditionLink
+        if (HumanNode is SingleHumanNode)
+        {
+            var link = new FlowLink() { Title = actionName.Value };
+            HumanNode.ResultConditions.Add(link);
+        }
 
         DataSources.Add(new HumanAction() { Name = actionName.Value });
         RefreshDataSources();
@@ -57,9 +60,13 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
             return;
         }
 
-        //同步更新FlowLink和Action的名称
-        var link = HumanNode.ResultConditions.Single(t => t.Title == action.Name);
-        link.Title = actionName.Value;
+        //如果是单人活动,同步更新FlowLink和Action的名称
+        if (HumanNode is SingleHumanNode)
+        {
+            var link = HumanNode.ResultConditions.Single(t => t.Title == action.Name);
+            link.Title = actionName.Value;
+        }
+
         action.Name = actionName.Value;
         //TODO: should repaint target ActivityConnection
     }
@@ -72,14 +79,18 @@ internal sealed class HumanActionEditor : ListEditorBase<HumanAction>
 
         //TODO: 多人活动需要判断删除的有没有在ResultConditions的表达式内引用到，有引用则不允许删除
 
-        //找到对应的ConditionLink
-        var link = HumanNode.ResultConditions.Single(t => t.Title == action.Name);
-        //从现有的连接线查找，从画布中移除
-        var connections = ActivityDesigner.Surface!.GetConnections().Cast<ActivityConnection>();
-        var connection = connections.SingleOrDefault(t => t.Link == link);
-        connection?.Remove();
-        //从ResultConditions中删除Link
-        HumanNode.ResultConditions.Remove(link);
+        if (HumanNode is SingleHumanNode)
+        {
+            //找到对应的ConditionLink
+            var link = HumanNode.ResultConditions.Single(t => t.Title == action.Name);
+            //从现有的连接线查找，从画布中移除
+            var connections = ActivityDesigner.Surface!.GetConnections().Cast<ActivityConnection>();
+            var connection = connections.SingleOrDefault(t => t.Link == link);
+            connection?.Remove();
+            //从ResultConditions中删除Link
+            HumanNode.ResultConditions.Remove(link);
+        }
+
         //从HumanActions中删除
         RemoveSelected();
     }

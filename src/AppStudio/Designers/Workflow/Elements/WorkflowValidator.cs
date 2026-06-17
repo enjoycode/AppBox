@@ -95,21 +95,24 @@ internal sealed class WorkflowValidator
 
         branch.ForkJoinPair?.IncrementChildrenBranchCount(outlinks.Length - 1); //注意-1
 
-        //判断有无Else分支且为最后一个
-        var elseBranchCount = 0;
-        var elseBranchIndex = -1;
-        for (var i = 0; i < outlinks.Length; i++)
+        //判断有无Else分支且为最后一个(暂排除SingleHumanNode)
+        if (node is not SingleHumanNode)
         {
-            if (outlinks[i].IsDefault)
+            var elseBranchCount = 0;
+            var elseBranchIndex = -1;
+            for (var i = 0; i < outlinks.Length; i++)
             {
-                elseBranchCount++;
-                elseBranchIndex = i;
+                if (outlinks[i].IsDefault)
+                {
+                    elseBranchCount++;
+                    elseBranchIndex = i;
+                }
             }
-        }
 
-        if (elseBranchCount > 1) AddError(node, ErrorCode.MultiElseCondition);
-        if (elseBranchIndex == -1) AddError(node, ErrorCode.WithoutElseCondition);
-        if (elseBranchIndex != outlinks.Length - 1) AddError(node, ErrorCode.ElseConditionMustBeLastOne);
+            if (elseBranchCount > 1) AddError(node, ErrorCode.MultiElseCondition);
+            if (elseBranchIndex == -1) AddError(node, ErrorCode.WithoutElseCondition);
+            if (elseBranchIndex != outlinks.Length - 1) AddError(node, ErrorCode.ElseConditionMustBeLastOne);
+        }
 
         foreach (var outlink in outlinks)
             VisitLink(outlink, branch);

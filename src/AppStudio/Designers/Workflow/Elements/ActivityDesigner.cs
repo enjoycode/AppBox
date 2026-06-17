@@ -201,7 +201,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty] };
     }
 
-    private DiagramPropertyGroup GetHumanPropertyGroup()
+    private DiagramPropertyGroup GetSingleHumanPropertyGroup()
     {
         var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
@@ -217,6 +217,36 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty, actionProperty] };
     }
 
+    private DiagramPropertyGroup GetMultiHumanPropertyGroup()
+    {
+        var multiHumanNode = (MultiHumanNode)Node;
+
+        var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
+        {
+            ValueGetter = () => Node.Title,
+            ValueSetter = v => Node.Title = v?.ToString() ?? string.Empty
+        };
+
+        var waitAllProperty = new DiagramProperty(this, "WaitAllActor", CheckBoxEditor.Factory)
+        {
+            ValueGetter = () => multiHumanNode.WaitAllActor,
+            ValueSetter = v => multiHumanNode.WaitAllActor = (bool)v!
+        };
+
+        var actionProperty = new DiagramProperty(this, "Action", HumanActionEditor.Factory)
+        {
+            ValueGetter = () => multiHumanNode.Actions,
+        };
+
+        var consProperty = new DiagramProperty(this, "Conditions", ConditionsEditor.Factory)
+        {
+            ValueGetter = () => multiHumanNode.ResultConditions,
+        };
+
+        return new DiagramPropertyGroup()
+            { GroupName = "Properties", Properties = [titleProperty, waitAllProperty, actionProperty, consProperty] };
+    }
+
     public IEnumerable<DiagramPropertyGroup> GetProperties()
     {
         yield return GetLayoutPropertyGroup();
@@ -230,8 +260,10 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
                 yield return GetAutomationPropertyGroup();
                 break;
             case SingleHumanNode:
+                yield return GetSingleHumanPropertyGroup();
+                break;
             case MultiHumanNode:
-                yield return GetHumanPropertyGroup();
+                yield return GetMultiHumanPropertyGroup();
                 break;
         }
     }
