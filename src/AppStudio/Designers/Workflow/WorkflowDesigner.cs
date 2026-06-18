@@ -56,19 +56,30 @@ internal sealed class WorkflowDesigner : View, IDesignerWithProblems
         TryLoad();
     }
 
-    private void TryLoad()
+    private async void TryLoad()
     {
         if (_hasLoaded) return;
         _hasLoaded = true;
+
+        await _diagramService.InitCache();
 
         var model = (WorkflowModel)ModelNode.Model;
         var visitor = new WorkflowDesignVisitor();
         visitor.Visit(model.StartNode);
 
         foreach (var item in visitor.Designers)
+        {
+            //暂在这里设置人员活动参与者的显示名称
+            if (item.Node is HumanNode humanNode)
+                _diagramService.SetHumanActorDisplayName(humanNode);
+
             _diagramService.Surface.AddItem(item);
+        }
+
         foreach (var item in visitor.Connections)
+        {
             _diagramService.Surface.AddItem(item);
+        }
 
         _diagramService.OnLoaded();
     }
