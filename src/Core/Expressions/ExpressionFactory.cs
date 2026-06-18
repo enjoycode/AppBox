@@ -11,6 +11,7 @@ public static class ExpressionFactory
         { ExpressionType.NewExpression, () => new NewExpression() },
         { ExpressionType.MemberExpression, () => new MemberExpression() },
         { ExpressionType.MethodCallExpression, () => new MethodCallExpression() },
+        { ExpressionType.InvokeServiceExpression, () => new InvokeServiceExpression() },
     };
 
     public static Expression Make(ExpressionType expressionType)

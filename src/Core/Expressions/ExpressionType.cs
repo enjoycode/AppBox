@@ -9,6 +9,10 @@ public enum ExpressionType : byte
     MemberExpression = 4,
     MethodCallExpression = 5,
     IndexExpression = 6,
+    /// <summary>
+    /// 调用系统服务的表达式
+    /// </summary>
+    InvokeServiceExpression = 7,
     //LambdaExpression,
     //BlockExpression,
     //EventAction,
