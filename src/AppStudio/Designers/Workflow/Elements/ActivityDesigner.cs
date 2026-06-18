@@ -209,12 +209,21 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             ValueSetter = v => Node.Title = v?.ToString() ?? string.Empty
         };
 
+        var actorProperty = new DiagramProperty(this, "Actor", HumanActorEditor.Factory)
+        {
+            ValueGetter = () => ((HumanNode)Node).Actors
+        };
+
         var actionProperty = new DiagramProperty(this, "Action", HumanActionEditor.Factory)
         {
             ValueGetter = () => ((HumanNode)Node).Actions,
         };
 
-        return new DiagramPropertyGroup() { GroupName = "Properties", Properties = [titleProperty, actionProperty] };
+        return new DiagramPropertyGroup()
+        {
+            GroupName = "Properties",
+            Properties = [titleProperty, actorProperty, actionProperty]
+        };
     }
 
     private DiagramPropertyGroup GetMultiHumanPropertyGroup()
@@ -233,6 +242,11 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
             ValueSetter = v => multiHumanNode.WaitAllActor = (bool)v!
         };
 
+        var actorProperty = new DiagramProperty(this, "Actor", HumanActorEditor.Factory)
+        {
+            ValueGetter = () => multiHumanNode.Actors
+        };
+
         var actionProperty = new DiagramProperty(this, "Action", HumanActionEditor.Factory)
         {
             ValueGetter = () => multiHumanNode.Actions,
@@ -244,7 +258,10 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         };
 
         return new DiagramPropertyGroup()
-            { GroupName = "Properties", Properties = [titleProperty, waitAllProperty, actionProperty, consProperty] };
+        {
+            GroupName = "Properties",
+            Properties = [titleProperty, waitAllProperty, actorProperty, actionProperty, consProperty]
+        };
     }
 
     public IEnumerable<DiagramPropertyGroup> GetProperties()

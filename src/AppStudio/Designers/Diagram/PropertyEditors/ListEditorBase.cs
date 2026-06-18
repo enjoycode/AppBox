@@ -24,7 +24,8 @@ internal abstract class ListEditorBase<T> : SingleChildWidget
                     Height = CmdBarHeight,
                     Children =
                     [
-                        new Button(icon: MaterialIcons.Add) { Width = _buttonWidth, OnTap = _ => OnAdd() },
+                        new Button(icon: MaterialIcons.Add)
+                            { Width = _buttonWidth, OnTap = _ => OnAdd() }.RefBy(ref AddButton),
                         new Button(icon: MaterialIcons.Edit) { Width = _buttonWidth, OnTap = _ => OnEdit() },
                         new Button(icon: MaterialIcons.Remove) { Width = _buttonWidth, OnTap = _ => OnRemove() }
                     ]
@@ -43,6 +44,7 @@ internal abstract class ListEditorBase<T> : SingleChildWidget
 
     private const float CmdBarHeight = 20;
     private readonly State<float> _buttonWidth = 20;
+    protected readonly Button AddButton = null!;
     protected readonly IDiagramProperty PropertyItem;
     protected readonly IList<T> DataSources;
     private readonly ListViewController<T> _listController;
