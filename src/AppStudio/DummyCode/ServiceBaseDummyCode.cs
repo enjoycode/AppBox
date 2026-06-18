@@ -20,6 +20,23 @@ namespace AppBoxCore
     {
         public InvokePermissionAttribute(bool permission) { }
     }
+    
+    /// <summary>
+    /// 标记WorkflowActorService方法获取工作流参与者
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class WorkflowActorAttribute : Attribute
+    {
+        public WorkflowActorAttribute(string name)
+        {
+            Name = name;
+        }
+
+        /// <summary>
+        /// 显示名称 eg:部门经理
+        /// </summary>
+        public readonly string Name;
+    }
 }
 
 // namespace AppBoxServer

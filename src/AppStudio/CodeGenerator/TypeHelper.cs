@@ -12,6 +12,7 @@ internal static class TypeHelper
     internal const string MemberAccessInterceptorAttribute = "AppBoxCore.MemberAccessInterceptorAttribute";
     internal const string InvocationInterceptorAttribute = "AppBoxCore.InvocationInterceptorAttribute";
     internal const string InvokePermissionAttribute = "AppBoxCore.InvokePermissionAttribute";
+    internal const string WorkflowActorAttribute = "AppBoxCore.WorkflowActorAttribute";
     internal const string PermissionAttribute = "AppBoxClient.PermissionAttribute";
     internal const string UploadMethodAttribute = "AppBoxCore.UploadMethodAttribute";
     internal const string DownloadMethodAttribute = "AppBoxCore.DownloadMethodAttribute";
