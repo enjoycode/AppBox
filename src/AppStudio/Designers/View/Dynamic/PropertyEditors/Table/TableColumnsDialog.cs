@@ -121,7 +121,7 @@ internal sealed class TableColumnsDialog : Dialog
     {
         base.OnMounted();
         // 默认选中第一个节点
-        if (_treeController.RootNodes.Length > 0)
+        if (_treeController.RootNodes.Count > 0)
             _treeController.SelectNode(_treeController.RootNodes[0]);
     }
 
