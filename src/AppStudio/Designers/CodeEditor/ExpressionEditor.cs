@@ -98,10 +98,14 @@ internal sealed class ExpressionEditor : SingleChildWidget
         return sb.ToString();
     }
 
-    public Expression? ParseToExpression()
+    public async Task<Expression?> ParseToExpression()
     {
-        var srcCode = _controller.Document.TextContent + _expressionInfo.PartialCode;
-        var syntaxTree = ExpressionParser.Parse(srcCode);
+        var doc = _designContext.Workspace.CurrentSolution.GetDocument(_docId);
+        if (doc == null) throw new Exception("Could not find expression's document");
+        
+        var syntaxTree = await doc.GetSyntaxTreeAsync();
+        if (syntaxTree == null) throw new Exception("Could not find expression's syntax tree");
+        
         //先判断有无表达式，即Body是否为空
         var root = syntaxTree.GetCompilationUnitRoot();
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault();
@@ -109,7 +113,13 @@ internal sealed class ExpressionEditor : SingleChildWidget
         if (methodDecl.ExpressionBody != null) throw new NotImplementedException("Parse expression body");
         if (methodDecl.Body == null || methodDecl.Body.Statements.Count == 0) return null;
         //检查语义
-        var semanticModel = ExpressionParser.GetSemanticModel(syntaxTree);
+        var semanticModel = await doc.GetSemanticModelAsync();
+        if (semanticModel == null) throw new Exception("Could not find expression's semantic model");
+        var diagnostics = (IEnumerable<Diagnostic>)semanticModel.GetDiagnostics();
+        var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
+        if (errors > 0)
+            throw new Exception("表达式存在语义错误");
+        
         SyntaxNode targetNode = methodDecl.Body;
         if (methodDecl.Body.Statements is [ReturnStatementSyntax returnStatement])
         {

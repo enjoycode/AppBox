@@ -22,6 +22,19 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
     private WorkflowModel WorkflowModel =>
         ((WorkflowDiagramService)ActivityDesigner.Surface!.DiagramService).WorkflowModel;
 
+    protected override async void OnAdd()
+    {
+        var link = new FlowLink();
+        var dlg = new ConditionDialog(_designContext, WorkflowModel, ActivityDesigner.Node, link);
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
+
+        link.Condition = dlg.Expression;
+        DataSources.Add(link);
+        SelectedIndex.Value = DataSources.Count - 1;
+        RefreshDataSources();
+    }
+
     protected override async void OnEdit()
     {
         if (SelectedIndex.Value < 0) return;
@@ -31,14 +44,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
-        try
-        {
-            link.Condition = dlg.ParseToExpression();
-        }
-        catch (Exception e)
-        {
-            Notification.Error($"Can't parse expression: {e.Message}");
-        }
+        link.Condition = dlg.Expression;
     }
 
     protected override void OnRemove()
@@ -63,7 +69,6 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
             Width = 580;
             Height = 400;
 
-
             _nameState = new RxProxy<string>(() => link.Title ?? "[Unnamed]", v => link.Title = v);
             var expressionInfo = MakeExpressionInfo(workflowModel, node, link);
             _expressionEditor = new ExpressionEditor(designContext, expressionInfo);
@@ -72,7 +77,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
         private readonly State<string> _nameState;
         private readonly ExpressionEditor _expressionEditor;
 
-        public Expression? ParseToExpression() => _expressionEditor.ParseToExpression();
+        public Expression? Expression { get; private set; }
 
         private static ExpressionInfo MakeExpressionInfo(WorkflowModel workflowModel, ActivityNode activityNode,
             FlowLink link)
@@ -93,12 +98,20 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
                 expressionCode = sb.ToString();
             }
 
+            //根据节点类型构建表达式方法参数
+            var parameters = string.Empty;
+            if (activityNode is MultiHumanNode)
+            {
+                parameters = "Dictionary<string, int> actorResult, int actorCount";
+            }
+
             return new ExpressionInfo()
             {
                 Owner = workflowModel,
                 ClassName = workflowModel.Name,
                 ReturnType = "bool",
                 MethodName = "Expression",
+                Parameters = parameters,
                 ExpressionCode = expressionCode,
                 PartialCode = BuildWorkflowPartialCode(workflowModel),
                 IsStatic = false,
@@ -146,6 +159,24 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
                     ]
                 }
             };
+        }
+
+        protected override async ValueTask<bool> OnClosing(DialogResult result)
+        {
+            if (result == DialogResult.OK)
+            {
+                try
+                {
+                    Expression = await _expressionEditor.ParseToExpression();
+                }
+                catch (Exception e)
+                {
+                    Notification.Error($"Can't parse expression: {e.Message}");
+                    return true;
+                }
+            }
+
+            return await base.OnClosing(result);
         }
     }
 }
