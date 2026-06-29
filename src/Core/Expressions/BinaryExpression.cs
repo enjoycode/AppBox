@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text;
 
 namespace AppBoxCore;
@@ -25,6 +24,8 @@ public sealed class BinaryExpression : Expression
         {
             if (IsLogical(BinaryType))
                 _typeInfo = new ExpressionTypeInfo("bool");
+            else if (BinaryType == BinaryOperatorType.Assign)
+                _typeInfo = LeftOperand.TypeInfo;
             else
                 throw new NotImplementedException(BinaryType.ToString());
         }
