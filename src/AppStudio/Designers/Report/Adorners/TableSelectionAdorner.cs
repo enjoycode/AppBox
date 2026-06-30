@@ -145,8 +145,9 @@ internal sealed class TableSelectionAdorner : DesignAdorner, ISelectionAdorner
         else if (_hitTestElement == null)
         {
             var table = (TableDesigner)Target;
+            var surface = table.Surface!;
             //先选择当前单元格
-            table.Surface!.SelectionService.SelectHoverItem();
+            surface.SelectionService.SelectItem(surface.HoverItem);
             //开始拖动选择单元格
             table.BeginCellSelection(new Point(e.X, e.Y));
         }
