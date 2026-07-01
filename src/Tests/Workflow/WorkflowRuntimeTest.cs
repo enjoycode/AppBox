@@ -27,7 +27,7 @@ public class WorkflowRuntimeTest
         var decision = new DecisionActivity("判断条件",
             [Expression.Constant(false), null],
             [trueActivity, falseActivity]);
-        var start = new StartActivity() { Next = decision };
+        var start = new StartActivity() { Next = new RuntimeFlowLink(decision) };
         var instance = new WorkflowInstance("TestDecision", start, _mockUserId, "Test", []);
         await instance.Start(_store);
 
@@ -43,7 +43,7 @@ public class WorkflowRuntimeTest
             [new HumanActor(Expression.Constant(_mockManager1Id))],
             [new HumanAction("同意"), new HumanAction("不同意")],
             [approveActivity, rejectActivity]);
-        var start = new StartActivity() { Next = singleHumanActivity };
+        var start = new StartActivity() { Next = new RuntimeFlowLink(singleHumanActivity) };
         var instance = new WorkflowInstance("TestSingleHuman", start, _mockUserId, "Test", []);
         await instance.Start(_store);
         await instance.WaitForSuspendedOrFinished();
@@ -85,7 +85,7 @@ public class WorkflowRuntimeTest
             [approveActivity, rejectActivity]
         );
 
-        var start = new StartActivity() { Next = multiHumanActivity };
+        var start = new StartActivity() { Next = new RuntimeFlowLink(multiHumanActivity) };
         var instance = new WorkflowInstance("TestMultiHuman", start, _mockUserId, "Test", []);
         await instance.Start(_store);
         await instance.WaitForSuspendedOrFinished();
@@ -116,7 +116,7 @@ public class WorkflowRuntimeTest
             [approveActivity, rejectActivity]);
         //fork
         var forkActivity = new ForkActivity("并行", [autoActivity, singleHumanActivity]);
-        var start = new StartActivity() { Next = forkActivity };
+        var start = new StartActivity() { Next = new RuntimeFlowLink(forkActivity) };
 
         var instance = new WorkflowInstance("TestSingleHuman", start, _mockUserId, "Test", []);
         await instance.Start(_store);

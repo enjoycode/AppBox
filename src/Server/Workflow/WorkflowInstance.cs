@@ -43,9 +43,9 @@ public sealed class WorkflowInstance : ExpressionContext
     internal async Task Start(IWorkflowStore workflowStore)
     {
         _store = workflowStore;
-        _running.Add(new RunningActivity() { Activity = StartActivity.Next });
+        _running.Add(new RunningActivity() { Activity = StartActivity.Next.Target! });
         await _store.InsertWorkflowInstance(this);
-        Continue(StartActivity.Next);
+        Continue(StartActivity.Next.Target!);
     }
 
     public void Restart(IWorkflowStore workflowStore)

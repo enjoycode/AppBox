@@ -7,14 +7,17 @@ public sealed class AutomationActivity : Activity
 {
     internal AutomationActivity() { }
 
+    /// <summary>
+    /// Only for test
+    /// </summary>
     internal AutomationActivity(string title, Expression? expression = null, Activity? next = null) : base(title)
     {
         _expression = expression;
-        _next = next;
+        _next = new RuntimeFlowLink(next);
     }
 
     private Expression? _expression;
-    private Activity? _next;
+    private RuntimeFlowLink? _next;
 
     public override byte Type => ActivityType.AutomationActivity;
 
@@ -28,7 +31,7 @@ public sealed class AutomationActivity : Activity
 
     internal override void LinkTo(Activity target, FlowLink link, int index)
     {
-        _next = target;
+        _next = new(link, target);
     }
 
     internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
@@ -36,35 +39,30 @@ public sealed class AutomationActivity : Activity
         //TODO: 实现执行表达式
         Logger.Debug($"执行: {Title}");
 
-        return new ValueTask<IExecuteResult?>(new NextResult() { Next = _next });
+        return new ValueTask<IExecuteResult?>(new NextResult() { Next = _next?.Target });
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
 
-        ws.WriteFieldId(1);
         ws.SerializeExpression(_expression);
-        ws.WriteFieldId(2);
-        ws.SerializeActivity(_next);
+        ws.WriteBool(_next != null);
+        _next?.WriteTo(ref ws);
 
-        ws.WriteFieldEnd();
+        ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-
-        do
+        var hasNext = rs.ReadBool();
+        if (hasNext)
         {
-            var propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: _expression = (Expression?)rs.Deserialize(); break;
-                case 2: _next = rs.DeserializeActivity(); break;
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(AutomationActivity), propIndex);
-            }
-        } while (true);
+            _next = new RuntimeFlowLink();
+            _next.ReadFrom(ref rs);
+        }
+
+        rs.ReadFieldId(); //保留
     }
 }

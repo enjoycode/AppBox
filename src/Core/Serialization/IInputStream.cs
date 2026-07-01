@@ -220,8 +220,34 @@ public static class InputStreamExtensions
 
     #region ====ReadCollection====
 
-    public static void ReadCollection<T, TValue>(this ref T s, ICollection<TValue> collection)
-        where T : struct, IInputStream where TValue : IBinSerializable, new()
+    public static TValue[] ReadArray<TReader, TValue>(this ref TReader r)
+        where TReader : struct, IInputStream where TValue : IBinSerializable, new()
+    {
+        var count = r.ReadVariant();
+        var array = new TValue[count];
+        for (var i = 0; i < count; i++)
+        {
+            array[i] = new TValue();
+            array[i].ReadFrom(ref r);
+        }
+
+        return array;
+    }
+
+    public static float[] ReadFloatArray<TReader>(this ref TReader r) where TReader : struct, IInputStream
+    {
+        var count = r.ReadVariant();
+        var array = new float[count];
+        for (var i = 0; i < count; i++)
+        {
+            array[i] = r.ReadFloat();
+        }
+
+        return array;
+    }
+
+    public static void ReadCollection<TReader, TValue>(this ref TReader s, ICollection<TValue> collection)
+        where TReader : struct, IInputStream where TValue : IBinSerializable, new()
     {
         var count = s.ReadVariant();
         for (var i = 0; i < count; i++)

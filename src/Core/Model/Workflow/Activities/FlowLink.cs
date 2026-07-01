@@ -51,14 +51,9 @@ public sealed class FlowLink : IBinSerializable
         ws.WriteByte((byte)TargetConnector);
         ws.SerializeExpression(Condition);
         ws.SerializeActivityNode(Target);
+        ws.WriteFloatArray(Points);
 
-        ws.WriteVariant(Points.Length);
-        for (var i = 0; i < Points.Length; i++)
-        {
-            ws.WriteFloat(Points[i]);
-        }
-
-        ws.WriteFieldEnd();
+        ws.WriteFieldEnd(); //保留
     }
 
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
@@ -69,15 +64,9 @@ public sealed class FlowLink : IBinSerializable
         TargetConnector = (Connector)rs.ReadByte();
         Condition = (Expression?)rs.Deserialize();
         Target = rs.DeserializeActivityNode();
-
-        var count = rs.ReadVariant();
-        Points = new float[count];
-        for (var i = 0; i < count; i++)
-        {
-            Points[i] = rs.ReadFloat();
-        }
-
-        rs.ReadFieldId();
+        Points = rs.ReadFloatArray();
+        
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

@@ -46,24 +46,14 @@ public abstract class Activity : IBinSerializable
 
     public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        ws.WriteFieldId(1);
         ws.WriteString(Title);
-
-        ws.WriteFieldEnd();
+        ws.WriteFieldEnd(); //保留
     }
 
     public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        do
-        {
-            var propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: Title = rs.ReadString() ?? string.Empty; break;
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(Activity), propIndex);
-            }
-        } while (true);
+        Title = rs.ReadString() ?? string.Empty;
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

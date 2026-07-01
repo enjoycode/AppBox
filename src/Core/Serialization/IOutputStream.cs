@@ -163,6 +163,25 @@ public static class OutputStreamExtensions
 
     #region ====WriteCollection====
 
+    public static void WriteArray<TWriter, TValue>(this ref TWriter w, TValue[] array)
+        where TWriter : struct, IOutputStream where TValue : IBinSerializable
+    {
+        w.WriteVariant(array.Length);
+        for (var i = 0; i < array.Length; i++)
+        {
+            array[i].WriteTo(ref w);
+        }
+    }
+
+    public static void WriteFloatArray<TWriter>(this ref TWriter w, float[] array) where TWriter : struct, IOutputStream
+    {
+        w.WriteVariant(array.Length);
+        for (var i = 0; i < array.Length; i++)
+        {
+            w.WriteFloat(array[i]);
+        }
+    }
+
     public static void WriteCollection<T, TValue>(this ref T s, IList<TValue> collection)
         where TValue : IBinSerializable where T : struct, IOutputStream
     {

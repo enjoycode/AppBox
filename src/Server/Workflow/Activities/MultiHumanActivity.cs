@@ -12,9 +12,14 @@ public sealed class MultiHumanActivity : HumanActivity
         Expression?[] conditions, Activity?[] links, bool waitAllActor = false)
         : base(title, actors, actions)
     {
+        Debug.Assert(conditions.Length == links.Length);
+
         _waitAllActor = waitAllActor;
-        _conditions = conditions;
-        _links = links;
+        _links = new RuntimeFlowLink[conditions.Length];
+        for (var i = 0; i < _links.Length; i++)
+        {
+            _links[i] = new RuntimeFlowLink(links[i], conditions[i]);
+        }
 
         foreach (var action in Actions)
             _actionResults.Add(action.Name, 0);
@@ -38,9 +43,7 @@ public sealed class MultiHumanActivity : HumanActivity
     /// <summary>
     /// 最后一个条件表达式为null,即所有参与人员处理完后仍旧不满足之前的条件
     /// </summary>
-    private Expression?[] _conditions = null!;
-
-    private Activity?[] _links = null!;
+    private RuntimeFlowLink[] _links = [];
 
     public override byte Type => ActivityType.MultiHumanActivity;
 
@@ -50,12 +53,7 @@ public sealed class MultiHumanActivity : HumanActivity
 
         var multiHumanNode = (MultiHumanNode)node;
         _waitAllActor = multiHumanNode.WaitAllActor;
-        _conditions = new Expression[multiHumanNode.ResultConditions.Count];
-        _links = new Activity[multiHumanNode.ResultConditions.Count];
-        for (var i = 0; i < multiHumanNode.ResultConditions.Count; i++)
-        {
-            _conditions[i] = multiHumanNode.ResultConditions[i].Condition;
-        }
+        _links = new RuntimeFlowLink[multiHumanNode.ResultConditions.Count];
 
         foreach (var action in Actions)
             _actionResults.Add(action.Name, 0);
@@ -63,11 +61,7 @@ public sealed class MultiHumanActivity : HumanActivity
 
     internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
-        var index = _conditions.IndexOf(link.Condition);
-        if (index == -1)
-            throw new Exception($"Can not find Condition with name: {link.Title}");
-
-        _links[index] = target;
+        _links[linkIndex] = new RuntimeFlowLink(link, target);
     }
 
     internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
@@ -104,9 +98,9 @@ public sealed class MultiHumanActivity : HumanActivity
 
         //开始计算条件表达式，注意最后一个必须在所有参与者处理后作为之前条件都不成立
         var trueAt = -1;
-        for (var i = 0; i < _conditions.Length; i++)
+        for (var i = 0; i < _links.Length; i++)
         {
-            var condition = _conditions[i];
+            var condition = _links[i].Condition;
             if (Expression.IsNull(condition))
             {
                 if (currentActorCount == _actorCount)
@@ -131,7 +125,7 @@ public sealed class MultiHumanActivity : HumanActivity
 
         return trueAt < 0
             ? new ResumeResult() { Suspended = true, CancelOthers = false, Next = null }
-            : new ResumeResult() { Suspended = false, CancelOthers = true, Next = _links[trueAt] };
+            : new ResumeResult() { Suspended = false, CancelOthers = true, Next = _links[trueAt].Target };
     }
 
     #region ====Serialization====
@@ -140,89 +134,33 @@ public sealed class MultiHumanActivity : HumanActivity
     {
         base.WriteTo(ref ws);
 
-        //actorCount
-        ws.WriteFieldId(1);
+        ws.WriteBool(_waitAllActor);
         ws.WriteInt(_actorCount);
+        ws.WriteArray(_links);
 
-        //actionResults
-        ws.WriteFieldId(2);
-        ws.WriteVariant(_actionResults.Count);
         foreach (var kv in _actionResults)
         {
             ws.WriteString(kv.Key);
             ws.WriteInt(kv.Value);
         }
 
-        //links
-        ws.WriteFieldId(3);
-        ws.WriteVariant(_links.Length);
-        for (var i = 0; i < _links.Length; i++)
-            ws.SerializeActivity(_links[i]);
-
-        //conditions
-        ws.WriteFieldId(4);
-        ws.WriteVariant(_conditions.Length);
-        for (var i = 0; i < _conditions.Length; i++)
-            ws.SerializeExpression(_conditions[i]);
-
-        //waitAllActor
-        ws.WriteFieldId(5);
-        ws.WriteBool(_waitAllActor);
-
-        ws.WriteFieldEnd();
+        ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
 
-        do
+        _waitAllActor = rs.ReadBool();
+        _actorCount = rs.ReadInt();
+        _links = rs.ReadArray<TReader, RuntimeFlowLink>();
+
+        for (var i = 0; i < Actions.Length; i++)
         {
-            var propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1:
-                    _actorCount = rs.ReadInt();
-                    break;
-                case 2:
-                {
-                    var count = rs.ReadVariant();
-                    for (var i = 0; i < count; i++)
-                    {
-                        _actionResults.Add(rs.ReadString()!, rs.ReadInt());
-                    }
+            _actionResults.Add(rs.ReadString()!, rs.ReadInt());
+        }
 
-                    break;
-                }
-                case 3:
-                {
-                    var count = rs.ReadVariant();
-                    _links = new Activity[count];
-                    for (var i = 0; i < count; i++)
-                    {
-                        _links[i] = rs.DeserializeActivity()!;
-                    }
-
-                    break;
-                }
-                case 4:
-                {
-                    var count = rs.ReadVariant();
-                    _conditions = new Expression[count];
-                    for (var i = 0; i < count; i++)
-                    {
-                        _conditions[i] = (Expression?)rs.Deserialize();
-                    }
-
-                    break;
-                }
-                case 5:
-                    _waitAllActor = rs.ReadBool();
-                    break;
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(SingleHumanActivity), propIndex);
-            }
-        } while (true);
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

@@ -8,46 +8,46 @@ public sealed class DecisionActivity : Activity
 {
     internal DecisionActivity() { }
 
+    /// <summary>
+    /// Only for test
+    /// </summary>
     internal DecisionActivity(string title, Expression?[] conditions, Activity?[] links) : base(title)
     {
-        _conditions = conditions;
-        _links = links;
+        _links = new RuntimeFlowLink[links.Length];
+        for (var i = 0; i < _links.Length; i++)
+        {
+            _links[i] = new RuntimeFlowLink
+            {
+                Condition = conditions[i],
+                Target = links[i]
+            };
+        }
     }
 
     public override byte Type => ActivityType.DecisionActivity;
 
-    private Expression?[] _conditions = null!;
-    private Activity?[] _links = null!;
+    private RuntimeFlowLink[] _links = [];
 
     internal override void InitActivity(ActivityNode node)
     {
         base.InitActivity(node);
 
         var decisionNode = (DecisionNode)node;
-        _conditions = new Expression[decisionNode.Conditions.Count];
-        _links = new Activity[decisionNode.Conditions.Count];
-        for (var i = 0; i < decisionNode.Conditions.Count; i++)
-        {
-            _conditions[i] = decisionNode.Conditions[i].Condition;
-        }
+        _links = new RuntimeFlowLink[decisionNode.Conditions.Count];
     }
 
     internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
-        var index = _conditions.IndexOf(link.Condition);
-        if (index == -1)
-            throw new Exception($"Can not find Condition with name: {link.Title}");
-
-        _links[index] = target;
+        _links[linkIndex] = new RuntimeFlowLink(link, target);
     }
 
     internal override async ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
         Logger.Debug($"执行: {Title}");
         var trueAt = -1;
-        for (var i = 0; i < _conditions.Length; i++)
+        for (var i = 0; i < _links.Length; i++)
         {
-            var condition = _conditions[i];
+            var condition = _links[i].Condition;
             if (Expression.IsNull(condition))
             {
                 trueAt = i;
@@ -67,64 +67,19 @@ public sealed class DecisionActivity : Activity
         if (trueAt < 0)
             return new ErrorResult("Can't find match condition");
 
-        return new NextResult() { Next = _links[trueAt] };
+        return new NextResult() { Next = _links[trueAt].Target };
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
-
-        ws.WriteFieldId(1);
-        ws.WriteVariant(_conditions.Length);
-        for (var i = 0; i < _conditions.Length; i++)
-        {
-            ws.SerializeExpression(_conditions[i]);
-        }
-
-        ws.WriteFieldId(2);
-        ws.WriteVariant(_links.Length);
-        for (var i = 0; i < _links.Length; i++)
-        {
-            ws.SerializeActivity(_links[i]);
-        }
-
-        ws.WriteFieldEnd();
+        ws.WriteArray(_links);
+        ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-
-        do
-        {
-            var propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1:
-                {
-                    var count = rs.ReadVariant();
-                    _conditions = new Expression[count];
-                    for (var i = 0; i < count; i++)
-                    {
-                        _conditions[i] = (Expression?)rs.Deserialize();
-                    }
-
-                    break;
-                }
-                case 2:
-                {
-                    var count = rs.ReadVariant();
-                    _links = new Activity[count];
-                    for (var i = 0; i < count; i++)
-                    {
-                        _links[i] = rs.DeserializeActivity();
-                    }
-
-                    break;
-                }
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(DecisionActivity), propIndex);
-            }
-        } while (true);
+        _links = rs.ReadArray<TReader, RuntimeFlowLink>();
     }
 }

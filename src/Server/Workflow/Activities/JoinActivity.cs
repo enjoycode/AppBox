@@ -14,12 +14,12 @@ public sealed class JoinActivity : Activity
     {
         Debug.Assert(forkBranchesCount > 0);
         ForkBranchesCount = forkBranchesCount;
-        _next = next;
+        _next = new RuntimeFlowLink(next);
     }
 
     public override byte Type => ActivityType.JoinActivity;
 
-    private Activity? _next;
+    private RuntimeFlowLink? _next;
 
     internal int JoinBranchesCount { get; private set; }
     internal int ForkBranchesCount { get; private set; }
@@ -36,13 +36,13 @@ public sealed class JoinActivity : Activity
 
     internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
-        _next = target;
+        _next = new(link, target);
     }
 
     internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
         JoinBranchesCount++;
-        return new ValueTask<IExecuteResult?>(new JoinResult() { IsAllJoined = IsAllJoined, Next = _next });
+        return new ValueTask<IExecuteResult?>(new JoinResult() { IsAllJoined = IsAllJoined, Next = _next?.Target });
     }
 
     #region ====Serialization====
@@ -54,10 +54,10 @@ public sealed class JoinActivity : Activity
         ws.WriteVariant(ForkBranchesCount);
         ws.WriteVariant(JoinBranchesCount);
 
-        ws.WriteFieldId(1);
-        ws.SerializeActivity(_next);
+        ws.WriteBool(_next != null);
+        _next?.WriteTo(ref ws);
 
-        ws.WriteFieldEnd();
+        ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
@@ -67,16 +67,14 @@ public sealed class JoinActivity : Activity
         ForkBranchesCount = rs.ReadVariant();
         JoinBranchesCount = rs.ReadVariant();
 
-        do
+        var hasNext = rs.ReadBool();
+        if (hasNext)
         {
-            var propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1: _next = rs.DeserializeActivity(); break;
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(JoinActivity), propIndex);
-            }
-        } while (true);
+            _next = new RuntimeFlowLink();
+            _next.ReadFrom(ref rs);
+        }
+
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

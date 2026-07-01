@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AppBoxCore;
 using static AppBox.Workflow.WorkflowLogger;
 
@@ -7,13 +8,22 @@ public sealed class SingleHumanActivity : HumanActivity
 {
     internal SingleHumanActivity() { }
 
+    /// <summary>
+    /// Only for test
+    /// </summary>
     internal SingleHumanActivity(string title, HumanActor[] actors, HumanAction[] actions, Activity?[] links)
         : base(title, actors, actions)
     {
-        _links = links;
+        Debug.Assert(links.Length == actions.Length);
+
+        _links = new RuntimeFlowLink[links.Length];
+        for (var i = 0; i < _links.Length; i++)
+        {
+            _links[i] = new RuntimeFlowLink(links[i]);
+        }
     }
 
-    private Activity?[] _links = null!;
+    private RuntimeFlowLink[] _links = [];
 
     public override byte Type => ActivityType.SingleHumanActivity;
 
@@ -21,16 +31,12 @@ public sealed class SingleHumanActivity : HumanActivity
     {
         base.InitActivity(node);
 
-        _links = new Activity[Actions.Length];
+        _links = new RuntimeFlowLink[Actions.Length];
     }
 
     internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
     {
-        var index = FindActionIndex(link.Title!);
-        if (index == -1)
-            throw new Exception($"Can not find Action with name: {link.Title}");
-
-        _links[index] = target;
+        _links[linkIndex] = new RuntimeFlowLink(link, target);
     }
 
     internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
@@ -58,7 +64,7 @@ public sealed class SingleHumanActivity : HumanActivity
                 throw new Exception($"Can't find human action: {humanResult.Result}");
             //直接返回,不保存由调用者处理
             return new ValueTask<ResumeResult>(new ResumeResult()
-                { Suspended = false, CancelOthers = true, Next = _links[index] });
+                { Suspended = false, CancelOthers = true, Next = _links[index].Target });
         }
         else
         {
@@ -71,41 +77,15 @@ public sealed class SingleHumanActivity : HumanActivity
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
-
-        ws.WriteFieldId(1);
-        ws.WriteVariant(_links.Length);
-        for (var i = 0; i < _links.Length; i++)
-        {
-            ws.SerializeActivity(_links[i]);
-        }
-
-        ws.WriteFieldEnd();
+        ws.WriteArray(_links);
+        ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-
-        do
-        {
-            var propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1:
-                {
-                    var count = rs.ReadVariant();
-                    _links = new Activity[count];
-                    for (var i = 0; i < count; i++)
-                    {
-                        _links[i] = rs.DeserializeActivity()!;
-                    }
-
-                    break;
-                }
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(SingleHumanActivity), propIndex);
-            }
-        } while (true);
+        _links = rs.ReadArray<TReader, RuntimeFlowLink>();
+        rs.ReadFieldId(); //保留
     }
 
     #endregion

@@ -16,8 +16,8 @@ public abstract class HumanActivity : Activity
     }
 
     public HumanActor[] Actors { get; private set; } = null!;
-    public ModelId? FormModelId { get; private set; }
     public HumanAction[] Actions { get; private set; } = null!;
+    public ModelId? FormModelId { get; private set; }
 
     internal override void InitActivity(ActivityNode node)
     {
@@ -30,8 +30,8 @@ public abstract class HumanActivity : Activity
             throw new Exception("Can not find and Actor in HumanActivity");
 
         Actions = humanNode.Actions.ToArray();
-        FormModelId = humanNode.FormModelId;
         Actors = humanNode.Actors.ToArray();
+        FormModelId = humanNode.FormModelId;
     }
 
     /// <summary>
@@ -77,69 +77,28 @@ public abstract class HumanActivity : Activity
     {
         base.WriteTo(ref ws);
 
-        ws.WriteFieldId(1);
-        ws.WriteVariant(Actors.Length);
-        for (var i = 0; i < Actors.Length; i++)
-        {
-            Actors[i].WriteTo(ref ws);
-        }
+        ws.WriteArray(Actors);
+        ws.WriteArray(Actions);
 
-        ws.WriteFieldId(2);
-        ws.WriteVariant(Actions.Length);
-        for (var i = 0; i < Actions.Length; i++)
-        {
-            Actions[i].WriteTo(ref ws);
-        }
-
+        ws.WriteBool(FormModelId.HasValue);
         if (FormModelId.HasValue)
-        {
-            ws.WriteFieldId(3);
             ws.WriteLong(FormModelId.Value);
-        }
 
-        ws.WriteFieldEnd();
+        ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
+        
+        Actors = rs.ReadArray<TReader, HumanActor>();
+        Actions = rs.ReadArray<TReader, HumanAction>();
 
-        do
-        {
-            var propIndex = rs.ReadFieldId();
-            switch (propIndex)
-            {
-                case 1:
-                {
-                    var count = rs.ReadVariant();
-                    Actors = new HumanActor[count];
-                    for (var i = 0; i < count; i++)
-                    {
-                        var who = new HumanActor();
-                        who.ReadFrom(ref rs);
-                        Actors[i] = who;
-                    }
+        var hasFormModelId = rs.ReadBool();
+        if (hasFormModelId)
+            FormModelId = rs.ReadLong();
 
-                    break;
-                }
-                case 2:
-                {
-                    var count = rs.ReadVariant();
-                    Actions = new HumanAction[count];
-                    for (var i = 0; i < count; i++)
-                    {
-                        var act = new HumanAction();
-                        act.ReadFrom(ref rs);
-                        Actions[i] = act;
-                    }
-
-                    break;
-                }
-                case 3: FormModelId = rs.ReadLong(); break;
-                case 0: return;
-                default: throw SerializationException.ReadUnknownField(nameof(HumanActivity), propIndex);
-            }
-        } while (true);
+        rs.ReadFieldId(); //保留
     }
 
     #endregion
