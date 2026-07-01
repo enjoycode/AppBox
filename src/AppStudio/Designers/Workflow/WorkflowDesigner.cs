@@ -107,6 +107,8 @@ internal sealed class WorkflowDesigner : View, IDesignerWithProblems
     public Task SaveAsync()
     {
         OnValidate();
+        _diagramService.SyncFlowLinkPoints();
+
         return ModelNode.SaveAsync(null);
     }
 

@@ -28,10 +28,9 @@ internal sealed class ReportDiagramService : IDiagramService
 
     private void OnSelectionChanged(object? sender, EventArgs e)
     {
-        //TODO: 考虑没有选择项时默认选择ReportRootDesigner
         var itemDesigner = Surface.SelectionService.HasSelection
             ? Surface.SelectionService.SelectedItems[0] as IDiagramItem
-            : null;
+            : Surface.Items[0] as IDiagramItem;
         PropertyPanel.OnSelectedItem(itemDesigner);
     }
 

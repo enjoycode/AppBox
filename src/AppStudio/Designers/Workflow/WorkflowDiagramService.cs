@@ -79,6 +79,38 @@ internal sealed class WorkflowDiagramService : IDiagramService
             Surface.SelectionService.SelectItem(item);
     }
 
+    /// <summary>
+    /// 同步所有连接线的点用于运行时绘制
+    /// </summary>
+    internal void SyncFlowLinkPoints()
+    {
+        foreach (var connection in Surface.GetConnections().Cast<ActivityConnection>())
+        {
+            var link = connection.Link;
+            if (link == null) continue;
+
+            link.LineType = (FlowLink.ConnectionType)((byte)connection.ConnectionType);
+            var count = connection.ConnectionPoints.Count + 2;
+            var index = 0;
+            link.Points = new float[count * 2];
+
+            //StartPoint
+            link.Points[index++] = connection.EndPoint.X;
+            link.Points[index++] = connection.StartPoint.Y;
+
+            //Intermedia Points
+            foreach (var point in connection.ConnectionPoints)
+            {
+                link.Points[index++] = point.X;
+                link.Points[index++] = point.Y;
+            }
+
+            //EndPoint
+            link.Points[index++] = connection.EndPoint.X;
+            link.Points[index] = connection.EndPoint.Y;
+        }
+    }
+
     #region ====Cache Methods====
 
     internal IList<OrgUnit> OrgUnitsTree { get; private set; } = null!;

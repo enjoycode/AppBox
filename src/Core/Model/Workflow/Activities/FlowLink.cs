@@ -16,13 +16,13 @@ public sealed class FlowLink : IBinSerializable
     public Connector SourceConnector { get; internal set; }
 
     public Connector TargetConnector { get; internal set; }
-    
-    public ConnectionType LinkType { get; internal set; }
+
+    public ConnectionType LineType { get; internal set; }
 
     /// <summary>
-    /// 修改过的连接点 [X1, Y1, X2, Y2...],不包括开始与结束点
+    /// 包括开始与结束的所有连接点 [X1, Y1, X2, Y2...]，由设计时保存时设置
     /// </summary>
-    public List<float> Points { get; } = [];
+    public float[] Points { get; internal set; } = [];
 
     /// <summary>
     /// 连接的目标节点
@@ -46,14 +46,14 @@ public sealed class FlowLink : IBinSerializable
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteString(Title);
-        ws.WriteByte((byte)LinkType);
+        ws.WriteByte((byte)LineType);
         ws.WriteByte((byte)SourceConnector);
         ws.WriteByte((byte)TargetConnector);
         ws.SerializeExpression(Condition);
         ws.SerializeActivityNode(Target);
-        
-        ws.WriteVariant(Points.Count);
-        for (var i = 0; i < Points.Count; i++)
+
+        ws.WriteVariant(Points.Length);
+        for (var i = 0; i < Points.Length; i++)
         {
             ws.WriteFloat(Points[i]);
         }
@@ -64,16 +64,17 @@ public sealed class FlowLink : IBinSerializable
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         Title = rs.ReadString();
-        LinkType = (ConnectionType)rs.ReadByte();
+        LineType = (ConnectionType)rs.ReadByte();
         SourceConnector = (Connector)rs.ReadByte();
         TargetConnector = (Connector)rs.ReadByte();
         Condition = (Expression?)rs.Deserialize();
         Target = rs.DeserializeActivityNode();
 
         var count = rs.ReadVariant();
+        Points = new float[count];
         for (var i = 0; i < count; i++)
         {
-            Points.Add(rs.ReadFloat());
+            Points[i] = rs.ReadFloat();
         }
 
         rs.ReadFieldId();
