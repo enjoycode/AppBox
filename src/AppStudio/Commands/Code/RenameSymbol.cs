@@ -1,4 +1,6 @@
 using Microsoft.CodeAnalysis;
+using PixUI;
+using PixUI.CodeEditor;
 
 namespace AppBoxDesign;
 
@@ -11,7 +13,7 @@ namespace AppBoxDesign;
 /// </remarks>
 internal static class RenameSymbol
 {
-    internal static async Task Execute(DesignContext context, DocumentId docId, int position)
+    internal static async Task Execute(DesignContext context, TextEditor editor, DocumentId docId, int position)
     {
         var doc = context.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
@@ -31,10 +33,17 @@ internal static class RenameSymbol
         //var isExpressionEditor = doc.Name == DocNameUtil.ExpressionDocName;
 
         //TODO:暂只实现LocalSymbol
-        if (symbol is not ILocalSymbol localSymbol)
-            return;
+        if (symbol is ILocalSymbol localSymbol)
+        {
+            var dlg = new RenameDialog("Rename Local Variable", localSymbol.Name);
+            var dlgResult = await dlg.ShowAsync();
+            if (dlgResult != DialogResult.OK) return;
 
-
-        throw new NotImplementedException();
+            await RenameService.RenameSymbolAsync(context, symbol, editor, dlg.OldName, dlg.NewName);
+        }
+        else
+        {
+            Notification.Error($"暂未实现: {symbol.GetType().Name}");
+        }
     }
 }

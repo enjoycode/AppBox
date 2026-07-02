@@ -142,7 +142,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
         if (_selectedMember.Value == null) return;
 
         var oldName = _selectedMember.Value.Name;
-        var dlg = new RenameDialog(ModelReferenceType.EntityMember, oldName);
+        var dlg = new RenameDialog("Rename Entity Member", oldName);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 

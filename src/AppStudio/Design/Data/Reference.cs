@@ -93,10 +93,10 @@ internal sealed class CodeReference : Reference
     /// <summary>
     /// 重命名
     /// </summary>
-    internal void Rename(DesignContext context, int diff, string newName)
+    internal async Task RenameAsync(DesignContext context, int diff, string newName)
     {
         var document = context.Workspace.CurrentSolution.GetDocument(ModelNode.RoslynDocumentId)!;
-        var sourceText = document.GetTextAsync().Result;
+        var sourceText = await document.GetTextAsync();
         var startOffset = Offset + diff;
 
         sourceText = sourceText.WithChanges(new TextChange(new TextSpan(startOffset, Length), newName));

@@ -1,11 +1,47 @@
 using AppBoxCore;
+using Microsoft.CodeAnalysis;
+using PixUI.CodeEditor;
 
 namespace AppBoxDesign;
 
 internal static class RenameService
 {
     /// <summary>
-    /// 开始执行重命名
+    /// 重命名代码编辑器内的局部变量或方法参数或非公开服务模型的方法
+    /// </summary>
+    internal static async Task RenameSymbolAsync(DesignContext context, ISymbol symbol,
+        TextEditor editor, string oldName, string newName)
+    {
+        //TODO:暂简单实现
+
+        //1.查找引用项并排序
+        List<Reference> references = [];
+        await ReferenceService.AddCodeReferencesAsync(context, references, symbol);
+        references.Sort();
+
+        //2.重命本自己
+        var selfSpan = symbol.Locations[0].SourceSpan;
+        editor.Controller.Replace(selfSpan.Start, selfSpan.Length, newName);
+
+        //3.开始重命名引用项(所有引用项都在同一代码编辑器内)
+        var diff = 0; //新旧成员名称间字符数之差的累积
+        for (var i = 0; i < references.Count; i++)
+        {
+            var r = references[i];
+            diff += newName.Length - oldName.Length;
+            switch (r)
+            {
+                case CodeReference cr:
+                    editor.Controller.Replace(cr.Offset + diff, cr.Length, newName);
+                    break;
+                default:
+                    throw new Exception($"Unknown Reference Type: {r.GetType().Name}");
+            }
+        } //end for references
+    }
+
+    /// <summary>
+    /// 执行模型或基成员的重命名
     /// </summary>
     internal static async Task<IList<Reference>> RenameAsync(DesignContext context,
         ModelReferenceType referenceType, ModelId modelId, string oldName, string newName)
@@ -67,7 +103,7 @@ internal static class RenameService
             switch (r)
             {
                 case CodeReference cr:
-                    cr.Rename(context, diff, newName);
+                    await cr.RenameAsync(context, diff, newName);
                     break;
                 case ModelReference mr:
                     mr.TargetReference.Target.RenameReference(referenceType,

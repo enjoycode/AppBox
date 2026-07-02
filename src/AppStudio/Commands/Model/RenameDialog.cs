@@ -5,14 +5,11 @@ namespace AppBoxDesign;
 
 internal sealed class RenameDialog : Dialog
 {
-    /// <summary>
-    /// 用于模型或模型成员
-    /// </summary>
-    public RenameDialog(ModelReferenceType referenceType, string oldName)
+    public RenameDialog(string title, string oldName)
     {
         _oldName = oldName;
 
-        Title.Value = GetTitle(referenceType);
+        Title.Value = title;
         Width = 380;
         Height = 210;
     }
@@ -22,15 +19,6 @@ internal sealed class RenameDialog : Dialog
 
     public string OldName => _oldName.Value;
     public string NewName => _newName.Value;
-
-    private string GetTitle(ModelReferenceType referenceType) => referenceType switch
-    {
-        ModelReferenceType.EntityModel => "Rename Entity",
-        ModelReferenceType.EntityMember => "Rename Entity Member",
-        ModelReferenceType.ServiceModel => "Rename Service",
-        ModelReferenceType.ViewModel => "Rename View",
-        _ => "Rename"
-    };
 
     protected override Widget BuildBody()
     {

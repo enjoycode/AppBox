@@ -50,7 +50,7 @@ internal sealed class RenameModelCommand : DesignCommand
             return;
         }
 
-        var dlg = new RenameDialog(referenceType, modelNode.Label.Value);
+        var dlg = new RenameDialog(GetTitle(referenceType), modelNode.Label.Value);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
 
@@ -64,6 +64,15 @@ internal sealed class RenameModelCommand : DesignCommand
         //刷新节点的标题
         modelNode.Label.NotifyValueChanged();
     }
+
+    private static string GetTitle(ModelReferenceType referenceType) => referenceType switch
+    {
+        ModelReferenceType.EntityModel => "Rename Entity",
+        ModelReferenceType.EntityMember => "Rename Entity Member",
+        ModelReferenceType.ServiceModel => "Rename Service",
+        ModelReferenceType.ViewModel => "Rename View",
+        _ => "Rename"
+    };
 
     /// <summary>
     /// 执行重命名流程，调用者必须检查新名称的有效性

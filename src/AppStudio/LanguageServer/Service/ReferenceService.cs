@@ -190,7 +190,7 @@ internal static class ReferenceService
         {
             foreach (var loc in item.Locations)
             {
-                var modelId = DocNameUtil.GetModelIdFromDocName(loc.Document.Name);
+                var modelId = DocNameUtil.GetModelIdFromDocName(loc.Document.Name); //TODO: null for expression
                 var modelNode = context.DesignTree.FindModelNode(modelId)!;
                 var sourceSpan = loc.Location.SourceSpan;
                 var reference = new CodeReference(modelNode, sourceSpan.Start, sourceSpan.Length);
