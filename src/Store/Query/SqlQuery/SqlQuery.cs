@@ -250,7 +250,7 @@ public sealed class SqlQuery<TEntity> : SqlSelectQueryBase, ISqlSelectQuery
         {
             foreach (var fk in TreeParentMember.FKMemberIds)
             {
-                AndWhere(t => t.F(model.GetMember(fk)!.Name) == new ConstantExpression(null));
+                AndWhere(t => t.F(model.GetMember(fk)!.Name) == new ConstantExpression(AnyValue.Empty));
             }
         }
 

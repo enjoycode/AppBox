@@ -156,9 +156,9 @@ partial class PgSqlStore
         ctx.SetBuildStep(BuildQueryStep.BuildWithCTE);
         foreach (var si in query.Selects!)
         {
-            if (si.Expression is EntityFieldExpression fsi && Expression.IsNull(fsi.Owner!.Owner))
+            if (si.Expression is EntityFieldExpression fsi && Expression.IsNull(fsi.Owner.Owner))
             {
-                ctx.AppendWithNameEscaper(fsi.Name!);
+                ctx.AppendWithNameEscaper(fsi.Name);
                 ctx.Append(',');
             }
         }
@@ -396,7 +396,7 @@ partial class PgSqlStore
                 if (memberExp == null /*Expression.IsNull(memberExp)*/
                     /*|| memberExp.Type == ExpressionType.UnionRefFieldExpression*/
                     //注意：聚合引用字段必须用别名
-                    || memberExp!.Name != item.AliasName)
+                    || memberExp.Name != item.AliasName)
                 {
                     ctx.AppendFormat(" \"{0}\"", item.AliasName!);
                 }
@@ -550,17 +550,17 @@ partial class PgSqlStore
 
     private static void BuildFieldExpression(EntityFieldExpression exp, BuildQueryContext ctx)
     {
-        var model = RuntimeContext.GetModel<EntityModel>(exp.Owner!.ModelId);
+        var model = RuntimeContext.GetModel<EntityModel>(exp.Owner.ModelId);
 
         //判断上下文是否在处理Update的Set
         if (ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildUpdateSet)
-            ctx.AppendFormat("\"{0}\"", exp.Name!);
+            ctx.AppendFormat("\"{0}\"", exp.Name);
         else if (ctx.CurrentQueryInfo.BuildStep == BuildQueryStep.BuildUpsertSet)
-            ctx.AppendFormat("\"{0}\".\"{1}\"", model.Name, exp.Name!);
+            ctx.AppendFormat("\"{0}\".\"{1}\"", model.Name, exp.Name);
         else
         {
             BuildEntityExpression(exp.Owner, ctx);
-            ctx.AppendFormat("{0}.\"{1}\"", exp.Owner.AliasName!, exp.Name!);
+            ctx.AppendFormat("{0}.\"{1}\"", exp.Owner.AliasName!, exp.Name);
         }
     }
 
@@ -717,25 +717,19 @@ partial class PgSqlStore
     /// <returns>true需要转换</returns>
     private static bool CheckNeedConvertStringAddOperator(Expression exp)
     {
-        switch (exp.NodeType)
+        switch (exp)
         {
-            case ExpressionType.BinaryExpression:
+            case BinaryExpression binary:
+                return CheckNeedConvertStringAddOperator(binary.LeftOperand)
+                       || CheckNeedConvertStringAddOperator(binary.RightOperand);
+            case EntityFieldExpression entityField:
             {
-                var e = (BinaryExpression)exp;
-                return CheckNeedConvertStringAddOperator(e.LeftOperand)
-                       || CheckNeedConvertStringAddOperator(e.RightOperand);
-            }
-            case ExpressionType.EntityFieldExpression:
-            {
-                var e = (EntityFieldExpression)exp;
-                var model = RuntimeContext.GetModel<EntityModel>(e.Owner!.ModelId);
-                var fieldModel = (EntityFieldMember)model.GetMember(e.Name, true)!;
+                var model = RuntimeContext.GetModel<EntityModel>(entityField.Owner.ModelId);
+                var fieldModel = (EntityFieldMember)model.GetMember(entityField.Name)!;
                 return fieldModel.FieldType == EntityFieldType.String;
             }
-            case ExpressionType.ConstantExpression:
-                return ((ConstantExpression)exp).Value is string;
-            //case ExpressionType.InvocationExpression:
-            //    throw new NotImplementedException(); //TODO:根据系统函数判断
+            case ConstantExpression constant:
+                return constant.Value is { Type: AnyValue.ValueType.Object, BoxedValue: string };
             default:
                 throw new NotSupportedException(
                     $"Not Supported Expression Type [{exp.NodeType}] for CheckNeedConvertStringAddOperator.");
