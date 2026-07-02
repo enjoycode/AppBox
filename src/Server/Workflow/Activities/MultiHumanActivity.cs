@@ -64,19 +64,19 @@ public sealed class MultiHumanActivity : HumanActivity
         _links[linkIndex] = new RuntimeFlowLink(link, target);
     }
 
-    internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override async ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
         Logger.Debug($"执行: {Title}");
         //1.找到对应的组织单元ID
-        var ids = GetOrgUnits();
+        var ids = await GetOrgUnits(instance);
         _actorCount = ids.Count;
 
         //2.判断是否一个都没有
         if (ids.Count == 0)
-            return new ValueTask<IExecuteResult?>(new Bookmark(BookmarkType.WaitAdmin, Title, []));
+            return new Bookmark(BookmarkType.WaitAdmin, Title, []);
 
         //3.新建Bookmark并返回
-        return new ValueTask<IExecuteResult?>(new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray()));
+        return new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray());
     }
 
     internal override async ValueTask<ResumeResult> Resume(WorkflowInstance instance, IHumanActionResult actionResult)

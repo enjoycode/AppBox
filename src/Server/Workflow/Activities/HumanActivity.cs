@@ -37,20 +37,38 @@ public abstract class HumanActivity : Activity
     /// <summary>
     /// 获取人员活动的参与者
     /// </summary>
-    protected IReadOnlyList<Guid> GetOrgUnits()
+    protected async Task<IReadOnlyList<Guid>> GetOrgUnits(WorkflowInstance instance)
     {
         var result = new List<Guid>();
-        for (var i = 0; i < Actors.Length; i++)
+        try
         {
-            var idExpression = Actors[i].OrgUnitExpression;
-            if (idExpression is ConstantExpression constant && constant.Value.Type == AnyValue.ValueType.Guid)
+            for (var i = 0; i < Actors.Length; i++)
             {
-                result.Add(constant.Value.GetGuid()!.Value);
+                var expression = Actors[i].OrgUnitExpression;
+                if (expression is ConstantExpression constant)
+                {
+                    if (constant.Value.Type == AnyValue.ValueType.Guid) //FromAssigned
+                    {
+                        result.Add(constant.Value.GetGuid()!.Value);
+                    }
+                    else //FromWorkflowActorService
+                    {
+                        var methodName = constant.Value.BoxedValue!.ToString();
+                        var orgUnits = await RuntimeContext.Current.InvokeAsync(
+                            $"sys.WorkflowActorService.{methodName}",
+                            AnyArgs.Make(instance.CreatorId));
+                        result.AddRange((Guid[])orgUnits.BoxedValue!);
+                    }
+                }
+                else //FromExpression
+                {
+                    throw new NotImplementedException("GetOrgUnits from expression is not implemented");
+                }
             }
-            else
-            {
-                throw new NotImplementedException();
-            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error($"[{instance.Title}].[{Title}]: {e.Message}\n{e.StackTrace}");
         }
 
         return result;
@@ -90,7 +108,7 @@ public abstract class HumanActivity : Activity
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-        
+
         Actors = rs.ReadArray<TReader, HumanActor>();
         Actions = rs.ReadArray<TReader, HumanAction>();
 
