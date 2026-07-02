@@ -32,6 +32,8 @@
       <EmbeddedResource Include="Resources\Services\OrgUnitService.dll" />
       <None Remove="Resources\Views\HomePage.dll" />
       <EmbeddedResource Include="Resources\Views\HomePage.dll" />
+      <Compile Remove="Resources\Services\WorkflowActorService.cs" />
+      <EmbeddedResource Include="Resources\Services\WorkflowActorService.cs" />
     </ItemGroup>
 
     <ItemGroup>
