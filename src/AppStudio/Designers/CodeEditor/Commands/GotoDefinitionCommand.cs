@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using PixUI.CodeEditor;
 
-namespace AppBoxDesign;
+namespace AppBoxDesign.CodeEditor;
 
 internal static class GotoDefinitionCommand
 {

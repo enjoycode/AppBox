@@ -5,8 +5,10 @@ namespace AppBoxDesign;
 
 internal static class DocNameUtil
 {
+    internal const string ExpressionDocName = "Expression.cs";
+
     internal static string MakeModelDocName(in ModelId modelId) => $"M{modelId}.cs";
-    
+
     internal static ModelId GetModelIdFromDocName(string docName)
     {
         Debug.Assert(docName.StartsWith('M') && docName.EndsWith(".cs"));

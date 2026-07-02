@@ -1,6 +1,7 @@
 using System.Text.Json;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxDesign.CodeEditor;
 using AppBoxDesign.Debugging;
 using PixUI.CodeEditor;
 using PixUI;

@@ -130,7 +130,7 @@ internal sealed class NewEntityMemberDialog : Dialog
             catch (Exception e)
             {
                 Notification.Error($"GetNewMembers error: {e.Message}");
-                return new ValueTask<bool>(true);
+                return ValueTask.FromResult(true);
             }
         }
 
@@ -177,25 +177,26 @@ internal sealed class NewEntityMemberDialog : Dialog
 
     private EntityMember[] GetNewMembers()
     {
+        var name = _name.Value;
         var memberType = (EntityMemberType)GetMemberTypeValue();
         return memberType switch
         {
             EntityMemberType.EntityField =>
             [
-                NewEntityMember.NewEntityField(_designContext, _modelNode, _name.Value,
+                NewEntityMember.NewEntityField(_designContext, _modelNode, name,
                     (EntityFieldType)GetFieldTypeValue(), _allowNull.Value,
                     _enumTarget.Value?.Model.Id, _defaultValue.Value)
             ],
-            EntityMemberType.EntityRef => NewEntityMember.NewEntityRef(_designContext, _modelNode, _name.Value,
+            EntityMemberType.EntityRef => NewEntityMember.NewEntityRef(_designContext, _modelNode, name,
                 GetRefModelIds(), _allowNull.Value),
             EntityMemberType.EntitySet =>
             [
-                NewEntityMember.NewEntitySet(_designContext, _modelNode, _name.Value,
+                NewEntityMember.NewEntitySet(_designContext, _modelNode, name,
                     _entitySetTarget.Value!.ModelId, _entitySetTarget.Value!.MemberId)
             ],
             EntityMemberType.EntityRefField =>
             [
-                NewEntityMember.NewEntityRefField(_designContext, _modelNode, _name.Value, _refFieldPath.Value)
+                NewEntityMember.NewEntityRefField(_designContext, _modelNode, name, _refFieldPath.Value)
             ],
             _ => throw new NotImplementedException($"暂未实现的实体成员类型: {memberType}")
         };

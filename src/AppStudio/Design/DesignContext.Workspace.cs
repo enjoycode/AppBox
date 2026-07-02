@@ -449,7 +449,7 @@ partial class DesignContext
                 // .AddProjectReference(prjId, new ProjectReference(ModelProjectId)) //TODO:根据表达式类型
                 // .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId)) //TODO:根据表达式类型
                 .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs", globalUsings)
-                .AddDocument(docId, "Expression.cs", string.Empty)
+                .AddDocument(docId, DocNameUtil.ExpressionDocName, string.Empty)
             ;
         if (!string.IsNullOrEmpty(partialCode))
         {

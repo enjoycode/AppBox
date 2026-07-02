@@ -51,30 +51,30 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         return m;
     }
 
-    private EntityMember? BinarySearch(short id)
-    {
-        var low = 0;
-        var high = _members.Count - 1;
-
-        while (low <= high)
-        {
-            var mid = low + high >> 1;
-            var midVal = _members[mid];
-            var cmp = midVal.MemberId.CompareTo(id);
-            if (cmp < 0)
-            {
-                low = mid + 1;
-            }
-            else
-            {
-                if (cmp <= 0)
-                    return midVal;
-                high = mid - 1;
-            }
-        }
-
-        return null;
-    }
+    // private EntityMember? BinarySearch(short id)
+    // {
+    //     var low = 0;
+    //     var high = _members.Count - 1;
+    //
+    //     while (low <= high)
+    //     {
+    //         var mid = low + high >> 1;
+    //         var midVal = _members[mid];
+    //         var cmp = midVal.MemberId.CompareTo(id);
+    //         if (cmp < 0)
+    //         {
+    //             low = mid + 1;
+    //         }
+    //         else
+    //         {
+    //             if (cmp <= 0)
+    //                 return midVal;
+    //             high = mid - 1;
+    //         }
+    //     }
+    //
+    //     return null;
+    // }
 
     #endregion
 
@@ -105,6 +105,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         {
             //TODO:通过设计时上下文获取ApplicationModel是否导入，从而确认当前Layer
             var layer = ModelLayer.DEV;
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             var seq = layer == ModelLayer.DEV ? ++_devMemberIdSeq : ++_usrMemberIdSeq;
             if (seq >= MaxMemberId)
             {

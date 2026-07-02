@@ -1,6 +1,5 @@
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace AppBoxDesign;
 
@@ -10,9 +9,9 @@ internal static class GotoDefinition
     {
         var doc = context.Workspace.CurrentSolution.GetDocument(docId);
         if (doc == null)
-            throw new Exception($"Can't find document: {docId}");
+            return null;
 
-        var symbol = await GetDefinitionSymbol(doc, position);
+        var symbol = await doc.GetSymbolAtPosition(position);
         if (symbol?.Locations.IsDefaultOrEmpty != false)
             return null;
 
@@ -55,21 +54,6 @@ internal static class GotoDefinition
         }
 
         return new Definition(targetModelNode, loc.SourceSpan.Start, loc.SourceSpan.Length);
-    }
-
-    private static async Task<ISymbol?> GetDefinitionSymbol(Document document, int position)
-    {
-        var symbol = await SymbolFinder.FindSymbolAtPositionAsync(document, position);
-
-        return symbol switch
-        {
-            INamespaceSymbol => null,
-            // Always prefer the partial implementation over the definition
-            IMethodSymbol { IsPartialDefinition: true, PartialImplementationPart: var impl } => impl,
-            // Don't return property getters/settings/initers
-            IMethodSymbol { AssociatedSymbol: IPropertySymbol } => null,
-            _ => symbol
-        };
     }
 }
 

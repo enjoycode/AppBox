@@ -142,10 +142,20 @@ internal sealed class EntityDesigner : View, IModelDesigner
         if (_selectedMember.Value == null) return;
 
         var oldName = _selectedMember.Value.Name;
-        var target = $"{ModelNode.Label}.{oldName}";
-        var dlg = new RenameDialog(_designContext, ModelReferenceType.EntityMember, target, ModelNode.Id, oldName);
+        var dlg = new RenameDialog(ModelReferenceType.EntityMember, oldName);
         var dlgResult = await dlg.ShowAsync();
         if (dlgResult != DialogResult.OK) return;
+
+        //先检查成员名称是否存在
+        if (_entityModel.GetMember(dlg.NewName, false) != null)
+        {
+            Notification.Error("New name is already in use.");
+            return;
+        }
+
+        //TODO: 同步重命名EntityRef的外键成员名称
+        await RenameModelCommand.Run(_designContext, _entityModel.Id, ModelReferenceType.EntityMember,
+            dlg.OldName, dlg.NewName);
 
         //刷新重命名的成员名称
         _membersController.RefreshCurrentRow();

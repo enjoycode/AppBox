@@ -1,3 +1,4 @@
+using AppBoxDesign.CodeEditor;
 using PixUI.CodeEditor;
 using PixUI;
 
@@ -12,6 +13,7 @@ internal static class ContextMenuService
     {
         return
         [
+            MenuItem.Item("Rename", null, () => RenameSymbolCommand.Execute(designContext, textEditor)),
             MenuItem.Item("Goto Definition", null, () => GotoDefinitionCommand.Execute(designContext, textEditor)),
             MenuItem.Divider(),
             MenuItem.Item("Format Document", null, () => FormatDocumentCommand.Execute(designContext, textEditor))

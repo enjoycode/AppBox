@@ -28,7 +28,7 @@ internal sealed class Commands
         NewEnumCommand = new NewCommand(designContext, "Enum");
         CheckoutCommand = new CheckoutCommand(designContext);
         SaveCommand = new SaveCommand(designContext);
-        RenameCommand = new RenameCommand(designContext);
+        RenameModelCommand = new RenameModelCommand(designContext);
         DeleteCommand = new DeleteCommand(designContext);
         PublishCommand = new PublishCommand(designContext);
         BuildAppCommand = new BuildAppCommand(designContext);
@@ -50,7 +50,7 @@ internal sealed class Commands
     public readonly NewCommand NewEnumCommand;
     public readonly CheckoutCommand CheckoutCommand;
     public readonly SaveCommand SaveCommand;
-    public readonly RenameCommand RenameCommand;
+    public readonly RenameModelCommand RenameModelCommand;
     public readonly DeleteCommand DeleteCommand;
     public readonly PublishCommand PublishCommand;
     public readonly BuildAppCommand BuildAppCommand;

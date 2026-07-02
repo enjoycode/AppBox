@@ -269,7 +269,7 @@ public sealed class DesignTree
     }
 
     /// <summary>
-    /// 设计时新建模型时检查名称是否已存在
+    /// 设计时新建或重命名模型时检查名称是否已存在
     /// </summary>
     public bool IsModelNameExists(int appId, ModelType modelType, ReadOnlyMemory<char> name)
     {
