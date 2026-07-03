@@ -19,7 +19,7 @@ internal static class RenameService
         await ReferenceService.AddCodeReferencesAsync(context, references, symbol);
         references.Sort();
 
-        //2.重命本自己
+        //2.重命名自己
         var selfSpan = symbol.Locations[0].SourceSpan;
         editor.Controller.Replace(selfSpan.Start, selfSpan.Length, newName);
 
@@ -41,7 +41,7 @@ internal static class RenameService
     }
 
     /// <summary>
-    /// 执行模型或基成员的重命名
+    /// 重命名模型或模型成员
     /// </summary>
     internal static async Task<IList<Reference>> RenameAsync(DesignContext context,
         ModelReferenceType referenceType, ModelId modelId, string oldName, string newName)
@@ -103,7 +103,8 @@ internal static class RenameService
             switch (r)
             {
                 case CodeReference cr:
-                    await cr.RenameAsync(context, diff, newName);
+                    //TODO: 判断是否已打开设计器,可直接在代码编辑器内更名,这样不需要再刷新
+                    await cr.RenameAsync(context, diff, newName); 
                     break;
                 case ModelReference mr:
                     mr.TargetReference.Target.RenameReference(referenceType,
@@ -142,7 +143,7 @@ internal static class RenameService
     }
 
     /// <summary>
-    /// RenameReferences的辅助方法，用于完结模型结点的重命名，并保存模型
+    /// RenameReferences的辅助方法，用于完结模型节点的重命名，并保存模型
     /// </summary>
     private static async Task FinishRenamedNode(ModelNode node)
     {

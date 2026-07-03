@@ -29,21 +29,37 @@ internal static class RenameSymbol
         //先判断是否在同一文件内
         if (loc.SourceTree!.FilePath != doc.Name)
             return;
-        //TODO: 表达式编辑器禁止重命名除LocalSymbol以外的
-        //var isExpressionEditor = doc.Name == DocNameUtil.ExpressionDocName;
+        //是否在表达式编辑器内(表达式编辑器禁止重命名除LocalSymbol以外的)
+        var isExpressionEditor = doc.Name == DocNameUtil.ExpressionDocName;
 
-        //TODO:暂只实现LocalSymbol
-        if (symbol is ILocalSymbol localSymbol)
+        var dlgTitle = string.Empty;
+        var canRename = false;
+        if (symbol is ILocalSymbol)
         {
-            var dlg = new RenameDialog("Rename Local Variable", localSymbol.Name);
-            var dlgResult = await dlg.ShowAsync();
-            if (dlgResult != DialogResult.OK) return;
-
-            await RenameService.RenameSymbolAsync(context, symbol, editor, dlg.OldName, dlg.NewName);
+            canRename = true;
+            dlgTitle = "Rename Local Variable";
+        }
+        else if (symbol is IParameterSymbol)
+        {
+            if (!isExpressionEditor)
+            {
+                dlgTitle = "Rename Parameter";
+                canRename = true;
+            }
         }
         else
         {
             Notification.Error($"暂未实现: {symbol.GetType().Name}");
         }
+
+        if (!canRename)
+            return;
+
+        //Show rename dialog and run rename
+        var dlg = new RenameDialog(dlgTitle, symbol.Name);
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
+
+        await RenameService.RenameSymbolAsync(context, symbol, editor, dlg.OldName, dlg.NewName);
     }
 }

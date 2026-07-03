@@ -19,6 +19,7 @@ internal sealed class RenameDialog : Dialog
 
     public string OldName => _oldName.Value;
     public string NewName => _newName.Value;
+    private TextInput _newNameTextInput = null!;
 
     protected override Widget BuildBody()
     {
@@ -31,10 +32,17 @@ internal sealed class RenameDialog : Dialog
                 Children =
                 [
                     new FormItem("Old Name:", new TextInput(_oldName) { Readonly = true }),
-                    new FormItem("New Name:", new TextInput(_newName))
+                    new FormItem("New Name:", new TextInput(_newName).RefBy(ref _newNameTextInput))
                 ]
             }
         };
+    }
+
+    protected override void OnShowed()
+    {
+        var focusable = FocusManager.FindFocusableForward(_newNameTextInput, null);
+        if (focusable != null && Overlay != null)
+            FocusManager.Focus(focusable, Overlay.Window);
     }
 
     protected override ValueTask<bool> OnClosing(DialogResult result)
