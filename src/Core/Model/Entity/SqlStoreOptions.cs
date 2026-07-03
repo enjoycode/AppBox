@@ -111,7 +111,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
             throw new Exception("Index id out of range");
         var indexId = (byte)(seq << 2 | (byte)layer);
         if (index.Unique)
-            indexId |= 1 << IdUtil.INDEXID_UNIQUE_OFFSET;
+            indexId |= 1 << EntityMemberId.INDEXID_UNIQUE_OFFSET;
         index.InitIndexId(indexId);
         _indexes ??= new List<SqlIndex>();
         _indexes.Add(index);

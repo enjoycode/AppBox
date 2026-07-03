@@ -14,8 +14,6 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         Debug.Assert(id.Type == ModelType.Entity);
     }
 
-    private const short MaxMemberId = 512;
-
     private short _devMemberIdSeq;
     private short _usrMemberIdSeq;
     private readonly List<EntityMember> _members = []; //注意已按memberId排序
@@ -107,13 +105,13 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
             var layer = ModelLayer.DEV;
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             var seq = layer == ModelLayer.DEV ? ++_devMemberIdSeq : ++_usrMemberIdSeq;
-            if (seq >= MaxMemberId)
+            if (seq >= EntityMemberId.MAX_SEQ)
             {
                 //TODO:尝试找空的
                 throw new NotImplementedException("Member id out of range");
             }
 
-            member.InitMemberId(IdUtil.MakeMemberId(layer, seq));
+            member.InitMemberId(EntityMemberId.MakeMemberId(layer, seq));
         }
 
         _members.Add(member);

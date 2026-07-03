@@ -8,13 +8,18 @@ public readonly struct ModelId : IComparable<ModelId>, IEquatable<ModelId>
     //| AppId 32bit | Type 8bit | Seq 22bit | Layer 2bit|
     private readonly long _encoded;
 
+    public const int MAX_SEQUENCE = 0x3FFFFF;
+
     private ModelId(long encoded)
     {
         _encoded = encoded;
     }
 
-    public static ModelId Make(int appId, ModelType type, int seq, ModelLayer layer) =>
-        new((long)appId << 32 | (long)type << 24 | (long)seq << 2 | (long)layer);
+    public static ModelId Make(int appId, ModelType type, int seq, ModelLayer layer)
+    {
+        if (seq >= MAX_SEQUENCE) throw new ArgumentOutOfRangeException(nameof(seq));
+        return new((long)appId << 32 | (long)type << 24 | (long)seq << 2 | (long)layer);
+    }
 
     public int AppId => (int)((_encoded >> 32) & 0xFFFFFFFF);
 
