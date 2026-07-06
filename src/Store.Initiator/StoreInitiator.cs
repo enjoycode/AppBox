@@ -40,6 +40,7 @@ internal static class StoreInitiator
         var entityRootFolder = new ModelFolder(app.Id, ModelType.Entity);
         var entityOrgUnitsFolder = new ModelFolder(entityRootFolder, "OrgUnits");
         var entityDesignFolder = new ModelFolder(entityRootFolder, "Design");
+        var entityWorkflowFolder = new ModelFolder(entityRootFolder, "Workflow");
         var viewRootFolder = new ModelFolder(app.Id, ModelType.View);
         var viewOrgUnitsFolder = new ModelFolder(viewRootFolder, "OrgUnits");
         // var viewOperationFolder = new ModelFolder(viewRootFolder, "Operations");
@@ -59,6 +60,10 @@ internal static class StoreInitiator
         staged.FolderId = entityDesignFolder.Id;
         var checkout = CreateCheckoutModel();
         checkout.FolderId = entityDesignFolder.Id;
+        var wfInstance = CreateWorkflowInstanceModel();
+        wfInstance.FolderId = entityWorkflowFolder.Id;
+        var wfTask = CreateWorkflowTaskModel();
+        wfTask.FolderId = entityWorkflowFolder.Id;
 
         //新建默认组织
         var defaultEnterprise = new Enterprise(Guid.NewGuid());
@@ -99,6 +104,8 @@ internal static class StoreInitiator
         await MetaStore.Provider.InsertModelAsync(orgUnit, txn);
         await MetaStore.Provider.InsertModelAsync(staged, txn);
         await MetaStore.Provider.InsertModelAsync(checkout, txn);
+        await MetaStore.Provider.InsertModelAsync(wfInstance, txn);
+        await MetaStore.Provider.InsertModelAsync(wfTask, txn);
 
 #if FUTURE
         await CreateServiceModel("OrgUnitService", 1, null, true, txn);
@@ -179,7 +186,7 @@ internal static class StoreInitiator
         var adminPermission = new PermissionModel(adminPermissionId, "Admin");
         adminPermission.Comment = "System administrator";
 #if FUTURE
-            admin_permission.OrgUnits.Add(adminou.Id);
+        admin_permission.OrgUnits.Add(adminou.Id);
 #else
         adminPermission.OrgUnits.Add(adminOrgUnit.Id);
 #endif
@@ -188,7 +195,7 @@ internal static class StoreInitiator
         var developerPermission = new PermissionModel(developerPermissionId, "Developer");
         developerPermission.Comment = "System developer";
 #if FUTURE
-            developer_permission.OrgUnits.Add(itdeptou.Id);
+        developer_permission.OrgUnits.Add(itdeptou.Id);
 #else
         developerPermission.OrgUnits.Add(itDeptOrgUnit.Id);
 #endif
@@ -199,7 +206,7 @@ internal static class StoreInitiator
         await CreateHomePageAssembly(txn);
 
 #if FUTURE
-            await txn.CommitAsync();
+        await txn.CommitAsync();
 #endif
     }
 
@@ -477,8 +484,12 @@ internal static class StoreInitiator
         model.AddSysMember(context, WFInstance.CONTEXT_ID);
 
         //Indexes
-        var ixCreatorId = new SqlIndex(model, "UI_CreatorId", false, [new OrderedField(WFInstance.CREATOR_ID_ID)]);
-        model.SqlStoreOptions.AddIndex(ixCreatorId);
+        var ix_CrateTime_CreatorId = new SqlIndex(model, "IX_CreateTime_CreatorId", false,
+        [
+            new OrderedField(WFInstance.CREATE_TIME_ID, true),
+            new OrderedField(WFInstance.CREATOR_ID_ID)
+        ]);
+        model.SqlStoreOptions.AddIndex(ix_CrateTime_CreatorId);
 
         return model;
     }
@@ -488,6 +499,9 @@ internal static class StoreInitiator
         var model = new EntityModel(WFTask.MODELID, nameof(WFTask));
         model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
 
+        var actorId = new EntityFieldMember(model, nameof(WFTask.ActorId), EntityFieldType.Guid, false, true);
+        model.AddSysMember(actorId, WFTask.ACTOR_ID_ID);
+
         var instanceId = new EntityFieldMember(model, nameof(WFTask.InstanceId), EntityFieldType.Guid, false, true);
         model.AddSysMember(instanceId, WFTask.INSTANCE_ID_ID);
 
@@ -496,18 +510,34 @@ internal static class StoreInitiator
 
         //PK
         model.SqlStoreOptions!.SetPrimaryKeys([
+            new PrimaryKeyField(actorId.MemberId, false),
             new PrimaryKeyField(instanceId.MemberId, false),
             new PrimaryKeyField(bookmarkId.MemberId, false)
         ]);
+
+        var actor = new EntityRefMember(model, nameof(WFTask.Actor), OrgUnit.MODELID, [actorId.MemberId]);
+        model.AddSysMember(actor, WFTask.ACTOR_ID);
 
         var instance = new EntityRefMember(model, nameof(WFTask.Instance), WFInstance.MODELID, [instanceId.MemberId]);
         model.AddSysMember(instance, WFTask.INSTANCE_ID);
 
         var title = new EntityFieldMember(model, nameof(WFTask.Title), EntityFieldType.String, false);
+        title.Length = 200;
         model.AddSysMember(title, WFTask.TITLE_ID);
 
         var createTime = new EntityFieldMember(model, nameof(WFTask.CreateTime), EntityFieldType.DateTime, false);
         model.AddSysMember(createTime, WFTask.CREATE_TIME_ID);
+
+        var resultTime = new EntityFieldMember(model, nameof(WFTask.ResultTime), EntityFieldType.DateTime, true);
+        model.AddSysMember(resultTime, WFTask.RESULT_TIME_ID);
+
+        var result = new EntityFieldMember(model, nameof(WFTask.Result), EntityFieldType.String, true);
+        result.Length = 100;
+        model.AddSysMember(result, WFTask.RESULT_ID);
+
+        var comment = new EntityFieldMember(model, nameof(WFTask.Comment), EntityFieldType.String, true);
+        comment.Length = 500;
+        model.AddSysMember(comment, WFTask.COMMENT_ID);
 
         return model;
     }
@@ -572,7 +602,7 @@ internal sealed class InitModelContainer : IModelContainer
         _models = new Dictionary<long, EntityModel>(8);
     }
 
-    internal void AddEntityModel(EntityModel model)
+    public void AddEntityModel(EntityModel model)
     {
         _models.Add(model.Id, model);
     }

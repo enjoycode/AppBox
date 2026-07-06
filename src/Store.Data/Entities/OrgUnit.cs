@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-public sealed class OrgUnit : SqlEntity, IEntity
+internal sealed class OrgUnit : SqlEntity, IEntity
 {
     private string _name = null!;
     private Guid _id;

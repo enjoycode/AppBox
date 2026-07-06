@@ -24,6 +24,30 @@ public class DbFix
     // 临时用于修复一些错误的模型数据
 
     // [Test]
+    // public async Task FixWorkflowRuntimeEntity()
+    // {
+    //     var txn = await SqlStore.Default.BeginTransactionAsync();
+    //
+    //     var app = await MetaStore.Provider.LoadApplicationAsync(Consts.SYS_APP_ID);
+    //     var orgUnit = (EntityModel)await MetaStore.Provider.LoadModelAsync(OrgUnit.MODELID);
+    //     var wfInstance = StoreInitiator.CreateWorkflowInstanceModel();
+    //     var wfTask = StoreInitiator.CreateWorkflowTaskModel();
+    //
+    //     await MetaStore.Provider.InsertModelAsync(wfInstance, txn);
+    //     await MetaStore.Provider.InsertModelAsync(wfTask, txn);
+    //
+    //     var container = new InitModelContainer(app);
+    //     container.AddEntityModel(orgUnit);
+    //     container.AddEntityModel(wfInstance);
+    //     container.AddEntityModel(wfTask);
+    //
+    //     await SqlStore.Default.CreateTableAsync(wfInstance, txn, container);
+    //     await SqlStore.Default.CreateTableAsync(wfTask, txn, container);
+    //
+    //     await txn.CommitAsync();
+    // }
+
+    // [Test]
     // public async Task FixIsForeignKey()
     // {
     //     var isForeignKeyProperty = typeof(EntityFieldMember).GetProperty(nameof(EntityFieldMember.IsForeignKey))!;

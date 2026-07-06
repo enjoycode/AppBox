@@ -10,7 +10,7 @@ public static class ServerRuntimeHelper
     private static int _initFlag = 0;
 
     internal const string ConnectionString
-        = "Server=10.211.55.2;Port=5432;Database=AppBox;Userid=rick;Password=;Enlist=true;Pooling=true;MinPoolSize=1;MaxPoolSize=200;";
+        = "Server=127.0.0.1;Port=5432;Database=AppBox;Userid=rick;Password=;Enlist=true;Pooling=true;MinPoolSize=1;MaxPoolSize=200;";
 
     private static void TryInitDefaultStore()
     {

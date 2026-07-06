@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-public sealed class WFInstance : SqlEntity, IEntity
+internal sealed class WFInstance : SqlEntity, IEntity
 {
     public WFInstance() { }
 

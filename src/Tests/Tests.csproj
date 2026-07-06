@@ -34,6 +34,7 @@
       <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Server\Server.csproj" />
       <ProjectReference Include="..\Store.Data\Store.Data.csproj" />
+      <ProjectReference Include="..\Store.Initiator\Store.Initiator.csproj" />
       <ProjectReference Include="..\Store.PostgreSql\Store.PostgreSql.csproj" />
       <ProjectReference Include="..\Store\Store.csproj" />
     </ItemGroup>
