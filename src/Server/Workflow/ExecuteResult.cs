@@ -29,12 +29,12 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 {
     internal Bookmark() { }
 
-    internal Bookmark(BookmarkType type, string title, Guid[] orgUnits)
+    internal Bookmark(BookmarkType type, string title, Guid[] actors)
     {
         Id = SequenceGuid.New();
         Type = type;
         Title = title;
-        OrgUnits = orgUnits;
+        Actors = actors;
     }
 
     public Guid Id { get; private set; }
@@ -46,16 +46,16 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
     /// <summary>
     /// 执行者的组织单元标识集合，空表示由工作流管理员进行操作
     /// </summary>
-    public Guid[] OrgUnits { get; private set; } = [];
+    public Guid[] Actors { get; private set; } = [];
 
-    internal void CheckCanResume(Guid ouid)
+    internal void CheckCanResume(Guid actorId)
     {
-        if (OrgUnits.Length == 0)
+        if (Actors.Length == 0)
         {
             throw new NotImplementedException(); //TODO:判断ouid是否工作流管理员
         }
 
-        if (!OrgUnits.Contains(ouid))
+        if (!Actors.Contains(actorId))
             throw new Exception("当前用户不能恢复工作流实例");
     }
 
@@ -66,9 +66,9 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
         ws.WriteGuid(Id);
         ws.WriteByte((byte)Type);
         ws.WriteString(Title);
-        ws.WriteVariant(OrgUnits.Length);
-        foreach (var orgUnit in OrgUnits)
-            ws.WriteGuid(orgUnit);
+        ws.WriteVariant(Actors.Length);
+        foreach (var actorId in Actors)
+            ws.WriteGuid(actorId);
         ws.WriteFieldEnd();
     }
 
@@ -78,9 +78,9 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
         Type = (BookmarkType)rs.ReadByte();
         Title = rs.ReadString() ?? string.Empty;
         var count = rs.ReadVariant();
-        OrgUnits = new Guid[count];
+        Actors = new Guid[count];
         for (var i = 0; i < count; i++)
-            OrgUnits[i] = rs.ReadGuid();
+            Actors[i] = rs.ReadGuid();
 
         rs.ReadFieldId();
     }

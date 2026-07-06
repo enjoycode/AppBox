@@ -15,7 +15,7 @@ public sealed class StartActivity : Activity
 
     internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
     {
-        return new ValueTask<IExecuteResult?>(new NextResult() { Next = Next.Target });
+        return ValueTask.FromResult<IExecuteResult?>(new NextResult() { Next = Next.Target });
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)

@@ -226,7 +226,7 @@ public sealed class WorkflowInstance : ExpressionContext
         .ToList();
 #endif
 
-    internal async Task Resume(Guid bookmarkId, Guid ouid, IHumanActionResult result)
+    internal async Task Resume(Guid bookmarkId, Guid actorId, IHumanActionResult result)
     {
         await _lock.WaitAsync();
         try
@@ -248,7 +248,7 @@ public sealed class WorkflowInstance : ExpressionContext
 
             var found = _running[branchIndex];
             //检查当前用户是否允许恢复操作
-            found.Bookmark!.CheckCanResume(ouid);
+            found.Bookmark!.CheckCanResume(actorId);
             //开始恢复操作
             var resumeResult = await found.Activity.Resume(this, result);
             //根据结果处理
