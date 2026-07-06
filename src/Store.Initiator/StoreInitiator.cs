@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Data.Common;
 using AppBoxCore;
 using AppBoxStore.Entities;
 
@@ -11,15 +13,18 @@ namespace AppBoxStore;
 /// <summary>
 /// 存储初始化器，仅用于启动集群第一节点时初始化存储
 /// </summary>
+[SuppressMessage("ReSharper", "InconsistentNaming")]
 internal static class StoreInitiator
 {
 #if !FUTURE
     internal const ushort PK_MEMBER_ID = 0; //暂为0
 #endif
 
+    private const string SysTablePrefix = $"{Consts.SYS}.";
+
     internal static async Task InitAsync(
 #if !FUTURE
-        System.Data.Common.DbTransaction txn
+        DbTransaction txn
 #endif
     )
     {
@@ -37,22 +42,22 @@ internal static class StoreInitiator
         var entityDesignFolder = new ModelFolder(entityRootFolder, "Design");
         var viewRootFolder = new ModelFolder(app.Id, ModelType.View);
         var viewOrgUnitsFolder = new ModelFolder(viewRootFolder, "OrgUnits");
-        var viewOperationFolder = new ModelFolder(viewRootFolder, "Operations");
-        var viewMetricsFolder = new ModelFolder(viewOperationFolder, "Metrics");
-        var viewClusterFolder = new ModelFolder(viewOperationFolder, "Cluster");
+        // var viewOperationFolder = new ModelFolder(viewRootFolder, "Operations");
+        // var viewMetricsFolder = new ModelFolder(viewOperationFolder, "Metrics");
+        // var viewClusterFolder = new ModelFolder(viewOperationFolder, "Cluster");
 
         //新建EntityModel
-        var employee = CreateEmployeeModel(app);
+        var employee = CreateEmployeeModel();
         employee.FolderId = entityOrgUnitsFolder.Id;
-        var enterprise = CreateEnterpriseModel(app);
+        var enterprise = CreateEnterpriseModel();
         enterprise.FolderId = entityOrgUnitsFolder.Id;
-        var workgroup = CreateWorkgroupModel(app);
+        var workgroup = CreateWorkgroupModel();
         workgroup.FolderId = entityOrgUnitsFolder.Id;
-        var orgUnit = CreateOrgUnitModel(app);
+        var orgUnit = CreateOrgUnitModel();
         orgUnit.FolderId = entityOrgUnitsFolder.Id;
-        var staged = CreateStagedModel(app);
+        var staged = CreateStagedModel();
         staged.FolderId = entityDesignFolder.Id;
-        var checkout = CreateCheckoutModel(app);
+        var checkout = CreateCheckoutModel();
         checkout.FolderId = entityDesignFolder.Id;
 
         //新建默认组织
@@ -170,16 +175,17 @@ internal static class StoreInitiator
 #endif
 
         //添加权限模型在保存OU实例之后
-        var adminPermission =
-            new PermissionModel(ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS), "Admin");
+        var adminPermissionId = ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS);
+        var adminPermission = new PermissionModel(adminPermissionId, "Admin");
         adminPermission.Comment = "System administrator";
 #if FUTURE
             admin_permission.OrgUnits.Add(adminou.Id);
 #else
         adminPermission.OrgUnits.Add(adminOrgUnit.Id);
 #endif
-        var developerPermission =
-            new PermissionModel(ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS), "Developer");
+
+        var developerPermissionId = ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 2, ModelLayer.SYS);
+        var developerPermission = new PermissionModel(developerPermissionId, "Developer");
         developerPermission.Comment = "System developer";
 #if FUTURE
             developer_permission.OrgUnits.Add(itdeptou.Id);
@@ -197,13 +203,13 @@ internal static class StoreInitiator
 #endif
     }
 
-    private static EntityModel CreateEmployeeModel(ApplicationModel app)
+    private static EntityModel CreateEmployeeModel()
     {
 #if FUTURE
         var employee = new EntityModel(Consts.SYS_EMPLOEE_MODEL_ID, Consts.EMPLOEE, EntityStoreType.StoreWithMvcc);
 #else
         var employee = new EntityModel(Employee.MODELID, nameof(Employee));
-        employee.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
+        employee.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
 
         var id = new EntityFieldMember(employee, nameof(Employee.Id), EntityFieldType.Guid, false);
         employee.AddSysMember(id, Employee.ID_ID);
@@ -221,16 +227,13 @@ internal static class StoreInitiator
         var male = new EntityFieldMember(employee, nameof(Employee.Male), EntityFieldType.Bool, false);
         employee.AddSysMember(male, Employee.MALE_ID);
 
-        var birthday = new EntityFieldMember(employee, nameof(Employee.Birthday),
-            EntityFieldType.DateTime, true);
+        var birthday = new EntityFieldMember(employee, nameof(Employee.Birthday), EntityFieldType.DateTime, true);
         employee.AddSysMember(birthday, Employee.BIRTHDAY_ID);
 
-        var account =
-            new EntityFieldMember(employee, nameof(Employee.Account), EntityFieldType.String, true);
+        var account = new EntityFieldMember(employee, nameof(Employee.Account), EntityFieldType.String, true);
         employee.AddSysMember(account, Employee.ACCOUNT_ID);
 
-        var password =
-            new EntityFieldMember(employee, nameof(Employee.Password), EntityFieldType.Binary, true);
+        var password = new EntityFieldMember(employee, nameof(Employee.Password), EntityFieldType.Binary, true);
         employee.AddSysMember(password, Employee.PASSWORD_ID);
 
         // var orgunits = new EntitySetMember(emploee, "OrgUnits", OrgUnit.MODELID, OrgUnit.BASE_ID);
@@ -251,13 +254,13 @@ internal static class StoreInitiator
         return employee;
     }
 
-    private static EntityModel CreateEnterpriseModel(ApplicationModel app)
+    private static EntityModel CreateEnterpriseModel()
     {
 #if FUTURE
         var model = new EntityModel(Consts.SYS_ENTERPRISE_MODEL_ID, Consts.ENTERPRISE, EntityStoreType.StoreWithMvcc);
 #else
         var model = new EntityModel(Enterprise.MODELID, nameof(Enterprise));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
 
         var id = new EntityFieldMember(model, nameof(Enterprise.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, Enterprise.ID_ID);
@@ -282,13 +285,13 @@ internal static class StoreInitiator
         return model;
     }
 
-    private static EntityModel CreateWorkgroupModel(ApplicationModel app)
+    private static EntityModel CreateWorkgroupModel()
     {
 #if FUTURE
         var model = new EntityModel(Consts.SYS_WORKGROUP_MODEL_ID, Consts.WORKGROUP, EntityStoreType.StoreWithMvcc);
 #else
         var model = new EntityModel(Workgroup.MODELID, nameof(Workgroup));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
 
         var id = new EntityFieldMember(model, nameof(Workgroup.Id), EntityFieldType.Guid, false, true);
         model.AddSysMember(id, Workgroup.ID_ID);
@@ -310,17 +313,16 @@ internal static class StoreInitiator
         return model;
     }
 
-    private static EntityModel CreateOrgUnitModel(ApplicationModel app)
+    private static EntityModel CreateOrgUnitModel()
     {
         EntityFieldType fkType;
 #if FUTURE
-            var model =
- new EntityModel(Consts.SYS_ORGUNIT_MODEL_ID, Consts.ORGUNIT, EntityStoreType.StoreWithMvcc);
-            fkType = EntityFieldType.EntityId;
+        var model = new EntityModel(Consts.SYS_ORGUNIT_MODEL_ID, Consts.ORGUNIT, EntityStoreType.StoreWithMvcc);
+        fkType = EntityFieldType.EntityId;
 #else
         fkType = EntityFieldType.Guid;
         var model = new EntityModel(OrgUnit.MODELID, nameof(OrgUnit));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
 
         var id = new EntityFieldMember(model, nameof(OrgUnit.Id), EntityFieldType.Guid, false);
         model.AddSysMember(id, OrgUnit.ID_ID);
@@ -352,14 +354,13 @@ internal static class StoreInitiator
         return model;
     }
 
-    private static EntityModel CreateStagedModel(ApplicationModel app)
+    private static EntityModel CreateStagedModel()
     {
 #if FUTURE
-            var model =
- new EntityModel(Consts.SYS_STAGED_MODEL_ID, "StagedModel", EntityStoreType.StoreWithoutMvcc);
+        var model = new EntityModel(Consts.SYS_STAGED_MODEL_ID, "StagedModel", EntityStoreType.StoreWithoutMvcc);
 #else
         var model = new EntityModel(StagedModel.MODELID, nameof(StagedModel));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
 
 #endif
 
@@ -390,13 +391,13 @@ internal static class StoreInitiator
         return model;
     }
 
-    private static EntityModel CreateCheckoutModel(ApplicationModel app)
+    private static EntityModel CreateCheckoutModel()
     {
 #if FUTURE
         var model = new EntityModel(Consts.SYS_CHECKOUT_MODEL_ID, "Checkout", EntityStoreType.StoreWithoutMvcc);
 #else
         var model = new EntityModel(Checkout.MODELID, nameof(Checkout));
-        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, Consts.SYS + '.');
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
 #endif
 
         var nodeType = new EntityFieldMember(model, "NodeType", EntityFieldType.Byte, false);
@@ -430,12 +431,12 @@ internal static class StoreInitiator
         });
         model.SysStoreOptions.AddSysIndex(model, ui_nodeType_targetId, Consts.CHECKOUT_UI_NODETYPE_TARGETID_ID);
 #else
-        var ui_nodeType_targetId = new SqlIndex(model, "UI_NodeType_TargetId", true,
+        var ui_NodeType_TargetId = new SqlIndex(model, "UI_NodeType_TargetId", true,
         [
             new OrderedField(Checkout.NODE_TYPE_ID),
             new OrderedField(Checkout.TARGET_ID)
         ]);
-        model.SqlStoreOptions!.AddIndex(ui_nodeType_targetId);
+        model.SqlStoreOptions!.AddIndex(ui_NodeType_TargetId);
 
         //add pk
         model.SqlStoreOptions.SetPrimaryKeys([
@@ -447,13 +448,72 @@ internal static class StoreInitiator
         return model;
     }
 
+    private static EntityModel CreateWorkflowInstanceModel()
+    {
+        var model = new EntityModel(WFInstance.MODELID, nameof(WFInstance));
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
+
+        var id = new EntityFieldMember(model, nameof(WFInstance.Id), EntityFieldType.Guid, false);
+        model.AddSysMember(id, Employee.ID_ID);
+        //PK
+        model.SqlStoreOptions!.SetPrimaryKeys([new PrimaryKeyField(id.MemberId, false)]);
+
+        var title = new EntityFieldMember(model, nameof(WFInstance.Title), EntityFieldType.String, false);
+        title.Length = 200;
+        model.AddSysMember(title, WFInstance.TITLE_ID);
+
+        var creatorId = new EntityFieldMember(model, nameof(WFInstance.CreatorId), EntityFieldType.Guid, false, true);
+        model.AddSysMember(creatorId, WFInstance.CREATOR_ID_ID);
+        var creator = new EntityRefMember(model, nameof(WFInstance.Creator), OrgUnit.MODELID, [creatorId.MemberId]);
+        model.AddSysMember(creator, WFInstance.CREATOR_ID);
+
+        var createTime = new EntityFieldMember(model, nameof(WFInstance.CreateTime), EntityFieldType.DateTime, false);
+        model.AddSysMember(createTime, WFInstance.CREATE_TIME_ID);
+
+        var status = new EntityFieldMember(model, nameof(WFInstance.Status), EntityFieldType.Byte, false);
+        model.AddSysMember(status, WFInstance.STATUS_ID);
+
+        var context = new EntityFieldMember(model, nameof(WFInstance.Context), EntityFieldType.Binary, false);
+        model.AddSysMember(context, WFInstance.CONTEXT_ID);
+
+        //Indexes
+        var ixCreatorId = new SqlIndex(model, "UI_CreatorId", false, [new OrderedField(WFInstance.CREATOR_ID_ID)]);
+        model.SqlStoreOptions.AddIndex(ixCreatorId);
+
+        return model;
+    }
+
+    private static EntityModel CreateWorkflowTaskModel()
+    {
+        var model = new EntityModel(WFTask.MODELID, nameof(WFTask));
+        model.BindToSqlStore(SqlStore.DefaultSqlStoreId, SysTablePrefix);
+
+        var instanceId = new EntityFieldMember(model, nameof(WFTask.InstanceId), EntityFieldType.Guid, false, true);
+        model.AddSysMember(instanceId, WFTask.INSTANCE_ID_ID);
+
+        var bookmarkId = new EntityFieldMember(model, nameof(WFTask.BookmarkId), EntityFieldType.Guid, false);
+        model.AddSysMember(bookmarkId, WFTask.BOOKMARK_ID_ID);
+
+        //PK
+        model.SqlStoreOptions!.SetPrimaryKeys([
+            new PrimaryKeyField(instanceId.MemberId, false),
+            new PrimaryKeyField(bookmarkId.MemberId, false)
+        ]);
+
+        var instance = new EntityRefMember(model, nameof(WFTask.Instance), WFInstance.MODELID, [instanceId.MemberId]);
+        model.AddSysMember(instance, WFTask.INSTANCE_ID);
+
+        var title = new EntityFieldMember(model, nameof(WFTask.Title), EntityFieldType.String, false);
+        model.AddSysMember(title, WFTask.TITLE_ID);
+
+        var createTime = new EntityFieldMember(model, nameof(WFTask.CreateTime), EntityFieldType.DateTime, false);
+        model.AddSysMember(createTime, WFTask.CREATE_TIME_ID);
+
+        return model;
+    }
+
     private static async Task CreateServiceModel(string name, int idIndex, Guid? folderId, bool forceFuture,
-#if FUTURE
-        Transaction txn,
-#else
-        System.Data.Common.DbTransaction txn,
-#endif
-        List<string>? references = null)
+        DbTransaction txn /*, List<string>? references = null*/)
     {
         var modelId = ModelId.Make(Consts.SYS_APP_ID, ModelType.Service, idIndex, ModelLayer.SYS);
         var model = new ServiceModel(modelId, name) { FolderId = folderId };
@@ -476,13 +536,7 @@ internal static class StoreInitiator
         await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.Service, $"sys.{name}", asmData, txn);
     }
 
-    private static async Task CreateViewModel(string name, int idIndex, Guid? folderId,
-#if FUTURE
-        Transaction txn
-#else
-        System.Data.Common.DbTransaction txn
-#endif
-    )
+    private static async Task CreateViewModel(string name, int idIndex, Guid? folderId, DbTransaction txn)
     {
         var modelId = ModelId.Make(Consts.SYS_APP_ID, ModelType.View, idIndex, ModelLayer.SYS);
         var model = new ViewModel(modelId, name) { FolderId = folderId };
@@ -493,7 +547,7 @@ internal static class StoreInitiator
         await MetaStore.Provider.UpsertModelCodeAsync(model.Id, codeData, txn);
     }
 
-    private static async Task CreateHomePageAssembly(System.Data.Common.DbTransaction txn)
+    private static async Task CreateHomePageAssembly(DbTransaction txn)
     {
         var asmData = Resources.GetBytes("Resources.Views.HomePage.dll");
         await MetaStore.Provider.UpsertAssemblyAsync(MetaAssemblyType.ClientApp, "1", asmData, txn);

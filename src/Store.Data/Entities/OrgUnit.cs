@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
-internal sealed class OrgUnit : SqlEntity, IEntity
+public sealed class OrgUnit : SqlEntity, IEntity
 {
     private string _name = null!;
     private Guid _id;
@@ -83,13 +83,13 @@ internal sealed class OrgUnit : SqlEntity, IEntity
 
     public static long MODELID => 8012673906332663824; //4
 
-    internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASETYPE_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short BASE_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short PARENTID_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short PARENT_ID = 6 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short CHILDREN_ID = 7 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short ID_ID = 1 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short NAME_ID = 2 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short BASETYPE_ID = 3 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short BASE_ID = 4 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short PARENTID_ID = 5 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short PARENT_ID = 6 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short CHILDREN_ID = 7 << EntityMemberId.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds =
         [ID_ID, NAME_ID, BASETYPE_ID, BASE_ID, PARENTID_ID, PARENT_ID, CHILDREN_ID];

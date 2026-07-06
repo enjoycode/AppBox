@@ -2,6 +2,9 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
+/// <summary>
+/// 企事业单位
+/// </summary>
 internal sealed class Enterprise : SqlEntity, IEntity
 {
     public Enterprise(Guid id)
@@ -49,11 +52,11 @@ internal sealed class Enterprise : SqlEntity, IEntity
 
     public static long MODELID => 8012673906332663816; //2
 
-    internal const short ID_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short NAME_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short ADDRESS_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short MANAGERID_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short MANAGER_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short ID_ID = 1 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short NAME_ID = 2 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short ADDRESS_ID = 3 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short MANAGERID_ID = 4 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short MANAGER_ID = 5 << EntityMemberId.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds = [ID_ID, NAME_ID, ADDRESS_ID, MANAGERID_ID, MANAGER_ID];
 

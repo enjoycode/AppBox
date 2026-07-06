@@ -48,7 +48,7 @@ public enum EntityMemberType : byte
 
 public enum EntityFieldType : byte
 {
-    EntityId = 0,
+    EntityId = 0, //TODO: remove it, use Guid
     String = 1,
     DateTime = 2,
     Short = 4,

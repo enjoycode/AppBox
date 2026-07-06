@@ -39,11 +39,11 @@ internal sealed class Checkout : SqlEntity, IEntity
 
     public static long MODELID => 8012673906332663832; //6
 
-    internal const short NODE_TYPE_ID = 1 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short TARGET_ID = 2 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short DEVELOPER_ID = 3 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short DEVELOPER_NAME_ID = 4 << IdUtil.MEMBERID_SEQ_OFFSET;
-    internal const short VERSION_ID = 5 << IdUtil.MEMBERID_SEQ_OFFSET;
+    internal const short NODE_TYPE_ID = 1 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short TARGET_ID = 2 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short DEVELOPER_ID = 3 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short DEVELOPER_NAME_ID = 4 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short VERSION_ID = 5 << EntityMemberId.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds = [NODE_TYPE_ID, TARGET_ID, DEVELOPER_ID, DEVELOPER_NAME_ID, VERSION_ID];
 
