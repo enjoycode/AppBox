@@ -33,10 +33,9 @@ public sealed class ForkActivity : Activity
         _branches[linkIndex] = new(link, target);
     }
 
-    internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
-        return new ValueTask<IExecuteResult?>(
-            new ForkResult() { Branches = _branches.Select(t => t.Target!).ToArray() });
+        return ValueTask.FromResult<IExecuteResult>(new ForkResult() { Branches = _branches });
     }
 
     #region ====Serialization====
@@ -44,14 +43,14 @@ public sealed class ForkActivity : Activity
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
-        ws.WriteArray(_branches);
+        ws.SerializeLinkArray(_branches);
         ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-        _branches = rs.ReadArray<TReader, RuntimeFlowLink>();
+        _branches = rs.DeserializeLinkArray();
         rs.ReadFieldId(); //保留
     }
 

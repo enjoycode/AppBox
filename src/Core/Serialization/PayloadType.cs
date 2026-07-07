@@ -71,6 +71,7 @@ namespace AppBoxCore
         PermissionNode = 91,
         DataTable = 92,
         DynamicQuery = 93,
-        Activity = 94,
+        WorkflowActivity = 94,
+        WorkflowLink = 95,
     }
 }

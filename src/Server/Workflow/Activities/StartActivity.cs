@@ -13,21 +13,20 @@ public sealed class StartActivity : Activity
         Next = new RuntimeFlowLink(link, target);
     }
 
-    internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
-        return ValueTask.FromResult<IExecuteResult?>(new NextResult() { Next = Next.Target });
+        return ValueTask.FromResult<IExecuteResult>(new NextResult() { Next = Next });
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
-        Next.WriteTo(ref ws);
+        ws.SerializeLink(Next);
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-        Next = new RuntimeFlowLink();
-        Next.ReadFrom(ref rs);
+        Next = rs.DeserializeLink()!;
     }
 }

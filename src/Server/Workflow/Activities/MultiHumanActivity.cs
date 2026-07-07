@@ -6,6 +6,9 @@ namespace AppBox.Workflow;
 
 public sealed class MultiHumanActivity : HumanActivity
 {
+    public const string ActorCountParameterName = "actorCount";
+    public const string ActorResultParameterName = "actorResult";
+
     internal MultiHumanActivity() { }
 
     internal MultiHumanActivity(string title, HumanActor[] actors, HumanAction[] actions,
@@ -22,7 +25,7 @@ public sealed class MultiHumanActivity : HumanActivity
         }
 
         foreach (var action in Actions)
-            _actionResults.Add(action.Name, 0);
+            _actorResults.Add(action.Name, 0);
     }
 
     /// <summary>
@@ -38,7 +41,7 @@ public sealed class MultiHumanActivity : HumanActivity
     /// <summary>
     /// 记录每个Action的结果次数(作为计算结果的条件表达式的参数)
     /// </summary>
-    private readonly Dictionary<string, int> _actionResults = [];
+    private readonly Dictionary<string, int> _actorResults = [];
 
     /// <summary>
     /// 最后一个条件表达式为null,即所有参与人员处理完后仍旧不满足之前的条件
@@ -54,9 +57,6 @@ public sealed class MultiHumanActivity : HumanActivity
         var multiHumanNode = (MultiHumanNode)node;
         _waitAllActor = multiHumanNode.WaitAllActor;
         _links = new RuntimeFlowLink[multiHumanNode.ResultConditions.Count];
-
-        foreach (var action in Actions)
-            _actionResults.Add(action.Name, 0);
     }
 
     internal override void LinkTo(Activity target, FlowLink link, int linkIndex)
@@ -64,9 +64,14 @@ public sealed class MultiHumanActivity : HumanActivity
         _links[linkIndex] = new RuntimeFlowLink(link, target);
     }
 
-    internal override async ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override async ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
         Logger.Debug($"执行: {Title}");
+        //1.必须先重置actorResults,因为可能流程重入
+        _actorResults.Clear();
+        foreach (var action in Actions)
+            _actorResults.Add(action.Name, 0);
+
         //1.找到对应的组织单元ID
         var ids = await GetOrgUnits(instance);
         _actorCount = ids.Count;
@@ -79,7 +84,7 @@ public sealed class MultiHumanActivity : HumanActivity
         return new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray());
     }
 
-    internal override async ValueTask<ResumeResult> Resume(WorkflowInstance instance, IHumanActionResult actionResult)
+    internal override async ValueTask<ResumeResult> Resume(WorkflowInstance instance, IActorResult actionResult)
     {
         Logger.Debug($"恢复: {Title}");
         if (actionResult is not HumanActionResult humanResult)
@@ -87,11 +92,11 @@ public sealed class MultiHumanActivity : HumanActivity
 
         //找到对应的Action累加计数
         var action = humanResult.Result;
-        if (!_actionResults.ContainsKey(action))
+        if (!_actorResults.ContainsKey(action))
             throw new Exception($"Can't find human action: {action}");
-        _actionResults[action] += 1;
+        _actorResults[action] += 1;
 
-        var currentActorCount = _actionResults.Values.Sum();
+        var currentActorCount = _actorResults.Values.Sum();
         //先判断是否必须等待所有参与者处理
         if (_waitAllActor && currentActorCount != _actorCount)
             return new ResumeResult() { Suspended = true, CancelOthers = false, Next = null };
@@ -125,7 +130,7 @@ public sealed class MultiHumanActivity : HumanActivity
 
         return trueAt < 0
             ? new ResumeResult() { Suspended = true, CancelOthers = false, Next = null }
-            : new ResumeResult() { Suspended = false, CancelOthers = true, Next = _links[trueAt].Target };
+            : new ResumeResult() { Suspended = false, CancelOthers = true, Next = _links[trueAt] };
     }
 
     #region ====Serialization====
@@ -136,9 +141,9 @@ public sealed class MultiHumanActivity : HumanActivity
 
         ws.WriteBool(_waitAllActor);
         ws.WriteInt(_actorCount);
-        ws.WriteArray(_links);
+        ws.SerializeLinkArray(_links);
 
-        foreach (var kv in _actionResults)
+        foreach (var kv in _actorResults)
         {
             ws.WriteString(kv.Key);
             ws.WriteInt(kv.Value);
@@ -153,11 +158,11 @@ public sealed class MultiHumanActivity : HumanActivity
 
         _waitAllActor = rs.ReadBool();
         _actorCount = rs.ReadInt();
-        _links = rs.ReadArray<TReader, RuntimeFlowLink>();
+        _links = rs.DeserializeLinkArray();
 
         for (var i = 0; i < Actions.Length; i++)
         {
-            _actionResults.Add(rs.ReadString()!, rs.ReadInt());
+            _actorResults.Add(rs.ReadString()!, rs.ReadInt());
         }
 
         rs.ReadFieldId(); //保留
@@ -165,6 +170,9 @@ public sealed class MultiHumanActivity : HumanActivity
 
     #endregion
 
+    /// <summary>
+    /// 专用于多人活动计算条件表达式的上下文
+    /// </summary>
     private sealed class MultiHumanActivityExpressionContext : IExpressionContext
     {
         public MultiHumanActivityExpressionContext(WorkflowInstance workflowInstance,
@@ -179,8 +187,8 @@ public sealed class MultiHumanActivity : HumanActivity
 
         public AnyValue ResolveParameter(string parameterName) => parameterName switch
         {
-            "actorCount" => _multiHumanActivity._actorCount,
-            "results" => AnyValue.From(_multiHumanActivity._actionResults),
+            ActorCountParameterName => _multiHumanActivity._actorCount,
+            ActorResultParameterName => AnyValue.From(_multiHumanActivity._actorResults),
             _ => _instance.ResolveParameter(parameterName)
         };
 

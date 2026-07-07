@@ -50,7 +50,7 @@ public class WorkflowRuntimeTest
 
         var bookmarks = instance.GetAllBookmarks();
         var bookmarkId = bookmarks[0].Id;
-        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult() { Result = "同意", Memo = "备注" });
+        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult("Manager1", "同意", "备注"));
         await instance.WaitForSuspendedOrFinished();
     }
 
@@ -59,13 +59,14 @@ public class WorkflowRuntimeTest
     {
         var approveActivity = new AutomationActivity("通过");
         var rejectActivity = new AutomationActivity("拒绝");
-        var resultsParameter = Expression.Parameter("results",
+        var resultsParameter = Expression.Parameter(MultiHumanActivity.ActorResultParameterName,
             new ExpressionTypeInfo(ExpressionTypeInfo.KnownType.Dictionary, types:
             [
                 ExpressionTypeInfo.String,
                 ExpressionTypeInfo.Int32
             ]));
-        var actorCountParameter = Expression.Parameter("actorCount", ExpressionTypeInfo.Int32);
+        var actorCountParameter =
+            Expression.Parameter(MultiHumanActivity.ActorCountParameterName, ExpressionTypeInfo.Int32);
         var itemAccess = Expression.InstancePropertyIndexer(resultsParameter, "Item",
             [Expression.Constant("同意")], ExpressionTypeInfo.Int32);
         var multiHumanActivity = new MultiHumanActivity("专家会签",
@@ -93,10 +94,10 @@ public class WorkflowRuntimeTest
         var bookmarks = instance.GetAllBookmarks();
         var bookmarkId = bookmarks.First().Id;
         //审批者1递交
-        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult() { Result = "同意", Memo = "备注1" });
+        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult("Manager1", "同意", "备注1"));
         await instance.WaitForSuspendedOrFinished();
         //审批者2递交
-        await instance.Resume(bookmarkId, _mockManager2Id, new HumanActionResult() { Result = "同意", Memo = "备注2" });
+        await instance.Resume(bookmarkId, _mockManager2Id, new HumanActionResult("Manager2", "同意", "备注2"));
         await instance.WaitForSuspendedOrFinished();
     }
 
@@ -124,7 +125,7 @@ public class WorkflowRuntimeTest
 
         var bookmarks = instance.GetAllBookmarks();
         var bookmarkId = bookmarks[0].Id;
-        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult() { Result = "同意", Memo = "备注" });
+        await instance.Resume(bookmarkId, _mockManager1Id, new HumanActionResult("Manager1", "同意", "备注"));
         await instance.WaitForSuspendedOrFinished();
     }
 }

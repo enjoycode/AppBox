@@ -13,7 +13,7 @@ public sealed class AutomationActivity : Activity
     internal AutomationActivity(string title, Expression? expression = null, Activity? next = null) : base(title)
     {
         _expression = expression;
-        _next = new RuntimeFlowLink(next);
+        _next = next == null ? null : new RuntimeFlowLink(next);
     }
 
     private Expression? _expression;
@@ -34,12 +34,12 @@ public sealed class AutomationActivity : Activity
         _next = new(link, target);
     }
 
-    internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
         //TODO: 实现执行表达式
         Logger.Debug($"执行: {Title}");
 
-        return new ValueTask<IExecuteResult?>(new NextResult() { Next = _next?.Target });
+        return ValueTask.FromResult<IExecuteResult>(new NextResult() { Next = _next });
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)
@@ -47,8 +47,7 @@ public sealed class AutomationActivity : Activity
         base.WriteTo(ref ws);
 
         ws.SerializeExpression(_expression);
-        ws.WriteBool(_next != null);
-        _next?.WriteTo(ref ws);
+        ws.SerializeLink(_next);
 
         ws.WriteFieldEnd(); //保留
     }
@@ -56,12 +55,7 @@ public sealed class AutomationActivity : Activity
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-        var hasNext = rs.ReadBool();
-        if (hasNext)
-        {
-            _next = new RuntimeFlowLink();
-            _next.ReadFrom(ref rs);
-        }
+        _next = rs.DeserializeLink();
 
         rs.ReadFieldId(); //保留
     }

@@ -17,7 +17,7 @@ public readonly struct ResumeResult
     // public string ErrorMessage { get; init; } = string.Empty;
 
     /// <summary>
-    /// 继续执行的Activity，注意：可能为null
+    /// 继续执行的路径，注意：可能为null
     /// </summary>
-    public Activity? Next { get; init; }
+    public RuntimeFlowLink? Next { get; init; }
 }

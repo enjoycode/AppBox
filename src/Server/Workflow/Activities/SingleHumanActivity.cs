@@ -39,7 +39,7 @@ public sealed class SingleHumanActivity : HumanActivity
         _links[linkIndex] = new RuntimeFlowLink(link, target);
     }
 
-    internal override async ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override async ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
         Logger.Debug($"执行: {Title}");
         //1.找到对应的组织单元ID
@@ -53,7 +53,7 @@ public sealed class SingleHumanActivity : HumanActivity
         return new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray());
     }
 
-    internal override ValueTask<ResumeResult> Resume(WorkflowInstance instance, IHumanActionResult actionResult)
+    internal override ValueTask<ResumeResult> Resume(WorkflowInstance instance, IActorResult actionResult)
     {
         Logger.Debug($"恢复: {Title}");
         if (actionResult is HumanActionResult humanResult)
@@ -63,8 +63,8 @@ public sealed class SingleHumanActivity : HumanActivity
             if (index == -1)
                 throw new Exception($"Can't find human action: {humanResult.Result}");
             //直接返回,不保存由调用者处理
-            return new ValueTask<ResumeResult>(new ResumeResult()
-                { Suspended = false, CancelOthers = true, Next = _links[index].Target });
+            return ValueTask.FromResult(new ResumeResult()
+                { Suspended = false, CancelOthers = true, Next = _links[index] });
         }
         else
         {
@@ -77,14 +77,14 @@ public sealed class SingleHumanActivity : HumanActivity
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
-        ws.WriteArray(_links);
+        ws.SerializeLinkArray(_links);
         ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-        _links = rs.ReadArray<TReader, RuntimeFlowLink>();
+        _links = rs.DeserializeLinkArray();
         rs.ReadFieldId(); //保留
     }
 

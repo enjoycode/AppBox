@@ -11,18 +11,18 @@ internal sealed class ErrorResult : IExecuteResult
 
 internal sealed class NextResult : IExecuteResult
 {
-    public Activity? Next { get; init; }
+    public RuntimeFlowLink? Next { get; init; }
 }
 
 internal sealed class ForkResult : IExecuteResult
 {
-    public required Activity[] Branches { get; init; }
+    public required RuntimeFlowLink[] Branches { get; init; }
 }
 
 internal sealed class JoinResult : IExecuteResult
 {
     public required bool IsAllJoined { get; init; }
-    public Activity? Next { get; init; }
+    public RuntimeFlowLink? Next { get; init; }
 }
 
 public sealed class Bookmark : IExecuteResult, IBinSerializable

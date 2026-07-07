@@ -30,12 +30,12 @@ public abstract class Activity : IBinSerializable
 
     #region ====Runtime Methods====
 
-    internal virtual ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal virtual ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
         throw new NotSupportedException();
     }
 
-    internal virtual ValueTask<ResumeResult> Resume(WorkflowInstance instance, IHumanActionResult actionResult)
+    internal virtual ValueTask<ResumeResult> Resume(WorkflowInstance instance, IActorResult actionResult)
     {
         throw new NotSupportedException();
     }

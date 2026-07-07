@@ -41,7 +41,7 @@ public sealed class DecisionActivity : Activity
         _links[linkIndex] = new RuntimeFlowLink(link, target);
     }
 
-    internal override async ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override async ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
         Logger.Debug($"执行: {Title}");
         var trueAt = -1;
@@ -67,19 +67,20 @@ public sealed class DecisionActivity : Activity
         if (trueAt < 0)
             return new ErrorResult("Can't find match condition");
 
-        return new NextResult() { Next = _links[trueAt].Target };
+        return new NextResult() { Next = _links[trueAt] };
     }
 
     public override void WriteTo<TWriter>(ref TWriter ws)
     {
         base.WriteTo(ref ws);
-        ws.WriteArray(_links);
+        ws.SerializeLinkArray(_links);
         ws.WriteFieldEnd(); //保留
     }
 
     public override void ReadFrom<TReader>(ref TReader rs)
     {
         base.ReadFrom(ref rs);
-        _links = rs.ReadArray<TReader, RuntimeFlowLink>();
+        _links = rs.DeserializeLinkArray();
+        rs.ReadFieldId(); //保留
     }
 }

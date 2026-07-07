@@ -14,7 +14,7 @@ public sealed class JoinActivity : Activity
     {
         Debug.Assert(forkBranchesCount > 0);
         ForkBranchesCount = forkBranchesCount;
-        _next = new RuntimeFlowLink(next);
+        _next = next ==null ? null : new RuntimeFlowLink(next);
     }
 
     public override byte Type => ActivityType.JoinActivity;
@@ -39,10 +39,13 @@ public sealed class JoinActivity : Activity
         _next = new(link, target);
     }
 
-    internal override ValueTask<IExecuteResult?> Execute(WorkflowInstance instance)
+    internal override ValueTask<IExecuteResult> Execute(WorkflowInstance instance)
     {
         JoinBranchesCount++;
-        return new ValueTask<IExecuteResult?>(new JoinResult() { IsAllJoined = IsAllJoined, Next = _next?.Target });
+        var res = ValueTask.FromResult<IExecuteResult>(new JoinResult() { IsAllJoined = IsAllJoined, Next = _next });
+        if (IsAllJoined)
+            JoinBranchesCount = 0; //重置因为可能流程重入
+        return res;
     }
 
     #region ====Serialization====
@@ -53,9 +56,7 @@ public sealed class JoinActivity : Activity
 
         ws.WriteVariant(ForkBranchesCount);
         ws.WriteVariant(JoinBranchesCount);
-
-        ws.WriteBool(_next != null);
-        _next?.WriteTo(ref ws);
+        ws.SerializeLink(_next);
 
         ws.WriteFieldEnd(); //保留
     }
@@ -66,13 +67,7 @@ public sealed class JoinActivity : Activity
 
         ForkBranchesCount = rs.ReadVariant();
         JoinBranchesCount = rs.ReadVariant();
-
-        var hasNext = rs.ReadBool();
-        if (hasNext)
-        {
-            _next = new RuntimeFlowLink();
-            _next.ReadFrom(ref rs);
-        }
+        _next = rs.DeserializeLink();
 
         rs.ReadFieldId(); //保留
     }
