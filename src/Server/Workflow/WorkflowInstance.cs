@@ -7,16 +7,15 @@ namespace AppBox.Workflow;
 public sealed class WorkflowInstance : ExpressionContext
 {
     internal WorkflowInstance() { }
-
+    
     public WorkflowInstance(string title, StartActivity startActivity,
-        Guid creatorId, string creatorName, Dictionary<string, AnyValue> parameters)
+        Guid creatorId, Dictionary<string, AnyValue> parameters)
     {
         Id = SequenceGuid.New();
         Title = title;
         Parameters = parameters;
         CreateTime = DateTime.Now;
         CreatorId = creatorId;
-        CreatorName = creatorName;
         Status = WorkflowStatus.Running;
         StartActivity = startActivity;
     }
@@ -25,7 +24,6 @@ public sealed class WorkflowInstance : ExpressionContext
     public string Title { get; private set; } = string.Empty;
     public StartActivity StartActivity { get; private set; } = null!;
     public Guid CreatorId { get; private set; }
-    public string CreatorName { get; private set; } = string.Empty;
     public DateTime CreateTime { get; private set; }
     public Dictionary<string, AnyValue> Parameters { get; } = [];
     public WorkflowStatus Status { get; private set; }

@@ -27,7 +27,7 @@ internal sealed class WorkflowService
         var visitor = new WorkflowRuntimeVisitor();
         var startActivity = (StartActivity)visitor.Visit(model.StartNode);
         //3.新建工作流实例保存并异步运行
-        var instance = new WorkflowInstance(title, startActivity, session.LeafOrgUnitId, session.Name, parameters);
+        var instance = new WorkflowInstance(title, startActivity, session.LeafOrgUnitId, parameters);
         await instance.Start(_store);
     }
 }

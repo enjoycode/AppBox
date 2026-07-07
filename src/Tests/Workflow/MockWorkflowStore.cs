@@ -34,7 +34,6 @@ internal sealed class MockWorkflowStore : IWorkflowStore
         ws.WriteGuid(instance.Id);
         ws.WriteString(instance.Title);
         ws.WriteGuid(instance.CreatorId);
-        ws.WriteString(instance.CreatorName);
         ws.WriteDateTime(instance.CreateTime);
         ws.WriteByte((byte)instance.Status);
 
