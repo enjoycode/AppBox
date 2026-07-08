@@ -11,6 +11,9 @@ partial class Expression
     public static ParameterExpression Parameter(string name, ExpressionTypeInfo typeInfo) =>
         new(name, typeInfo);
 
+    public static BinaryExpression Assign(Expression left, Expression right)
+        => new(left, right, BinaryOperatorType.Assign);
+
     public static BinaryExpression GreaterThan(Expression left, Expression right)
         => new(left, right, BinaryOperatorType.Greater);
 

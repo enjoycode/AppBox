@@ -7,7 +7,7 @@ namespace AppBox.Workflow;
 public sealed class WorkflowInstance : ExpressionContext
 {
     internal WorkflowInstance() { }
-    
+
     public WorkflowInstance(string title, StartActivity startActivity,
         Guid creatorId, Dictionary<string, AnyValue> parameters)
     {
@@ -52,6 +52,11 @@ public sealed class WorkflowInstance : ExpressionContext
     {
         _store = workflowStore;
         //恢复执行各分支
+        foreach (var running in _running)
+        {
+            if (!running.IsWaiting)
+                Continue(running.Link);
+        }
     }
 
     private void Continue(RuntimeFlowLink link)
@@ -253,7 +258,7 @@ public sealed class WorkflowInstance : ExpressionContext
 
             //保存实例
             CheckStatus();
-            await _store.UpdateWorkflowInstance(this, resumeResult);
+            await _store.UpdateWorkflowInstance(this, bookmarkId, actorId, resumeResult);
             //如果有下一活动继续执行
             if (resumeResult is { Suspended: false, Next.Target: not null })
                 Continue(resumeResult.Next);
@@ -342,6 +347,14 @@ public sealed class WorkflowInstance : ExpressionContext
         for (var i = 0; i < count; i++) _resumeLogs.Add(ResumeLog.ReadFrom(ref rs));
 
         rs.ReadFieldId(); //保留
+    }
+
+    public byte[] GetContextData()
+    {
+        using var ms = new MemoryStream();
+        var ws = new SystemWriteStream(ms);
+        SerializeContext(ref ws);
+        return ms.ToArray();
     }
 
     #endregion

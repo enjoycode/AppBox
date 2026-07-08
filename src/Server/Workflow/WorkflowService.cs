@@ -30,4 +30,12 @@ internal sealed class WorkflowService
         var instance = new WorkflowInstance(title, startActivity, session.LeafOrgUnitId, parameters);
         await instance.Start(_store);
     }
+
+    /// <summary>
+    /// 重启后重新启动执行中的工作流实例
+    /// </summary>
+    public void Restart()
+    {
+        //TODO: 从存储加载Status==Running的工作流实例
+    }
 }

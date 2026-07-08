@@ -528,16 +528,10 @@ internal static class StoreInitiator
         var createTime = new EntityFieldMember(model, nameof(WFTask.CreateTime), EntityFieldType.DateTime, false);
         model.AddSysMember(createTime, WFTask.CREATE_TIME_ID);
 
-        var resultTime = new EntityFieldMember(model, nameof(WFTask.ResultTime), EntityFieldType.DateTime, true);
-        model.AddSysMember(resultTime, WFTask.RESULT_TIME_ID);
-
-        var result = new EntityFieldMember(model, nameof(WFTask.Result), EntityFieldType.String, true);
-        result.Length = 100;
-        model.AddSysMember(result, WFTask.RESULT_ID);
-
-        var comment = new EntityFieldMember(model, nameof(WFTask.Comment), EntityFieldType.String, true);
-        comment.Length = 500;
-        model.AddSysMember(comment, WFTask.COMMENT_ID);
+        //Indexes
+        var ix_InstanceId_BookmarkId = new SqlIndex(model, "IX_InstanceId_BookmarkId", false,
+            [new OrderedField(WFTask.INSTANCE_ID_ID), new OrderedField(WFTask.BOOKMARK_ID_ID)]);
+        model.SqlStoreOptions.AddIndex(ix_InstanceId_BookmarkId);
 
         return model;
     }
