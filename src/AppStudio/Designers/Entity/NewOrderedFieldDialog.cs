@@ -1,13 +1,11 @@
-using System;
-using System.Linq;
 using AppBoxCore;
 using PixUI;
 
 namespace AppBoxDesign;
 
-internal sealed class NewIdxFieldDialog : Dialog
+internal sealed class NewOrderedFieldDialog : Dialog
 {
-    public NewIdxFieldDialog(EntityModel entityModel)
+    public NewOrderedFieldDialog(EntityModel entityModel)
     {
         _entityModel = entityModel;
         Title.Value = "New Indexes Field";
@@ -28,6 +26,7 @@ internal sealed class NewIdxFieldDialog : Dialog
             {
                 new FormItem("EntityField:", new Select<EntityMember>(_selected)
                 {
+                    LabelGetter = m => m.Name,
                     Options = _entityModel.Members
                         .Where(m => m.Type == EntityMemberType.EntityField)
                         .ToArray()
@@ -41,5 +40,19 @@ internal sealed class NewIdxFieldDialog : Dialog
     {
         if (_selected.Value == null) return null;
         return new OrderedField(_selected.Value.MemberId, _orderByDesc.Value);
+    }
+
+    protected override ValueTask<bool> OnClosing(DialogResult result)
+    {
+        if (result == DialogResult.OK)
+        {
+            if (_selected.Value == null)
+            {
+                Notification.Error("You must select a field");
+                return ValueTask.FromResult(true);
+            }
+        }
+
+        return base.OnClosing(result);
     }
 }

@@ -24,6 +24,8 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
     private PrimaryKeyField[]? _primaryKeys;
     private IList<SqlIndex>? _indexes;
 
+    internal EntityModel Owner => _owner;
+
     public DataStoreKind Kind => DataStoreKind.Sql;
 
     public long StoreModelId { get; private set; }
@@ -82,7 +84,7 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
 
     #region ====Design Methods====
 
-    public void SetPrimaryKeys(PrimaryKeyField[]? fields)
+    internal void SetPrimaryKeys(PrimaryKeyField[]? fields)
     {
         _owner.CheckDesignMode();
         _primaryKeys = fields;
@@ -100,12 +102,13 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         _owner.OnPropertyChanged();
     }
 
-    public void AddIndex(SqlIndex index)
+    internal void AddIndex(SqlIndex index)
     {
         _owner.CheckDesignMode();
 
         //TODO:同AddMember获取当前Layer
         var layer = ModelLayer.DEV;
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         var seq = layer == ModelLayer.DEV ? ++_devIndexIdSeq : ++_usrIndexIdSeq;
         if (seq >= MAX_INDEX_ID) //TODO: 尝试找空的
             throw new Exception("Index id out of range");
@@ -115,6 +118,23 @@ public sealed class SqlStoreOptions : IEntityStoreOptions
         index.InitIndexId(indexId);
         _indexes ??= new List<SqlIndex>();
         _indexes.Add(index);
+
+        _owner.OnPropertyChanged();
+    }
+
+    internal void RemoveIndex(SqlIndex index)
+    {
+        _owner.CheckDesignMode();
+
+        //如果是新建的直接移除
+        if (_owner.PersistentState == PersistentState.Detached || index.PersistentState == PersistentState.Detached)
+        {
+            _indexes?.Remove(index);
+        }
+        else //否则标记为删除
+        {
+            index.MarkDeleted();
+        }
 
         _owner.OnPropertyChanged();
     }

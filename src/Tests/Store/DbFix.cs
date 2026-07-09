@@ -2,6 +2,7 @@ using System;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using AppBoxClient;
 using AppBoxCore;
@@ -74,14 +75,20 @@ public class DbFix
     // [Test]
     // public async Task UpdateModel()
     // {
-    //     var model = await MetaStore.Provider.LoadModelAsync(8012673906332663824L);
-    //     var entityModel = (EntityModel)model;
-    //     var member = entityModel.GetMember("Base")!;
+    //     var wfTask = (EntityModel) await MetaStore.Provider.LoadModelAsync(WFTask.MODELID);
+    //     var member = wfTask.GetMember(nameof(WFTask.Actor))!;
     //     var fieldInfo = member.GetType().GetField("_allowNull", BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic);
     //     fieldInfo!.SetValue(member, false);
+    //     member = wfTask.GetMember(nameof(WFTask.Instance))!;
+    //     fieldInfo.SetValue(member, false);
+    //     
+    //     var wfInstance = (EntityModel) await MetaStore.Provider.LoadModelAsync(WFInstance.MODELID);
+    //     member = wfInstance.GetMember(nameof(WFInstance.Creator));
+    //     fieldInfo.SetValue(member, false);
     //
     //     var txn = await SqlStore.Default.BeginTransactionAsync();
-    //     await MetaStore.Provider.UpdateModelAsync(model, txn, null);
+    //     await MetaStore.Provider.UpdateModelAsync(wfTask, txn);
+    //     await MetaStore.Provider.UpdateModelAsync(wfInstance, txn);
     //     await txn.CommitAsync();
     // }
 

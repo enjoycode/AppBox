@@ -83,7 +83,7 @@ internal sealed class EntityDesigner : View, IModelDesigner
             .When(t => t == 0,
                 () => new MembersDesigner(_entityModel, _membersController, _selectedMember))
             .When(t => t == 1,
-                () => new SqlStoreOptionsDesigner(ModelNode, ModelNode.Id))
+                () => new SqlStoreOptionsDesigner(ModelNode))
             .When(t => t == 2,
                 () => new EntityRowsView(ModelNode.Id));
     }

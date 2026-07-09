@@ -471,7 +471,8 @@ internal static class StoreInitiator
 
         var creatorId = new EntityFieldMember(model, nameof(WFInstance.CreatorId), EntityFieldType.Guid, false, true);
         model.AddSysMember(creatorId, WFInstance.CREATOR_ID_ID);
-        var creator = new EntityRefMember(model, nameof(WFInstance.Creator), OrgUnit.MODELID, [creatorId.MemberId]);
+        var creator = new EntityRefMember(model, nameof(WFInstance.Creator), OrgUnit.MODELID, [creatorId.MemberId],
+            false);
         model.AddSysMember(creator, WFInstance.CREATOR_ID);
 
         var createTime = new EntityFieldMember(model, nameof(WFInstance.CreateTime), EntityFieldType.DateTime, false);
@@ -515,10 +516,11 @@ internal static class StoreInitiator
             new PrimaryKeyField(bookmarkId.MemberId, false)
         ]);
 
-        var actor = new EntityRefMember(model, nameof(WFTask.Actor), OrgUnit.MODELID, [actorId.MemberId]);
+        var actor = new EntityRefMember(model, nameof(WFTask.Actor), OrgUnit.MODELID, [actorId.MemberId], false);
         model.AddSysMember(actor, WFTask.ACTOR_ID);
 
-        var instance = new EntityRefMember(model, nameof(WFTask.Instance), WFInstance.MODELID, [instanceId.MemberId]);
+        var instance = new EntityRefMember(model, nameof(WFTask.Instance), WFInstance.MODELID, [instanceId.MemberId],
+            false);
         model.AddSysMember(instance, WFTask.INSTANCE_ID);
 
         var title = new EntityFieldMember(model, nameof(WFTask.Title), EntityFieldType.String, false);

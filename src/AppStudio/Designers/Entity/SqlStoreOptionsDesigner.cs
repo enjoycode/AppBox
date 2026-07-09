@@ -5,11 +5,10 @@ namespace AppBoxDesign;
 
 internal sealed class SqlStoreOptionsDesigner : View
 {
-    internal SqlStoreOptionsDesigner(ModelNode modelNode, string modelId)
+    internal SqlStoreOptionsDesigner(ModelNode modelNode)
     {
         _modelNode = modelNode;
         _entityModel = (EntityModel)modelNode.Model;
-        _modelId = modelId;
         _pkController.DataSource = _entityModel.SqlStoreOptions!.PrimaryKeys;
         _ixController.DataSource = _entityModel.SqlStoreOptions!.Indexes;
 
@@ -29,7 +28,6 @@ internal sealed class SqlStoreOptionsDesigner : View
 
     private readonly ModelNode _modelNode;
     private readonly EntityModel _entityModel;
-    private readonly string _modelId;
     private readonly DataGridController<PrimaryKeyField> _pkController = new();
     private readonly DataGridController<SqlIndex> _ixController = new();
 
@@ -51,8 +49,8 @@ internal sealed class SqlStoreOptionsDesigner : View
                 },
                 new DataGrid<PrimaryKeyField>(_pkController)
                     .AddTextColumn("Name", t => _entityModel.Members.First(m => m.MemberId == t.MemberId).Name)
-                    .AddCheckboxColumn("OrderByDesc", t => t.OrderByDesc)
-                    .AddCheckboxColumn("AllowChange", t => t.AllowChange)
+                    .AddCheckboxColumn("OrderByDesc", t => t.OrderByDesc, width: 108)
+                    .AddCheckboxColumn("AllowChange", t => t.AllowChange, width: 108)
             }
         }
     };
@@ -69,14 +67,14 @@ internal sealed class SqlStoreOptionsDesigner : View
                 {
                     Children =
                     {
-                        new Button("Add", MaterialIcons.Add),
-                        new Button("Remove", MaterialIcons.Remove)
+                        new Button("Add", MaterialIcons.Add) { OnTap = OnAddIndex },
+                        new Button("Remove", MaterialIcons.Remove) { OnTap = OnRemoveIndex },
                     }
                 },
                 new DataGrid<SqlIndex>(_ixController)
                     .AddTextColumn("Name", t => t.Name)
                     .AddTextColumn("Fields", GetIndexesFieldsList)
-                    .AddCheckboxColumn("Unique", t => t.Unique)
+                    .AddCheckboxColumn("Unique", t => t.Unique, width: 80)
             }
         }
     };
@@ -105,12 +103,12 @@ internal sealed class SqlStoreOptionsDesigner : View
         var pkField = dlg.GetResult();
         if (pkField == null) return;
 
-        var oldPks = _entityModel.SqlStoreOptions!.PrimaryKeys ?? [];
+        var oldPks = _entityModel.SqlStoreOptions!.PrimaryKeys;
         var newPks = oldPks.ToList();
         newPks.Add(pkField.Value);
 
         ChangePrimaryKeys(newPks.ToArray());
-        _pkController.DataSource = _entityModel.SqlStoreOptions!.PrimaryKeys; //_pkController.Refresh();
+        _pkController.DataSource = _entityModel.SqlStoreOptions!.PrimaryKeys;
     }
 
     private void OnRemovePk(PointerEvent e)
@@ -137,5 +135,24 @@ internal sealed class SqlStoreOptionsDesigner : View
             //TODO: rollback to pre state
             Notification.Error($"Change primary keys error: {ex.Message}");
         }
+    }
+
+    private async void OnAddIndex(PointerEvent e)
+    {
+        var dlg = new NewSqlIndexDialog(_entityModel.SqlStoreOptions!);
+        var dlgResult = await dlg.ShowAsync();
+        if (dlgResult != DialogResult.OK) return;
+
+        var newIndex = dlg.GetResult();
+        _entityModel.SqlStoreOptions!.AddIndex(newIndex);
+        _ixController.DataSource = _entityModel.SqlStoreOptions!.Indexes;
+    }
+
+    private void OnRemoveIndex(PointerEvent e)
+    {
+        if (_ixController.CurrentRowIndex < 0) return;
+        _entityModel.SqlStoreOptions!.RemoveIndex(_ixController.CurrentRow!);
+        _ixController.ClearSelection();
+        _ixController.DataSource = _entityModel.SqlStoreOptions!.Indexes;
     }
 }
