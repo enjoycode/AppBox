@@ -26,6 +26,8 @@ public sealed class WorkflowParameter : IBinSerializable
 
     public ParameterFlags Flags { get; set; }
 
+    public ModelId? EntityModelId { get; set; }
+
     /// <summary>
     /// 是否工作流局部变量，非局部变量在启动实例时由外部输入且必需
     /// </summary>
@@ -38,6 +40,18 @@ public sealed class WorkflowParameter : IBinSerializable
                 Flags |= ParameterFlags.LocalVariable;
             else
                 Flags &= ~(ParameterFlags.LocalVariable);
+        }
+    }
+
+    public bool IsArray
+    {
+        get => Flags.HasFlag(ParameterFlags.Array);
+        internal set
+        {
+            if (value)
+                Flags |= ParameterFlags.Array;
+            else
+                Flags &= ~(ParameterFlags.Array);
         }
     }
 
@@ -65,6 +79,8 @@ public sealed class WorkflowParameter : IBinSerializable
         bs.WriteByte((byte)Type);
         bs.WriteByte((byte)Flags);
         bs.WriteString(Name);
+        if (Type == ValueType.Entity)
+            bs.WriteLong(EntityModelId!.Value);
 
         if (!string.IsNullOrEmpty(Remark))
         {
@@ -80,6 +96,8 @@ public sealed class WorkflowParameter : IBinSerializable
         Type = (ValueType)bs.ReadByte();
         Flags = (ParameterFlags)bs.ReadByte();
         Name = bs.ReadString()!;
+        if (Type == ValueType.Entity)
+            EntityModelId = bs.ReadLong();
 
         int propIndex;
         do

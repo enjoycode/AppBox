@@ -31,6 +31,7 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
             var instance = await Visit(memberExpression.Instance!);
             if (instance.IsEmpty) throw new NullReferenceException();
             var instanceType = instance.GetRuntimeType();
+            //TODO:特殊处理EntityData的属性访问
             if (isField)
             {
                 var fieldInfo = instanceType.GetField(memberName)!;

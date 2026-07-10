@@ -56,6 +56,7 @@ public sealed class EntityData : Entity
         for (var i = 0; i < _members.Count; i++)
         {
             reader.SetMemberIndex(i);
+            //TODO:考虑忽略目标已删除的成员
             entity.ReadMember(_members[i].MemberId, ref reader, 0);
         }
 
