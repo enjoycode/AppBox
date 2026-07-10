@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 实体字段成员
 /// </summary>
-public sealed class EntityFieldMember : EntityMember, IModelReference
+public sealed class EntityFieldMember : EntityMember, IModelReferencer
 {
     internal EntityFieldMember(EntityModel owner) : base(owner, string.Empty, false) { }
 
@@ -139,19 +139,19 @@ public sealed class EntityFieldMember : EntityMember, IModelReference
     //         OnFieldTypeChanged();
     // }
 
-    internal override void AddModelReferences(List<ModelReferenceInfo> list, ModelReferenceType referenceType,
+    internal override void AddModelReferences(List<ModelReferencerInfo> list, ModelReferenceType referenceType,
         ModelId modelId, string? memberName, short? entityMemberId)
     {
         if (referenceType == ModelReferenceType.EnumModel && _fieldType == EntityFieldType.Enum &&
             EnumModelId!.Value == modelId)
         {
-            var item = new ModelReferenceInfo(this, ModelReferencePosition.EntityFieldMember_EnumModelID,
+            var item = new ModelReferencerInfo(this, ModelReferencerPosition.EntityFieldMember_EnumModelID,
                 Name, string.Empty);
             list.Add(item);
         }
     }
 
-    public void RenameReference(ModelReferenceType sourceType, ModelReferencePosition targetType,
+    public void RenameReference(ModelReferenceType sourceType, ModelReferencerPosition position,
         ModelId modelId, string oldName, string newName)
     {
         //do nothing for rename enum name.

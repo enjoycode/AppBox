@@ -107,8 +107,8 @@ internal static class RenameService
                     await cr.RenameAsync(context, diff, newName); 
                     break;
                 case ModelReference mr:
-                    mr.TargetReference.Target.RenameReference(referenceType,
-                        mr.TargetReference.TargetType, modelId, oldName, newName);
+                    mr.TargetReference.Referencer.RenameReference(referenceType,
+                        mr.TargetReference.Position, modelId, oldName, newName);
                     break;
                 default:
                     throw new Exception($"Unknown Reference Type: {r.GetType().Name}");

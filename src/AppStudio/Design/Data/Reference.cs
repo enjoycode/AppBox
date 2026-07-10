@@ -110,7 +110,12 @@ internal sealed class CodeReference : Reference
 /// </summary>
 internal sealed class ModelReference : Reference
 {
-    public ModelReferenceInfo TargetReference { get; }
+    public ModelReference(ModelNode modelNode, ModelReferencerInfo modelReference) : base(modelNode)
+    {
+        TargetReference = modelReference;
+    }
+    
+    public ModelReferencerInfo TargetReference { get; }
 
     public override string Location => TargetReference.Path;
 
@@ -123,12 +128,4 @@ internal sealed class ModelReference : Reference
     //        return this._modelReference.Expression;
     //    }
     //}
-
-    #region ====Ctor====
-    public ModelReference(ModelNode modelNode, ModelReferenceInfo modelReference)
-        : base(modelNode)
-    {
-        TargetReference = modelReference;
-    }
-    #endregion
 }

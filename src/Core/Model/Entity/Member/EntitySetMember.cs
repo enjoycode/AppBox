@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 实体一对多引用的成员，eg: Order.OrderItems
 /// </summary>
-public sealed class EntitySetMember : EntityMember, IModelReference
+public sealed class EntitySetMember : EntityMember, IModelReferencer
 {
     internal EntitySetMember(EntityModel owner) : base(owner, string.Empty, false) { }
 
@@ -31,27 +31,27 @@ public sealed class EntitySetMember : EntityMember, IModelReference
         //do noting, always allow null
     }
 
-    internal override void AddModelReferences(List<ModelReferenceInfo> list,
+    internal override void AddModelReferences(List<ModelReferencerInfo> list,
         ModelReferenceType referenceType, ModelId modelId,
         string? memberName, short? entityMemberId)
     {
         if (referenceType == ModelReferenceType.EntityModel)
         {
             if (RefModelId == modelId)
-                list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntitySetMember_RefModelID, Name,
+                list.Add(new ModelReferencerInfo(this,
+                    ModelReferencerPosition.EntitySetMember_RefModelID, Name,
                     $"{Owner.Name}.{Name}"));
         }
         else if (referenceType == ModelReferenceType.EntityMember && RefModelId == modelId)
         {
             if (RefMemberId == entityMemberId!.Value)
-                list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntitySetMember_RefMemberId, Name, $"{Owner.Name}.{Name}"));
+                list.Add(new ModelReferencerInfo(this,
+                    ModelReferencerPosition.EntitySetMember_RefMemberId, Name, $"{Owner.Name}.{Name}"));
         }
     }
 
-    void IModelReference.RenameReference(ModelReferenceType sourceType,
-        ModelReferencePosition targetType, ModelId modelId, string oldName, string newName)
+    void IModelReferencer.RenameReference(ModelReferenceType sourceType,
+        ModelReferencerPosition position, ModelId modelId, string oldName, string newName)
     {
         //do nothing
     }

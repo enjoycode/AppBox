@@ -222,8 +222,7 @@ public sealed class EntityModel : ModelBase, IComparable<EntityModel>
         StoreOptions?.AcceptChanges();
     }
 
-    internal void AddModelReferences(List<ModelReferenceInfo> list,
-        ModelReferenceType referenceType,
+    internal void AddModelReferences(List<ModelReferencerInfo> list, ModelReferenceType referenceType,
         ModelId modelId, string? memberName, short? entityMemberId)
     {
         //处理ToStringExpression

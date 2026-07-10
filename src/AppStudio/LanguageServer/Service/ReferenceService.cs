@@ -46,8 +46,7 @@ internal static class ReferenceService
             .ToList();
         ls.RemoveAll(r => r.ModelNode.ModelType == ModelType.Entity);
         foreach (var entityNode in entityNodes)
-            AddReferencesFromEntityModel(ls, entityNode,
-                ModelReferenceType.EntityModel, entityModelId, null, null);
+            AddReferencesFromEntityModel(ls, entityNode, ModelReferenceType.EntityModel, entityModelId, null, null);
 
         return ls;
     }
@@ -171,7 +170,7 @@ internal static class ReferenceService
         ModelReferenceType referenceType, ModelId modelId, string? memberName, short? entityMemberId)
     {
         var model = (EntityModel)entityNode.Model;
-        var mrs = new List<ModelReferenceInfo>();
+        var mrs = new List<ModelReferencerInfo>();
         model.AddModelReferences(mrs, referenceType, modelId, memberName, entityMemberId);
         foreach (var item in mrs)
         {

@@ -3,7 +3,7 @@ namespace AppBoxCore;
 /// <summary>
 /// 实体一对一引用的成员，eg: Order.Customer
 /// </summary>
-public sealed class EntityRefMember : EntityMember, IModelReference
+public sealed class EntityRefMember : EntityMember, IModelReferencer
 {
     #region ====Ctor====
 
@@ -122,29 +122,28 @@ public sealed class EntityRefMember : EntityMember, IModelReference
         }
     }
 
-    internal override void AddModelReferences(List<ModelReferenceInfo> list,
+    internal override void AddModelReferences(List<ModelReferencerInfo> list,
         ModelReferenceType referenceType, ModelId modelId, string? memberName,
         short? entityMemberId)
     {
         if (referenceType == ModelReferenceType.EntityModel)
         {
             if (RefModelIds.Contains(modelId))
-                list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntityRefMember_RefModelID, Name, string.Empty));
+                list.Add(new ModelReferencerInfo(this,
+                    ModelReferencerPosition.EntityRefMember_RefModelID, Name, string.Empty));
         }
         else if (referenceType == ModelReferenceType.EntityMember && modelId == Owner.Id)
         {
             if (FKMemberIds.Contains(entityMemberId!.Value))
-                list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntityRefMember_IDMember, Name, memberName!));
+                list.Add(new ModelReferencerInfo(this,
+                    ModelReferencerPosition.EntityRefMember_IDMember, Name, memberName!));
             else if (TypeMemberId == entityMemberId.Value)
-                list.Add(new ModelReferenceInfo(this,
-                    ModelReferencePosition.EntityRefMember_TypeMember, Name, memberName!));
+                list.Add(new ModelReferencerInfo(this,
+                    ModelReferencerPosition.EntityRefMember_TypeMember, Name, memberName!));
         }
     }
 
-    void IModelReference.RenameReference(ModelReferenceType sourceType,
-        ModelReferencePosition targetType,
+    void IModelReferencer.RenameReference(ModelReferenceType sourceType, ModelReferencerPosition position,
         ModelId modelId, string oldName, string newName)
     {
         //do nothing

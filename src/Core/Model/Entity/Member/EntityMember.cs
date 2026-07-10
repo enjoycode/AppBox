@@ -79,7 +79,7 @@ public abstract class EntityMember
     /// <summary>
     /// 添加对其他模型或成员的引用
     /// </summary>
-    internal virtual void AddModelReferences(List<ModelReferenceInfo> list,
+    internal virtual void AddModelReferences(List<ModelReferencerInfo> list,
         ModelReferenceType referenceType, ModelId modelId, string? memberName,
         short? entityMemberId) { }
 
