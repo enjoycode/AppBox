@@ -98,7 +98,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
         return sb.ToString();
     }
 
-    public async Task<Expression?> ParseToExpression()
+    public async Task<Expression?> ParseToExpression(ExpressionParserOptions options)
     {
         var doc = _designContext.Workspace.CurrentSolution.GetDocument(_docId);
         if (doc == null) throw new Exception("Could not find expression's document");
@@ -128,7 +128,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
         }
 
         //开始转换为表达式
-        var parser = new ExpressionParser(semanticModel, _designContext);
+        var parser = new ExpressionParser(semanticModel, options, _designContext);
         return parser.Visit(targetNode).Expression;
     }
 }

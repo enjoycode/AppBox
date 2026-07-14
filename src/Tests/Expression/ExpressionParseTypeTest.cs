@@ -69,7 +69,8 @@ public class ExpressionParseTypeTest
             throw new Exception("存在语义错误");
 
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
-        var parser = new ExpressionParser(semanticModel, _designContext);
+        var parser = new ExpressionParser(semanticModel,
+            ExpressionParserOptions.DynamicEntityMemberAccess, _designContext);
         var res = parser.Visit(methodDecl.ReturnType);
         _designContext.RemoveProject(prjId);
         if (!res.IsTypeInfo)

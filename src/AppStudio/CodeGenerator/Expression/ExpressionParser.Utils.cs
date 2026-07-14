@@ -47,10 +47,12 @@ internal partial class ExpressionParser
             noneNullableType.ContainingNamespace.Name == "System")
             return new(ExpressionTypeInfo.KnownType.Guid, isNullable: isNullable);
 
-        // Model
-        if (typeSymbol.IsAppBoxEntity(_designContext, out var modelNode))
+        // Entity
+        if (_options.HasFlag(ExpressionParserOptions.DynamicEntityMemberAccess) &&
+            typeSymbol.IsAppBoxEntity(_designContext, out var modelNode))
         {
-            return new ExpressionTypeInfo(modelNode.Model.Id, isNullable: typeSymbol.NullableAnnotation == NullableAnnotation.Annotated);
+            return new ExpressionTypeInfo(modelNode.Model.Id,
+                isNullable: typeSymbol.NullableAnnotation == NullableAnnotation.Annotated);
         }
 
         // Array

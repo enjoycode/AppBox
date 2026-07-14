@@ -39,12 +39,14 @@ partial class ExpressionParser
         var isField = symbol is IFieldSymbol;
         if (owner.IsTypeInfo)
         {
+            //静态成员
             return isField
                 ? Expression.StaticField(owner.TypeInfo, memberName, typeInfo)
                 : Expression.StaticProperty(owner.TypeInfo, memberName, typeInfo);
         }
 
         Debug.Assert(owner.IsExpression);
+        //实例成员
         return isField
             ? Expression.InstanceField(owner.Expression, memberName, typeInfo)
             : Expression.InstanceProperty(owner.Expression, memberName, typeInfo);

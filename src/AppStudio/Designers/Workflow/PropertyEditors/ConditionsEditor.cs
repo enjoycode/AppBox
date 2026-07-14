@@ -168,7 +168,8 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
             {
                 try
                 {
-                    Expression = await _expressionEditor.ParseToExpression();
+                    var options = ExpressionParserOptions.DynamicEntityMemberAccess;
+                    Expression = await _expressionEditor.ParseToExpression(options);
                 }
                 catch (Exception e)
                 {

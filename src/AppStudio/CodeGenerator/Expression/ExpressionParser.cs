@@ -8,14 +8,19 @@ namespace AppBoxDesign.CodeGenerator;
 
 internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult>
 {
-    public ExpressionParser(SemanticModel semanticModel, DesignContext? designContext = null)
+    public ExpressionParser(SemanticModel semanticModel, ExpressionParserOptions options = ExpressionParserOptions.None,
+        DesignContext? designContext = null)
     {
         _semanticModel = semanticModel;
+        _options = options;
+        if (_options.HasFlag(ExpressionParserOptions.DynamicEntityMemberAccess) && designContext == null)
+            throw new ArgumentNullException(nameof(designContext));
         if (designContext != null)
             _designContext = designContext;
     }
 
     private readonly SemanticModel _semanticModel;
+    private readonly ExpressionParserOptions _options;
     private readonly DesignContext _designContext = null!;
 
     public static SyntaxTree Parse(string code)
@@ -70,4 +75,19 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
         var parser = new ExpressionParser(semanticModel);
         return parser.Visit(syntaxNode).Expression;
     }
+}
+
+[Flags]
+internal enum ExpressionParserOptions
+{
+    None = 0,
+
+    /// <summary>
+    /// 目前仅用于工作流表达式访问实体成员
+    /// </summary>
+    /// <remarks>
+    /// 因为工作流的实体类型参数可能在工作流实例创建后发生更改(如修改实体成员名称或添加删除实体成员)
+    /// 所以解析MemberExpression时其ExpressionTypeInfo.Type=Model,其成员名称实际为成员标识
+    /// </remarks>
+    DynamicEntityMemberAccess = 1,
 }
