@@ -114,7 +114,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
                 MethodName = "Expression",
                 Parameters = parameters,
                 ExpressionCode = expressionCode,
-                PartialCode = BuildWorkflowPartialCode(workflowModel),
+                PartialCode = BuildWorkflowPartialCode(workflowModel, designContext),
                 IsStatic = false,
             };
         }
@@ -122,7 +122,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
         /// <summary>
         /// 生成虚拟的Workflow类，主要包括参数
         /// </summary>
-        private static string BuildWorkflowPartialCode(WorkflowModel workflowModel)
+        private static string BuildWorkflowPartialCode(WorkflowModel workflowModel, DesignContext designContext)
         {
             var sb = new StringBuilder();
             sb.Append("partial class ");
@@ -133,7 +133,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
             foreach (var parameter in workflowModel.Parameters)
             {
                 sb.Append("public ");
-                sb.Append(parameter.GetRuntimeType());
+                sb.Append(WorkflowCodeGenerator.GetParameterRuntimeType(parameter, designContext));
                 sb.Append(' ');
                 sb.Append(parameter.Name);
                 sb.Append("{get;");
