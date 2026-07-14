@@ -2,11 +2,16 @@ using System.Diagnostics;
 
 namespace AppBoxCore;
 
+/// <summary>
+/// 表达式上下文，用于解析运行时类型或表达式参数
+/// </summary>
 public interface IExpressionContext
 {
     AnyValue ResolveParameter(string parameterName);
 
     Type ResolveType(in ExpressionTypeInfo typeInfo);
+
+    //TODO: AddParameter(string parameterName, AnyValue value);
 }
 
 public class ExpressionContext : IExpressionContext

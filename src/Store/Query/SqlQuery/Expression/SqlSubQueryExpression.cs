@@ -1,4 +1,3 @@
-using System.Text;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -14,10 +13,11 @@ public sealed class SqlSubQueryExpression : Expression
 
     public override ExpressionType NodeType => ExpressionType.SubQueryExpression;
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
         //TODO:
-        sb.Append(preTabs);
+        var sb = builder.StringBuilder;
+        // sb.Append(preTabs);
         sb.Append($"SubQuery({SubQuery})");
     }
 }

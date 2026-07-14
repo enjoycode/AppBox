@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AppBoxCore;
 
 using LinqExpressionType = System.Linq.Expressions.ExpressionType;
@@ -50,26 +48,27 @@ public sealed class BinaryExpression : Expression
 
     #region ====Overrides Methods====
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
+        var sb = builder.StringBuilder;
         //Todo:判断In,Like等特殊语法进行方法转换，否则解析器无法解析
         if (BinaryType == BinaryOperatorType.Like)
         {
             sb.Append("f.Contains(");
-            LeftOperand.ToCode(sb, preTabs);
+            LeftOperand.ToCode(builder);
             sb.Append(',');
-            RightOperand.ToCode(sb, preTabs);
+            RightOperand.ToCode(builder);
             sb.Append(')');
         }
         else
         {
-            LeftOperand.ToCode(sb, preTabs);
+            LeftOperand.ToCode(builder);
             sb.Append($" {GetBinaryOperatorTypeString()} ");
-            RightOperand.ToCode(sb, preTabs);
+            RightOperand.ToCode(builder);
         }
     }
 
-    public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
+    public override LinqExpression ToLinqExpression(IExpressionContext ctx)
     {
         var left = LeftOperand.ToLinqExpression(ctx)!;
         var right = RightOperand.ToLinqExpression(ctx)!;

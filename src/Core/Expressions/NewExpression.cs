@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text;
 
 namespace AppBoxCore;
 
@@ -30,9 +29,12 @@ public sealed class NewExpression : Expression
 
     public override ExpressionType NodeType => ExpressionType.NewExpression;
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
+        var sb = builder.StringBuilder;
         sb.Append("new ");
+        if (TargetType.IsAppBoxModel)
+            throw new NotImplementedException();
         sb.Append(TargetType.TypeName);
         sb.Append('(');
         if (Arguments is { Length: > 0 })
@@ -41,14 +43,14 @@ public sealed class NewExpression : Expression
             {
                 if (i != 0) sb.Append(", ");
                 if (!IsNull(Arguments[i]))
-                    Arguments[i].ToCode(sb, preTabs);
+                    Arguments[i].ToCode(builder);
             }
         }
 
         sb.Append(')');
     }
 
-    public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
+    public override LinqExpression ToLinqExpression(IExpressionContext ctx)
     {
         var argTypes = Array.Empty<Type>();
         LinqExpression[]? args = null;

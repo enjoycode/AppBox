@@ -177,6 +177,7 @@ public readonly struct ExpressionTypeInfo
     public bool IsNullable => (_typeFlag & IsNullableMask) == IsNullableMask;
     public bool IsConverted => (_typeFlag & IsConvertedMask) == IsConvertedMask;
     internal bool HasTypes => (_typeFlag & HasTypesMask) == HasTypesMask;
+    public bool IsAppBoxModel => Type == KnownType.Model;
 
     public ModelId GetModelId()
     {

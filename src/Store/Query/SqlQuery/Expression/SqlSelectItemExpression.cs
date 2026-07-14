@@ -1,4 +1,3 @@
-using System.Text;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -38,9 +37,10 @@ public sealed class SqlSelectItemExpression : Expression //TODO: rename to SqlSe
 
     public override ExpressionType NodeType => ExpressionType.SelectItemExpression;
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
-        Expression.ToCode(sb, preTabs);
+        var sb = builder.StringBuilder;
+        Expression.ToCode(builder);
         sb.Append(" As ");
         sb.Append(AliasName);
     }

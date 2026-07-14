@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AppBoxCore;
 
 /// <summary>
@@ -30,15 +28,16 @@ public sealed class InvokeServiceExpression : Expression
     private ExpressionTypeInfo _typeInfo;
     public override ExpressionTypeInfo TypeInfo => _typeInfo;
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
+        var sb = builder.StringBuilder;
         sb.Append($"{AppName}.Services.{ServiceName}.{MethodName}(");
         if (Arguments != null)
         {
             for (var i = 0; i < Arguments.Length; i++)
             {
                 if (i != 0) sb.Append(", ");
-                Arguments[i].ToCode(sb, 0);
+                Arguments[i].ToCode(builder);
             }
         }
 

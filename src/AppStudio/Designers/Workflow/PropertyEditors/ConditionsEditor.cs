@@ -1,5 +1,6 @@
 using System.Text;
 using AppBoxCore;
+using AppBoxDesign.CodeGenerator;
 using AppBoxDesign.Diagram;
 using PixUI;
 
@@ -70,7 +71,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
             Height = 400;
 
             _nameState = new RxProxy<string>(() => link.Title ?? "[Unnamed]", v => link.Title = v);
-            var expressionInfo = MakeExpressionInfo(workflowModel, node, link);
+            var expressionInfo = MakeExpressionInfo(workflowModel, node, link, designContext);
             _expressionEditor = new ExpressionEditor(designContext, expressionInfo);
         }
 
@@ -80,7 +81,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
         public Expression? Expression { get; private set; }
 
         private static ExpressionInfo MakeExpressionInfo(WorkflowModel workflowModel, ActivityNode activityNode,
-            FlowLink link)
+            FlowLink link, DesignContext designContext)
         {
             // var methodName = "Expression";
             // if (activityNode is DecisionNode decisionNode && CodeUtil.IsValidIdentifier(decisionNode.Title))
@@ -91,11 +92,11 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
             if (!Expression.IsNull(link.Condition))
             {
                 //TODO:判断BlockExpression,不需要附加return,但附加preTabs
-                var sb = new StringBuilder();
-                sb.Append("        return ");
-                link.Condition!.ToCode(sb, 0); //TODO: use ExpressionToCSharpCode
-                sb.Append(";\n");
-                expressionCode = sb.ToString();
+                using var builder = new ExpressionCodeBuilder(designContext);
+                builder.StringBuilder.Append("        return ");
+                link.Condition!.ToCode(builder);
+                builder.StringBuilder.Append(";\n");
+                expressionCode = builder.GetCode();
             }
 
             //根据节点类型构建表达式方法参数

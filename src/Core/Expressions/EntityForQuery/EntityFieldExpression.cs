@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AppBoxCore;
 
 public sealed class EntityFieldExpression : Expression, IEntityPathExpression
@@ -39,19 +37,14 @@ public sealed class EntityFieldExpression : Expression, IEntityPathExpression
         return Equals(target.Owner, Owner) && target.Name == Name;
     }
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Owner!, Name!);
-    }
+    public override int GetHashCode() => HashCode.Combine(Owner, Name);
 
-    public override string ToString()
-    {
-        return $"{Owner!}.{Name!}";
-    }
+    public override string ToString() => $"{Owner}.{Name}";
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
-        Owner!.ToCode(sb, preTabs);
+        var sb = builder.StringBuilder;
+        Owner.ToCode(builder);
         sb.Append('.');
         sb.Append(Name);
     }

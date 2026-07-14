@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AppBoxCore;
 
 /// <summary>
@@ -60,15 +58,16 @@ public sealed class IndexExpression : Expression
         return LinqExpression.ArrayAccess(Instance.ToLinqExpression(ctx)!, args);
     }
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
         //TODO:
-        Instance!.ToCode(sb, preTabs);
+        var sb = builder.StringBuilder;
+        Instance!.ToCode(builder);
         sb.Append('[');
         for (var i = 0; i < Arguments.Length; i++)
         {
             if (i != 0) sb.Append(", ");
-            Arguments[i].ToCode(sb, 0);
+            Arguments[i].ToCode(builder);
         }
 
         sb.Append(']');

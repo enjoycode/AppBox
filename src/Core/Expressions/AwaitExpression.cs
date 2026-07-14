@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AppBoxCore;
 
 public sealed class AwaitExpression : Expression
@@ -13,8 +11,10 @@ public sealed class AwaitExpression : Expression
 
     public Expression Expression { get; }
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
-        throw new NotImplementedException();
+        var sb = builder.StringBuilder;
+        sb.Append("await ");
+        Expression.ToCode(builder);
     }
 }

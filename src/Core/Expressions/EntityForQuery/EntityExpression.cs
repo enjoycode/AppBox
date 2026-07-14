@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace AppBoxCore;
 
@@ -71,7 +70,7 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
         }
     }
 
-    public ModelId ModelId { get; private set; }
+    public ModelId ModelId { get; }
 
     #endregion
 
@@ -125,7 +124,7 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
     }
 
     public Expression U(string name) => throw new NotSupportedException();
-    
+
     private Dictionary<string, Expression>? _cache;
 
     private Dictionary<string, Expression> Cache => _cache ??= new Dictionary<string, Expression>();
@@ -148,7 +147,7 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
 
     #region ====Overrides Methods====
 
-    public override int GetHashCode() => base.GetHashCode();
+    public override int GetHashCode() => HashCode.Combine(ModelId, User, Owner);
 
     public override bool Equals(object? obj)
     {
@@ -166,8 +165,9 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
                && target.User == User && Equals(target.Owner, Owner);
     }
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
+        var sb = builder.StringBuilder;
         if (Equals(Owner, null))
         {
             if (string.IsNullOrEmpty(AliasName))
@@ -177,7 +177,7 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
         }
         else
         {
-            Owner.ToCode(sb, preTabs);
+            Owner.ToCode(builder);
             sb.Append($".{Name}");
         }
     }
@@ -193,8 +193,8 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
         if (!IsNull(Owner))
             writer.WriteString(Name);
     }
-    
-    internal static EntityExpression Read<T>(ref T reader) where T: struct, IInputStream
+
+    internal static EntityExpression Read<T>(ref T reader) where T : struct, IInputStream
     {
         ModelId modelId = reader.ReadLong();
         var owner = (EntityExpression?)reader.Deserialize();

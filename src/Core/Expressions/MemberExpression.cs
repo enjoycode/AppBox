@@ -35,13 +35,24 @@ public sealed class MemberExpression : Expression
 
     public bool IsStaticMemberAccess => IsNull(Instance);
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
+        var sb = builder.StringBuilder;
         if (IsStaticMemberAccess)
-            sb.Append(StaticType.TypeName);
+        {
+            sb.Append(StaticType.IsAppBoxModel
+                ? builder.ResolveModelTypeName(StaticType.GetModelId())
+                : StaticType.TypeName);
+        }
         else
-            Instance!.ToCode(sb, preTabs);
+        {
+            Instance!.ToCode(builder);
+        }
+
         sb.Append('.');
+
+        if (_typeInfo.IsAppBoxModel)
+            throw new NotImplementedException();
         sb.Append(MemberName);
     }
 

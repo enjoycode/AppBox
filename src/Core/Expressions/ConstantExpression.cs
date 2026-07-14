@@ -22,8 +22,9 @@ public sealed class ConstantExpression : Expression
 
     public override ExpressionType NodeType => ExpressionType.ConstantExpression;
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
+        var sb = builder.StringBuilder;
         //TODO: 以下待重写
         if (Value.IsEmpty)
         {
@@ -73,7 +74,7 @@ public sealed class ConstantExpression : Expression
         if (Value.Type is AnyValue.ValueType.Guid or AnyValue.ValueType.DateTime)
         {
             //TODO:
-            sb.AppendFormat("\"{0}\"", Value.BoxedValue);
+            sb.Append($"\"{Value.BoxedValue}\"");
             return;
         }
 

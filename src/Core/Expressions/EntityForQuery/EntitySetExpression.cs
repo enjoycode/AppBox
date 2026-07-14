@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AppBoxCore;
 
 public sealed class EntitySetExpression : Expression, IEntityPathExpression
@@ -30,9 +28,10 @@ public sealed class EntitySetExpression : Expression, IEntityPathExpression
         }
     }
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
-        Owner!.ToCode(sb, preTabs);
+        var sb = builder.StringBuilder;
+        Owner.ToCode(builder);
         sb.Append('.');
         sb.Append(Name);
     }

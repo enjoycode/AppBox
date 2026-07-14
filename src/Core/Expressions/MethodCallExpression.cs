@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text;
 
 namespace AppBoxCore;
 
@@ -38,12 +37,13 @@ public sealed class MethodCallExpression : Expression
     public bool IsStaticMethodCall => IsNull(Instance);
     public bool IsGenericMethod => GenericArguments is { Length: > 0 };
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
+        var sb = builder.StringBuilder;
         if (IsStaticMethodCall)
             sb.Append(StaticType.TypeName);
         else
-            Instance!.ToCode(sb, preTabs);
+            Instance!.ToCode(builder);
         sb.Append('.');
         sb.Append(MethodName);
         sb.Append('(');
@@ -53,14 +53,14 @@ public sealed class MethodCallExpression : Expression
             {
                 if (i != 0) sb.Append(", ");
                 if (!IsNull(Arguments[i])) //maybe null on some error
-                    Arguments[i].ToCode(sb, preTabs);
+                    Arguments[i].ToCode(builder);
             }
         }
 
         sb.Append(')');
     }
 
-    public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
+    public override LinqExpression ToLinqExpression(IExpressionContext ctx)
     {
         LinqExpression[]? args = null;
         if (Arguments is { Length: > 0 })

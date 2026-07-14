@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace AppBoxCore;
 
 public sealed class ParameterExpression : Expression
@@ -26,9 +24,9 @@ public sealed class ParameterExpression : Expression
     public override LinqExpression ToLinqExpression(IExpressionContext ctx) =>
         LinqExpression.Parameter(ctx.ResolveType(_typeInfo), Name);
 
-    public override void ToCode(StringBuilder sb, int preTabs)
+    public override void ToCode(IExpressionCodeBuilder builder)
     {
-        sb.Append(Name);
+        builder.StringBuilder.Append(Name);
     }
 
     protected internal override void WriteTo<T>(ref T writer)

@@ -1,9 +1,10 @@
 using System.Collections;
-using System.Text;
 
 namespace AppBoxCore;
 
+#pragma warning disable CS0660, CS0661
 public abstract partial class Expression
+#pragma warning restore CS0660, CS0661
 {
     //关于LinqExpression的一些限制
     //https://github.com/bartdesmet/ExpressionFutures/tree/master/CSharpExpressions
@@ -19,7 +20,7 @@ public abstract partial class Expression
     /// <summary>
     /// 转换为用于表达式编辑器的代码
     /// </summary>
-    public abstract void ToCode(StringBuilder sb, int preTabs); //TODO: remove, use ExpressionVisitor
+    public abstract void ToCode(IExpressionCodeBuilder builder);
 
     /// <summary>
     /// 转换为Linq的表达式
@@ -40,27 +41,6 @@ public abstract partial class Expression
 
     protected internal virtual void ReadFrom<T>(ref T reader) where T : struct, IInputStream =>
         throw new NotSupportedException(GetType().FullName);
-
-    #endregion
-
-    #region ====Overrides====
-
-    public override int GetHashCode()
-    {
-        return ToString().GetHashCode();
-    }
-
-    public override bool Equals(object? obj)
-    {
-        return ReferenceEquals(this, obj);
-    }
-
-    public override string ToString()
-    {
-        var sb = StringBuilderCache.Acquire();
-        ToCode(sb, 0);
-        return StringBuilderCache.GetStringAndRelease(sb);
-    }
 
     #endregion
 

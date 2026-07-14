@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Text;
 using AppBoxCore;
 
 namespace AppBoxStore;
@@ -17,7 +16,7 @@ public sealed class SqlFunc : Expression
 
     public override ExpressionType NodeType => ExpressionType.DbFuncExpression;
 
-    public override void ToCode(StringBuilder sb, int preTabs) => sb.Append($"{Name}()"); //TODO:
+    public override void ToCode(IExpressionCodeBuilder builder) => builder.StringBuilder.Append($"{Name}()"); //TODO:
 
     public static Expression Sum(Expression field) => new SqlFunc("Sum", field);
 
