@@ -2,17 +2,21 @@ using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using RoslynUtils;
 
 namespace AppBoxDesign.CodeGenerator;
 
 internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult>
 {
-    public ExpressionParser(SemanticModel semanticModel)
+    public ExpressionParser(SemanticModel semanticModel, DesignContext? designContext = null)
     {
         _semanticModel = semanticModel;
+        if (designContext != null)
+            _designContext = designContext;
     }
 
     private readonly SemanticModel _semanticModel;
+    private readonly DesignContext _designContext = null!;
 
     public static SyntaxTree Parse(string code)
     {

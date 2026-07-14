@@ -21,8 +21,7 @@ internal static class TypeHelper
 
     #region ====IsXXX Methods====
 
-    internal static bool IsServiceClass(ClassDeclarationSyntax? node, string appName,
-        string serviceName)
+    internal static bool IsServiceClass(ClassDeclarationSyntax? node, string appName, string serviceName)
     {
         if (node == null) return false;
 

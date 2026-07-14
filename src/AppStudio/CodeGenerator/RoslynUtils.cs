@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using AppBoxDesign;
 using Microsoft.CodeAnalysis;
 
@@ -85,6 +86,30 @@ public static class RoslynExtensions
         {
             addAction(typeSymbol.ToString()!);
         }
+    }
+
+    /// <summary>
+    /// 是否AppBox实体类型
+    /// </summary>
+    internal static bool IsAppBoxEntity(this ITypeSymbol symbol, DesignContext context,
+        [MaybeNullWhen(returnValue: false)] out ModelNode modelNode)
+    {
+        if (symbol is INamedTypeSymbol namedType && namedType.ContainingNamespace.Name == "Entities")
+        {
+            var fullName = namedType.ToString();
+            if (!string.IsNullOrEmpty(fullName))
+            {
+                var found = context.DesignTree.FindModelNodeByFullName(fullName);
+                if (found != null)
+                {
+                    modelNode = found;
+                    return true;
+                }
+            }
+        }
+
+        modelNode = null;
+        return false;
     }
 
     /// <summary>

@@ -1,12 +1,14 @@
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using RoslynUtils;
+using NullableAnnotation = Microsoft.CodeAnalysis.NullableAnnotation;
 
 namespace AppBoxDesign.CodeGenerator;
 
 internal partial class ExpressionParser
 {
-    private static ExpressionTypeInfo MakeTypeInfo(ITypeSymbol typeSymbol)
+    private ExpressionTypeInfo MakeTypeInfo(ITypeSymbol typeSymbol)
     {
         var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
         //先判断是否Nullable<T>
@@ -45,6 +47,12 @@ internal partial class ExpressionParser
             noneNullableType.ContainingNamespace.Name == "System")
             return new(ExpressionTypeInfo.KnownType.Guid, isNullable: isNullable);
 
+        // Model
+        if (typeSymbol.IsAppBoxEntity(_designContext, out var modelNode))
+        {
+            return new ExpressionTypeInfo(modelNode.Model.Id, isNullable: typeSymbol.NullableAnnotation == NullableAnnotation.Annotated);
+        }
+
         // Array
         if (typeSymbol is IArrayTypeSymbol arrayTypeSymbol)
         {
@@ -75,7 +83,7 @@ internal partial class ExpressionParser
         }
 
         var typeName = typeSymbol.ToString()!;
-        if (typeName.EndsWith('?'))
+        if (typeName.EndsWith('?')) //typeSymbol.NullableAnnotation == NullableAnnotation.Annotated
         {
             typeName = typeName[..^1];
             isNullable = true;
@@ -93,7 +101,7 @@ internal partial class ExpressionParser
             //TODO: IsNullable here
             expTypeInfo = SymbolEqualityComparer.Default.Equals(typeInfo.Type, typeInfo.ConvertedType)
                 ? MakeTypeInfo(typeInfo.Type)
-                : MakeTypeInfo(typeInfo.ConvertedType!).WithConverted(true);
+                : MakeTypeInfo(typeInfo.ConvertedType!).WithConverted();
         }
 
         return expTypeInfo;

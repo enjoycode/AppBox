@@ -25,14 +25,24 @@ partial class ExpressionParser
             return Expression.Parameter(node.Identifier.Text, typeInfo);
         }
 
-        throw new NotImplementedException();
+        throw new NotImplementedException($"ExpressionParser.VisitIdentifierName: {symbol?.GetType().Name}");
+    }
+
+    public override ParseResult VisitQualifiedName(QualifiedNameSyntax node)
+    {
+        var symbol = _semanticModel.GetSymbolInfo(node).Symbol;
+
+        if (symbol is ITypeSymbol typeSymbol)
+            return MakeTypeInfo(typeSymbol);
+
+        throw new NotImplementedException($"ExpressionParser.VisitQualifiedName: {symbol?.GetType().Name}");
     }
 
     public override ParseResult VisitNullableType(NullableTypeSyntax node)
     {
         var element = Visit(node.ElementType);
         Debug.Assert(element.IsTypeInfo);
-        return element.TypeInfo.WithNullable(true);
+        return element.TypeInfo.WithNullable();
     }
 
     public override ParseResult VisitArrayType(ArrayTypeSyntax node)

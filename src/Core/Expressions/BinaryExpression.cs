@@ -17,7 +17,7 @@ public sealed class BinaryExpression : Expression
         if (typeInfo.HasValue)
         {
             _typeInfo = typeInfo.Value;
-            if (IsLogical(BinaryType) && _typeInfo.TypeName != "bool")
+            if (IsLogical(BinaryType) && _typeInfo.Type != ExpressionTypeInfo.KnownType.Boolean)
                 throw new ArgumentException("Type is not bool when is logical");
         }
         else

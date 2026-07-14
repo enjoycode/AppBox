@@ -4,8 +4,8 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
 {
     protected override ValueTask<AnyValue> VisitConstant(ConstantExpression constantExpression) =>
         constantExpression.TypeInfo.IsConverted
-            ? new ValueTask<AnyValue>(ConvertTo(constantExpression.Value, constantExpression.TypeInfo))
-            : new ValueTask<AnyValue>(constantExpression.Value);
+            ? ValueTask.FromResult(ConvertTo(constantExpression.Value, constantExpression.TypeInfo))
+            : ValueTask.FromResult(constantExpression.Value);
 
     protected override ValueTask<AnyValue> VisitParameter(ParameterExpression parameterExpression) =>
         new(ResolveParameter(parameterExpression.Name));

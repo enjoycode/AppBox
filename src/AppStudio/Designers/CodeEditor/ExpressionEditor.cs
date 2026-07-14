@@ -102,10 +102,10 @@ internal sealed class ExpressionEditor : SingleChildWidget
     {
         var doc = _designContext.Workspace.CurrentSolution.GetDocument(_docId);
         if (doc == null) throw new Exception("Could not find expression's document");
-        
+
         var syntaxTree = await doc.GetSyntaxTreeAsync();
         if (syntaxTree == null) throw new Exception("Could not find expression's syntax tree");
-        
+
         //先判断有无表达式，即Body是否为空
         var root = syntaxTree.GetCompilationUnitRoot();
         var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().FirstOrDefault();
@@ -119,7 +119,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
         var errors = diagnostics.Count(d => d.Severity == DiagnosticSeverity.Error);
         if (errors > 0)
             throw new Exception("表达式存在语义错误");
-        
+
         SyntaxNode targetNode = methodDecl.Body;
         if (methodDecl.Body.Statements is [ReturnStatementSyntax returnStatement])
         {
@@ -128,7 +128,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
         }
 
         //开始转换为表达式
-        var parser = new ExpressionParser(semanticModel);
+        var parser = new ExpressionParser(semanticModel, _designContext);
         return parser.Visit(targetNode).Expression;
     }
 }

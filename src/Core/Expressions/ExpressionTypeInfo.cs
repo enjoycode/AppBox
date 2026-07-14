@@ -46,7 +46,8 @@ public readonly struct ExpressionTypeInfo
     internal ExpressionTypeInfo(KnownType type, bool isConverted = false, bool isNullable = false,
         ExpressionTypeInfo[]? types = null)
     {
-        if (type == KnownType.Unknown) throw new ArgumentException("Can't be Unknown type", nameof(type));
+        if (type is KnownType.Unknown or KnownType.Model)
+            throw new ArgumentException("Can't be Unknown or Model type", nameof(type));
 
         _typeName = string.Empty;
         _typeFlag = (byte)type;
@@ -70,6 +71,17 @@ public readonly struct ExpressionTypeInfo
         if (types is { Length: > 0 }) _typeFlag |= HasTypesMask;
 
         Types = types;
+    }
+
+    /// <summary>
+    /// From Model Type
+    /// </summary>
+    internal ExpressionTypeInfo(ModelId modelId, bool isConverted = false, bool isNullable = false)
+    {
+        _typeName = modelId.ToString();
+        _typeFlag = (byte)KnownType.Model;
+        if (isConverted) _typeFlag |= IsConvertedMask;
+        if (isNullable) _typeFlag |= IsNullableMask;
     }
 
     /// <summary>
@@ -153,6 +165,7 @@ public readonly struct ExpressionTypeInfo
         KnownType.Dictionary =>
             $"System.Collections.Generic.Dictionary<{Types![0].TypeName},{Types![1].TypeName}>",
         KnownType.Unknown => _typeName,
+        KnownType.Model => _typeName,
         _ => throw new UnreachableException()
     };
 
@@ -165,16 +178,19 @@ public readonly struct ExpressionTypeInfo
     public bool IsConverted => (_typeFlag & IsConvertedMask) == IsConvertedMask;
     internal bool HasTypes => (_typeFlag & HasTypesMask) == HasTypesMask;
 
+    public ModelId GetModelId()
+    {
+        if (Type != KnownType.Model)
+            throw new InvalidOperationException();
+        return _typeName;
+    }
+
     public bool IsGeneric => HasTypes && Type != KnownType.Array;
     public bool IsEmpty => Type == KnownType.Empty;
 
-    public ExpressionTypeInfo WithConverted(bool isConverted) => Type == KnownType.Unknown
-        ? new(TypeName, isConverted, IsNullable, Types)
-        : new(Type, isConverted, IsNullable, Types);
+    public ExpressionTypeInfo WithConverted() => new((byte)(_typeFlag | IsConvertedMask), _typeName, Types);
 
-    public ExpressionTypeInfo WithNullable(bool isNullable) => Type == KnownType.Unknown
-        ? new(TypeName, IsConverted, isNullable, Types)
-        : new(Type, IsConverted, isNullable, Types);
+    public ExpressionTypeInfo WithNullable() => new((byte)(_typeFlag | IsNullableMask), _typeName, Types);
 
     // private bool TryGetFromRuntimeType(Type runtimeType,
     //     [MaybeNullWhen(returnValue: false)] out ExpressionTypeInfo typeInfo)
@@ -200,7 +216,7 @@ public readonly struct ExpressionTypeInfo
     internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteByte(_typeFlag);
-        if (Type == KnownType.Unknown)
+        if (Type is KnownType.Unknown or KnownType.Model)
             ws.WriteString(_typeName);
         if (HasTypes)
             ws.WriteTypeInfoArray(Types);
@@ -212,7 +228,7 @@ public readonly struct ExpressionTypeInfo
         var typeName = string.Empty;
         ExpressionTypeInfo[]? types = null;
         var knownType = (KnownType)(typeFlag & KnownTypeMask);
-        if (knownType == KnownType.Unknown)
+        if (knownType is KnownType.Unknown or KnownType.Model)
             typeName = rs.ReadString() ?? string.Empty;
         var hasTypes = (typeFlag & HasTypesMask) == HasTypesMask;
         if (hasTypes)
@@ -244,6 +260,7 @@ public readonly struct ExpressionTypeInfo
         Guid = 16,
         String = 17,
         Object = 18,
+        Model = 19, //AppBox模型
         Array = 28,
         List = 29,
         Dictionary = 30,

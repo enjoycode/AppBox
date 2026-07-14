@@ -14,7 +14,7 @@ public class ExpressionSerializationTest
         var exp1 = Expression.InstanceCall(
             Expression.StaticProperty(ExpressionTypeInfo.DateTime, "Today", ExpressionTypeInfo.DateTime),
             "AddDays", ExpressionTypeInfo.DateTime,
-            [Expression.Constant(1, ExpressionTypeInfo.Double.WithConverted(true))]
+            [Expression.Constant(1, ExpressionTypeInfo.Double.WithConverted())]
         );
         var data = SerializationTest.Serialize(exp1);
         var exp2 = SerializationTest.Deserialize(data);
