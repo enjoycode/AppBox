@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Reflection;
-using System.Text;
 
 namespace AppBoxCore;
 
@@ -26,6 +25,12 @@ public sealed class MemberExpression : Expression
     public ExpressionTypeInfo StaticType { get; private set; }
     public Expression? Instance { get; private set; }
 
+    /// <summary>
+    /// 成员名称
+    /// </summary>
+    /// <remarks>
+    /// 如果是动态实体成员，已转换为实本成员的标识字符串
+    /// </remarks>
     public string MemberName { get; private set; } = null!;
 
     public bool IsField { get; private set; }
@@ -56,17 +61,21 @@ public sealed class MemberExpression : Expression
         sb.Append(MemberName);
     }
 
-    public override LinqExpression? ToLinqExpression(IExpressionContext ctx)
+    public override LinqExpression ToLinqExpression(IExpressionContext ctx)
     {
         LinqExpression res;
         if (IsStaticMemberAccess) //static member access
         {
+            if (StaticType.IsAppBoxModel) throw new NotImplementedException();
+
             var type = ctx.ResolveType(StaticType);
             MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);
             res = LinqExpression.MakeMemberAccess(null, memberInfo!);
         }
         else //instance member access
         {
+            if (Instance!.TypeInfo.IsAppBoxModel) throw new NotImplementedException();
+
             var instance = Instance!.ToLinqExpression(ctx);
             var type = instance!.Type;
             MemberInfo? memberInfo = IsField ? type.GetField(MemberName) : type.GetProperty(MemberName);

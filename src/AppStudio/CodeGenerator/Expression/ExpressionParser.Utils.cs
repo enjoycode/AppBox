@@ -132,4 +132,22 @@ internal partial class ExpressionParser
         SyntaxKind.LessThanEqualsToken => BinaryOperatorType.LessOrEqual,
         _ => throw new NotImplementedException($"Binary Operator: {token}")
     };
+
+    /// <summary>
+    /// 如果表达式用于工作流实体成员的访问，将成员名称转为成员标识
+    /// </summary>
+    private string TryConvertEntityMemberNameToIdString(ExpressionTypeInfo typeInfo, string memberName)
+    {
+        if (_options.HasFlag(ExpressionParserOptions.DynamicEntityMemberAccess) &&
+            typeInfo.IsAppBoxModel &&
+            typeInfo.GetModelId().Type == ModelType.Entity)
+        {
+            var modelNode = _designContext.DesignTree.FindModelNode(typeInfo.GetModelId())!;
+            var entityModel = (EntityModel)modelNode.Model;
+            var entityMember = entityModel.GetMember(memberName)!;
+            return entityMember.MemberId.ToString();
+        }
+
+        return memberName;
+    }
 }

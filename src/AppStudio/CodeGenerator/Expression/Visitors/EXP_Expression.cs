@@ -40,16 +40,18 @@ partial class ExpressionParser
         if (owner.IsTypeInfo)
         {
             //静态成员
+            var name = TryConvertEntityMemberNameToIdString(owner.TypeInfo, memberName);
             return isField
-                ? Expression.StaticField(owner.TypeInfo, memberName, typeInfo)
-                : Expression.StaticProperty(owner.TypeInfo, memberName, typeInfo);
+                ? Expression.StaticField(owner.TypeInfo, name, typeInfo)
+                : Expression.StaticProperty(owner.TypeInfo, name, typeInfo);
         }
 
         Debug.Assert(owner.IsExpression);
         //实例成员
+        var name2 = TryConvertEntityMemberNameToIdString(owner.Expression.TypeInfo, memberName);
         return isField
-            ? Expression.InstanceField(owner.Expression, memberName, typeInfo)
-            : Expression.InstanceProperty(owner.Expression, memberName, typeInfo);
+            ? Expression.InstanceField(owner.Expression, name2, typeInfo)
+            : Expression.InstanceProperty(owner.Expression, name2, typeInfo);
     }
 
     public override ParseResult VisitElementAccessExpression(ElementAccessExpressionSyntax node)
@@ -108,8 +110,8 @@ partial class ExpressionParser
 
     public override ParseResult VisitBinaryExpression(BinaryExpressionSyntax node)
     {
-        var left = node.Left.Accept(this)!;
-        var right = node.Right.Accept(this)!;
+        var left = node.Left.Accept(this);
+        var right = node.Right.Accept(this);
         var op = GetBinaryOperator(node.OperatorToken);
         var typeInfo = TryGetTypeInfoWithConverted(node);
 

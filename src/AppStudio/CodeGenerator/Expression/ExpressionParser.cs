@@ -90,4 +90,12 @@ internal enum ExpressionParserOptions
     /// 所以解析MemberExpression时其ExpressionTypeInfo.Type=Model,其成员名称实际为成员标识
     /// </remarks>
     DynamicEntityMemberAccess = 1,
+    
+    /// <summary>
+    /// 用于查询的表达式
+    /// </summary>
+    /// <remarks>
+    /// 比如实体模型的动态查询过滤条件
+    /// </remarks>
+    UsedForQuery = 2,
 }
