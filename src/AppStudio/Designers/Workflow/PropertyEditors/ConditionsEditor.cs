@@ -80,7 +80,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
 
         public Expression? Expression { get; private set; }
 
-        private static ExpressionInfo MakeExpressionInfo(WorkflowModel workflowModel, ActivityNode activityNode,
+        private static ExpressionEditorInfo MakeExpressionInfo(WorkflowModel workflowModel, ActivityNode activityNode,
             FlowLink link, DesignContext designContext)
         {
             // var methodName = "Expression";
@@ -106,7 +106,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
                 parameters = "Dictionary<string, int> actorResult, int actorCount";
             }
 
-            return new ExpressionInfo()
+            return new ExpressionEditorInfo()
             {
                 Owner = workflowModel,
                 ClassName = workflowModel.Name,

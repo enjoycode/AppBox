@@ -14,10 +14,10 @@ namespace AppBoxDesign;
 /// </summary>
 internal sealed class ExpressionEditor : SingleChildWidget
 {
-    public ExpressionEditor(DesignContext designContext, ExpressionInfo expressionInfo)
+    public ExpressionEditor(DesignContext designContext, ExpressionEditorInfo expressionEditorInfo)
     {
         _designContext = designContext;
-        _expressionInfo = expressionInfo;
+        _expressionEditorInfo = expressionEditorInfo;
 
         _prjId = ProjectId.CreateNewId();
         _docId = DocumentId.CreateNewId(_prjId);
@@ -33,7 +33,7 @@ internal sealed class ExpressionEditor : SingleChildWidget
     }
 
     private readonly DesignContext _designContext;
-    private readonly ExpressionInfo _expressionInfo;
+    private readonly ExpressionEditorInfo _expressionEditorInfo;
     private readonly ProjectId _prjId;
     private readonly DocumentId _docId;
     private readonly RoslynSourceText _textBuffer;
@@ -55,8 +55,8 @@ internal sealed class ExpressionEditor : SingleChildWidget
     {
         if (_textBuffer.HasOpen) return;
 
-        var projectName = $"{_expressionInfo.Owner.Name}_EXP";
-        _designContext.CreateExpressionProject(_prjId, _docId, projectName, _expressionInfo.PartialCode);
+        var projectName = $"{_expressionEditorInfo.Owner.Name}_EXP";
+        _designContext.CreateExpressionProject(_prjId, _docId, projectName, _expressionEditorInfo.PartialCode);
 
         await _textBuffer.Open();
         _textBuffer.SetContent(BuildCode());
@@ -74,25 +74,25 @@ internal sealed class ExpressionEditor : SingleChildWidget
     private string BuildCode()
     {
         var sb = new StringBuilder();
-        if (_expressionInfo.IsStatic)
+        if (_expressionEditorInfo.IsStatic)
             sb.Append("static ");
-        if (_expressionInfo.IsPartial)
+        if (_expressionEditorInfo.IsPartial)
             sb.Append("partial ");
         sb.Append("class ");
-        sb.Append(_expressionInfo.ClassName);
+        sb.Append(_expressionEditorInfo.ClassName);
         sb.Append('\n');
         sb.Append("{\n");
         sb.Append("    ");
-        if (_expressionInfo.IsStatic)
+        if (_expressionEditorInfo.IsStatic)
             sb.Append("static ");
-        sb.Append(_expressionInfo.ReturnType);
+        sb.Append(_expressionEditorInfo.ReturnType);
         sb.Append(' ');
-        sb.Append(_expressionInfo.MethodName);
+        sb.Append(_expressionEditorInfo.MethodName);
         sb.Append('(');
-        sb.Append(_expressionInfo.Parameters);
+        sb.Append(_expressionEditorInfo.Parameters);
         sb.Append(")\n");
         sb.Append("    {\n");
-        sb.Append(_expressionInfo.ExpressionCode);
+        sb.Append(_expressionEditorInfo.ExpressionCode);
         sb.Append("    }\n");
         sb.Append('}');
         return sb.ToString();
@@ -133,7 +133,10 @@ internal sealed class ExpressionEditor : SingleChildWidget
     }
 }
 
-internal sealed class ExpressionInfo
+/// <summary>
+/// 表达式编辑器所需要的相关信息
+/// </summary>
+internal sealed class ExpressionEditorInfo
 {
     public ModelBase Owner { get; init; } = null!;
 
@@ -147,4 +150,6 @@ internal sealed class ExpressionInfo
     public string Parameters { get; init; } = string.Empty;
     public string PartialCode { get; init; } = string.Empty;
     public string ExpressionCode { get; init; } = string.Empty;
+
+    //TODO: ParserOptions and project Dependencies
 }
