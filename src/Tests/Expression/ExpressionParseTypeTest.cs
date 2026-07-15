@@ -10,7 +10,7 @@ namespace Tests.Design;
 
 public class ExpressionParseTypeTest
 {
-    [SetUp]
+    [OneTimeSetUp]
     public static async Task InitSetup()
     {
         // await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
@@ -32,7 +32,7 @@ public class ExpressionParseTypeTest
                  """;
     }
 
-    private static void ParseType(string returnType, Func<ExpressionTypeInfo, bool> assert)
+    private static void ParseSystemType(string returnType, Func<ExpressionTypeInfo, bool> assert)
     {
         var code = BuildExpressionCode(returnType);
         var syntaxTree = ExpressionParser.Parse(code);
@@ -55,12 +55,10 @@ public class ExpressionParseTypeTest
         var prjId = ProjectId.CreateNewId();
         var docId = DocumentId.CreateNewId(prjId);
         _designContext.CreateExpressionProject(prjId, docId, "TestExpression", null);
-        var doc = _designContext.Workspace.CurrentSolution.GetDocument(docId)!;
-        var sourceText = await doc.GetTextAsync();
+        
         var code = BuildExpressionCode(returnType);
-        var newSource = sourceText.Replace(0, 0, code);
-        _designContext.Workspace.OnDocumentChanged(docId, newSource);
-        doc = _designContext.Workspace.CurrentSolution.GetDocument(docId)!;
+        await DesignHelper.ReplaceCode(_designContext, docId, code);
+        var doc = _designContext.Workspace.CurrentSolution.GetDocument(docId)!;
 
         var syntaxTree = await doc.GetSyntaxTreeAsync();
         var root = syntaxTree!.GetCompilationUnitRoot();
@@ -79,33 +77,33 @@ public class ExpressionParseTypeTest
     }
 
     [Test]
-    public void ParseVoid() => ParseType("void",
+    public void ParseVoid() => ParseSystemType("void",
         r => r.Type == ExpressionTypeInfo.KnownType.Void);
 
     [Test]
-    public void ParseObject() => ParseType("object",
+    public void ParseObject() => ParseSystemType("object",
         r => r.Type == ExpressionTypeInfo.KnownType.Object);
 
     [Test]
-    public void ParseNullableInt() => ParseType("int?",
+    public void ParseNullableInt() => ParseSystemType("int?",
         r => r.Type == ExpressionTypeInfo.KnownType.Int32 && r.IsNullable);
 
     [Test]
-    public void ParseGuid() => ParseType("Guid",
+    public void ParseGuid() => ParseSystemType("Guid",
         r => r.Type == ExpressionTypeInfo.KnownType.Guid && !r.IsNullable);
 
     [Test]
-    public void ParseArrayOfInt() => ParseType("int[]",
+    public void ParseArrayOfInt() => ParseSystemType("int[]",
         r => r.Type == ExpressionTypeInfo.KnownType.Array &&
              r.Types![0].Type == ExpressionTypeInfo.KnownType.Int32);
 
     [Test]
-    public void ParseListOfInt() => ParseType("List<int>", r =>
+    public void ParseListOfInt() => ParseSystemType("List<int>", r =>
         r.Type == ExpressionTypeInfo.KnownType.List &&
         r.Types!.Length == 1 && r.Types[0].Type == ExpressionTypeInfo.KnownType.Int32);
 
     [Test]
-    public void ParseGenericType() => ParseType("Task<int>",
+    public void ParseGenericType() => ParseSystemType("Task<int>",
         r => r.Type == ExpressionTypeInfo.KnownType.Unknown &&
              r.IsGeneric && r.Types!.Length == 1 && r.Types[0].Type == ExpressionTypeInfo.KnownType.Int32);
 

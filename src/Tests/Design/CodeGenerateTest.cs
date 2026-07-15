@@ -4,14 +4,13 @@ using NUnit.Framework;
 
 namespace Tests.Design;
 
-public class CodeGenerateTest
+public class CodeGenerateTest : DesignContextTestBase
 {
     [Test(Description = "测试生成实体模型的Web代码")]
-    public async Task GenEntityWebCodeTest()
+    public void GenEntityWebCodeTest()
     {
-        var designHub = await DesignHelper.MockDesignContext();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Warehouse")!;
-        var code = EntityJsGenerator.GenWebCode((EntityModel)entityNode.Model, designHub, true);
+        var entityNode = DesignContext.DesignTree.FindModelNodeByFullName("sys.Entities.Customer")!;
+        var code = EntityJsGenerator.GenWebCode((EntityModel)entityNode.Model, DesignContext, true);
         Console.Write(code);
     }
 
@@ -26,28 +25,25 @@ public class CodeGenerateTest
     // }
 
     [Test]
-    public async Task GenEntityCodeTest()
+    public void GenEntityCodeTest()
     {
-        var designHub = await DesignHelper.MockDesignContext();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("demo.Entities.Customer")!;
+        var entityNode = DesignContext.DesignTree.FindModelNodeByFullName("demo.Entities.Customer")!;
         var code = EntityCsGenerator.GenRuntimeCode(entityNode);
         Console.Write(code);
     }
 
     [Test(Description = "测试生成响应实体类虚拟代码")]
-    public async Task GenRxEntityCodeTest()
+    public void GenRxEntityCodeTest()
     {
-        var designHub = await DesignHelper.MockDesignContext();
-        var entityNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
+        var entityNode = DesignContext.DesignTree.FindModelNodeByFullName("sys.Entities.Employee")!;
         var code = EntityCsGenerator.GenRxEntityCode(entityNode);
         Console.Write(code);
     }
 
     [Test(Description = "测试生成权限模型虚拟代码")]
-    public async Task GenPermissionCodeTest()
+    public void GenPermissionCodeTest()
     {
-        var designHub = await DesignHelper.MockDesignContext();
-        var node = designHub.DesignTree.FindModelNodeByFullName("sys.Permissions.Admin")!;
+        var node = DesignContext.DesignTree.FindModelNodeByFullName("sys.Permissions.Admin")!;
         var model = (PermissionModel)node.Model;
         var code = PermissionCodeGenerator.GenServerCode(model, node.AppNode.Model.Name);
         Console.WriteLine(code);
@@ -56,7 +52,6 @@ public class CodeGenerateTest
     [Test]
     public async Task GenViewRuntimeCodeTest()
     {
-        var designHub = await DesignHelper.MockDesignContext();
         const string viewCode = """
                                 public class HomePage: View
                                 {
@@ -71,10 +66,10 @@ public class CodeGenerateTest
                                 }
                                 """;
 
-        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
-        await DesignHelper.ReplaceCode(designHub, modelNode.RoslynDocumentId!, viewCode);
+        var modelNode = DesignContext.DesignTree.FindModelNodeByFullName("sys.Views.HomePage")!;
+        await DesignHelper.ReplaceCode(DesignContext, modelNode.RoslynDocumentId!, viewCode);
 
-        var generator = await ViewCsGenerator.Make(designHub, modelNode, false);
+        var generator = await ViewCsGenerator.Make(DesignContext, modelNode, false);
         var syntaxTree = await generator.GetRuntimeSyntaxTree();
         Console.WriteLine(syntaxTree.ToString());
     }
@@ -82,7 +77,6 @@ public class CodeGenerateTest
     [Test(Description = "测试生成服务的运行时代码")]
     public async Task GenServiceRuntimeCodeTest()
     {
-        var designHub = await DesignHelper.MockDesignContext();
         const string serviceCode = """
                                    public sealed class OrderService
                                    {
@@ -98,23 +92,22 @@ public class CodeGenerateTest
                                    }
                                    """;
 
-        var serviceNode = designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!;
+        var serviceNode = DesignContext.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!;
         var serviceModel = (ServiceModel)serviceNode.Model;
-        await DesignHelper.ReplaceCode(designHub, serviceNode.RoslynDocumentId!, serviceCode);
+        await DesignHelper.ReplaceCode(DesignContext, serviceNode.RoslynDocumentId!, serviceCode);
 
         using var ms = new MemoryStream(2048);
-        await PublishCommand.CompileServiceAsync(ms, designHub, serviceModel, false);
+        await PublishCommand.CompileServiceAsync(ms, DesignContext, serviceModel, false);
         Assert.True(ms.Length > 0);
     }
 
     [Test]
     public async Task GenServiceProxyCodeTest()
     {
-        var designHub = await DesignHelper.MockDesignContext();
-        var serviceNode = designHub.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!;
+        var serviceNode = DesignContext.DesignTree.FindModelNodeByFullName("sys.Services.OrderService")!;
         var serviceModel = (ServiceModel)serviceNode.Model;
-        var doc = designHub.Workspace.CurrentSolution.GetDocument(serviceNode.RoslynDocumentId)!;
-        var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(doc!, "sys", serviceModel);
+        var doc = DesignContext.Workspace.CurrentSolution.GetDocument(serviceNode.RoslynDocumentId)!;
+        var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(doc, "sys", serviceModel);
         Console.WriteLine(proxyCode);
     }
 }

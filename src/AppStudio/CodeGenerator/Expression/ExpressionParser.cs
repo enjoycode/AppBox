@@ -2,7 +2,6 @@ using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using RoslynUtils;
 
 namespace AppBoxDesign.CodeGenerator;
 

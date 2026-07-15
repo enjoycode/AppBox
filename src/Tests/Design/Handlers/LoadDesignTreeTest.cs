@@ -1,18 +1,13 @@
-using System;
-using System.Threading.Tasks;
-using AppBoxServer;
 using NUnit.Framework;
 
 namespace Tests.Design.Handlers;
 
-public sealed class LoadDesignTreeTest
+public sealed class LoadDesignTreeTest : DesignContextTestBase
 {
     [Test]
-    public async Task TestGetModelId()
+    public void TestGetModelId()
     {
-        var designHub = await DesignHelper.MockDesignContext();
-
-        var modelNode = designHub.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
+        var modelNode = DesignContext.DesignTree.FindModelNodeByFullName("sys.Entities.OrgUnit")!;
         long modelId = modelNode.Model.Id;
         Console.WriteLine(modelId);
     }

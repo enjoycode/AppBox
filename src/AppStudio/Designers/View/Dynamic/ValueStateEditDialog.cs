@@ -56,7 +56,7 @@ internal sealed class ValueStateEditDialog : Dialog
     protected override ValueTask<bool> OnClosing(DialogResult result)
     {
         if (result != DialogResult.OK)
-            return new ValueTask<bool>(false);
+            return ValueTask.FromResult(false);
 
         //关闭前转换值或表达式
         if (_primitive.Source == DynamicPrimitiveSource.Expression)
@@ -67,12 +67,12 @@ internal sealed class ValueStateEditDialog : Dialog
             {
                 var exp = ExpressionParser.ParseCode(code);
                 _primitive.Value = exp;
-                return new ValueTask<bool>(false);
+                return ValueTask.FromResult(false);
             }
             catch (Exception)
             {
                 Notification.Warn("无法解析表达式");
-                return new ValueTask<bool>(true);
+                return ValueTask.FromResult(true);
             }
         }
 
@@ -93,9 +93,9 @@ internal sealed class ValueStateEditDialog : Dialog
         catch (Exception e)
         {
             Notification.Warn($"无法将文本转换为指定的值: {e.Message}");
-            return new ValueTask<bool>(true);
+            return ValueTask.FromResult(true);
         }
 
-        return new ValueTask<bool>(false);
+        return ValueTask.FromResult(false);
     }
 }
