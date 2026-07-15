@@ -33,6 +33,8 @@ public class ExpressionCompileTest
     [Test]
     public void LinqTest()
     {
+        var parameter = LinqExp.Parameter(typeof(int).MakeByRefType());
+        
         //LinqExps.Expression<Func<object>> exp = () => DateTime.Today.Year;
         //LinqExps.Expression<Func<DateTime>> exp = () => DateTime.Today.AddDays(-1);
 
