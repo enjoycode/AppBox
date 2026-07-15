@@ -56,7 +56,8 @@ internal sealed class ExpressionEditor : SingleChildWidget
         if (_textBuffer.HasOpen) return;
 
         var projectName = $"{_expressionEditorInfo.Owner.Name}_EXP";
-        _designContext.CreateExpressionProject(_prjId, _docId, projectName, _expressionEditorInfo.PartialCode);
+        _designContext.CreateExpressionProject(_prjId, _docId, projectName,
+            _expressionEditorInfo.PartialCode, _expressionEditorInfo.References);
 
         await _textBuffer.Open();
         _textBuffer.SetContent(BuildCode());
@@ -151,5 +152,9 @@ internal sealed class ExpressionEditorInfo
     public string PartialCode { get; init; } = string.Empty;
     public string ExpressionCode { get; init; } = string.Empty;
 
-    //TODO: ParserOptions and project Dependencies
+    /// <summary>
+    /// 表达式项目需要引用的AppBox项目
+    /// </summary>
+    public DesignContext.ReferencedAppBoxProjects References { get; init; }
+        = DesignContext.ReferencedAppBoxProjects.None;
 }

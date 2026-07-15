@@ -420,7 +420,8 @@ partial class DesignContext
     /// <summary>
     /// 创建表达式的虚拟项目
     /// </summary>
-    internal void CreateExpressionProject(ProjectId prjId, DocumentId docId, string prjName, string? partialCode)
+    internal void CreateExpressionProject(ProjectId prjId, DocumentId docId, string prjName, string? partialCode,
+        ReferencedAppBoxProjects references = ReferencedAppBoxProjects.None)
     {
         var expressionProjectInfo = ProjectInfo.Create(prjId, VersionStamp.Create(),
             prjName, prjName, LanguageNames.CSharp, null, null,
@@ -444,17 +445,14 @@ partial class DesignContext
         var globalUsings =
             "global using System;global using System.Linq;global using System.Collections.Generic;global using System.Threading.Tasks;global using AppBoxCore;";
         var newSolution = Workspace.CurrentSolution
-                .AddProject(expressionProjectInfo)
-                .AddMetadataReferences(prjId, deps)
-                .AddProjectReference(prjId, new ProjectReference(ModelProjectId)) //TODO:根据表达式类型
-                // .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId)) //TODO:根据表达式类型
-                .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs", globalUsings)
-                .AddDocument(docId, DocNameUtil.ExpressionDocName, string.Empty)
-            ;
+            .AddProject(expressionProjectInfo)
+            .AddMetadataReferences(prjId, deps)
+            .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs", globalUsings)
+            .AddDocument(docId, DocNameUtil.ExpressionDocName, string.Empty);
+        if (references.HasFlag(ReferencedAppBoxProjects.Model))
+            newSolution = newSolution.AddProjectReference(prjId, new ProjectReference(ModelProjectId));
         if (!string.IsNullOrEmpty(partialCode))
-        {
             newSolution = newSolution.AddDocument(DocumentId.CreateNewId(prjId), "Partial.cs", partialCode);
-        }
 
         if (!Workspace.TryApplyChanges(newSolution))
             Log.Warn("Cannot create expression project.");
@@ -603,4 +601,17 @@ partial class DesignContext
     }
 
     #endregion
+
+    /// <summary>
+    /// 表达式项目需要引用的AppBox虚拟项目
+    /// </summary>
+    [Flags]
+    public enum ReferencedAppBoxProjects
+    {
+        None = 0,
+        Model = 1,
+        ServiceSync = 2,
+        ServiceAsync = 4,
+        Workflow = 8,
+    }
 }

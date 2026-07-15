@@ -116,6 +116,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
                 ExpressionCode = expressionCode,
                 PartialCode = BuildWorkflowPartialCode(workflowModel, designContext),
                 IsStatic = false,
+                References = DesignContext.ReferencedAppBoxProjects.Model
             };
         }
 

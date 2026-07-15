@@ -37,7 +37,8 @@ public abstract class ExpressionTestBase
     private async Task<SemanticModel> CreateExpressionProject(ProjectId prjId, string code)
     {
         var docId = DocumentId.CreateNewId(prjId);
-        DesignContext.CreateExpressionProject(prjId, docId, "TestExpression", null);
+        DesignContext.CreateExpressionProject(prjId, docId, "TestExpression", null,
+            DesignContext.ReferencedAppBoxProjects.Model);
 
         await DesignHelper.ReplaceCode(DesignContext, docId, code);
         var doc = DesignContext.Workspace.CurrentSolution.GetDocument(docId)!;
