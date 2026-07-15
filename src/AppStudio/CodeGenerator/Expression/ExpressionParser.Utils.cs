@@ -144,8 +144,8 @@ internal partial class ExpressionParser
         {
             var modelNode = _designContext.DesignTree.FindModelNode(typeInfo.GetModelId())!;
             var entityModel = (EntityModel)modelNode.Model;
-            var entityMember = entityModel.GetMember(memberName)!;
-            return entityMember.MemberId.ToString();
+            var entityMember = entityModel.GetMember(memberName, false);
+            return entityMember == null ? memberName : entityMember.MemberId.ToString();
         }
 
         return memberName;

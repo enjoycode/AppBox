@@ -102,7 +102,7 @@ public abstract class ExpressionTestBase
 
     protected static Expression ParseExpression(string lineCode, string returnType = "void", string parameters = "")
     {
-        var code = BuildExpressionCode(lineCode + ';', returnType, parameters);
+        var code = BuildExpressionCode(lineCode, returnType, parameters);
 
         var ts = Stopwatch.GetTimestamp();
         var exp = ExpressionParser.CodeToExpression(code);
@@ -124,7 +124,7 @@ public abstract class ExpressionTestBase
     protected async Task<Expression> ParseAppBoxExpression(string lineCode, string returnType = "void",
         string parameters = "")
     {
-        var code = BuildExpressionCode(lineCode + ';', returnType, parameters);
+        var code = BuildExpressionCode(lineCode, returnType, parameters);
         var prjId = ProjectId.CreateNewId();
         var semanticModel = await CreateExpressionProject(prjId, code);
         var expression = ExpressionParser.Parse(semanticModel, ExpressionParserOptions.DynamicEntityMemberAccess,

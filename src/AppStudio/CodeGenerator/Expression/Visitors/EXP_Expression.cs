@@ -40,10 +40,9 @@ partial class ExpressionParser
         if (owner.IsTypeInfo)
         {
             //静态成员
-            var name = TryConvertEntityMemberNameToIdString(owner.TypeInfo, memberName);
             return isField
-                ? Expression.StaticField(owner.TypeInfo, name, typeInfo)
-                : Expression.StaticProperty(owner.TypeInfo, name, typeInfo);
+                ? Expression.StaticField(owner.TypeInfo, memberName, typeInfo)
+                : Expression.StaticProperty(owner.TypeInfo, memberName, typeInfo);
         }
 
         Debug.Assert(owner.IsExpression);

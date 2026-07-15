@@ -37,6 +37,17 @@ public sealed class EntityData : Entity
 
     internal void AddMember(short id, AnyValue value) => _members.Add(new MemberData(id, value));
 
+    public AnyValue GetMemberValue(short id)
+    {
+        for (var i = 0; i < _members.Count; i++)
+        {
+            if (_members[i].MemberId == id)
+                return _members[i].Value;
+        }
+
+        throw new KeyNotFoundException($"Cannot find member with id: {id}");
+    }
+
     public override EntityData ToEntityData() => this;
 
     #region ====Convert with Entity====

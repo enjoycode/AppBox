@@ -16,6 +16,22 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
         var isField = memberExpression.IsField;
         if (memberExpression.IsStaticMemberAccess)
         {
+            //特殊处理DynamicEntityMemberAccess
+            if (memberExpression.StaticType.IsAppBoxModel)
+            {
+                var modelId = memberExpression.StaticType.GetModelId();
+                if (modelId.Type == ModelType.Entity)
+                {
+                    if (memberName == "MODELID")
+                        return AnyValue.From(modelId);
+                    throw new NotImplementedException("Static entity member access");
+                }
+                else
+                {
+                    throw new NotImplementedException("Static model member access");
+                }
+            }
+
             var staticType = ResolveType(memberExpression.StaticType);
             if (isField)
             {
@@ -29,7 +45,16 @@ public sealed partial class ExpressionEvaluator : ExpressionVisitor<ValueTask<An
         else
         {
             var instance = await Visit(memberExpression.Instance!);
-            if (instance.IsEmpty) throw new NullReferenceException();
+            if (instance.IsEmpty) throw new NullReferenceException("MemberExpression's instance is null");
+
+            //特殊处理DynamicEntityMemberAccess
+            if (instance.Type == AnyValue.ValueType.Object &&
+                instance.BoxedValue is EntityData entityData &&
+                short.TryParse(memberName, out var memberId))
+            {
+                return entityData.GetMemberValue(memberId);
+            }
+
             var instanceType = instance.GetRuntimeType();
             //TODO:特殊处理EntityData的属性访问
             if (isField)
