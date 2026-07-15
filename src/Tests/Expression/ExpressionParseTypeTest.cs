@@ -1,81 +1,10 @@
 using AppBoxCore;
-using AppBoxDesign;
-using AppBoxDesign.CodeGenerator;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Framework;
 
 namespace Tests.Design;
 
-public class ExpressionParseTypeTest
+public class ExpressionParseTypeTest : ExpressionTestBase
 {
-    [OneTimeSetUp]
-    public static async Task InitSetup()
-    {
-        // await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
-        _designContext = await DesignHelper.MockDesignContext();
-    }
-
-    private static DesignContext _designContext = null!;
-
-    private static string BuildExpressionCode(string returnType)
-    {
-        return $$"""
-                 using System;
-                 using System.Collections.Generic;
-                 using System.Threading.Tasks;
-                 static class E
-                 {
-                    static {{returnType}} M()=>throw new Exception();
-                 }
-                 """;
-    }
-
-    private static void ParseSystemType(string returnType, Func<ExpressionTypeInfo, bool> assert)
-    {
-        var code = BuildExpressionCode(returnType);
-        var syntaxTree = ExpressionParser.Parse(code);
-        var root = syntaxTree.GetCompilationUnitRoot();
-        var semanticModel = ExpressionParser.GetSemanticModel(syntaxTree);
-
-        var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
-        var parser = new ExpressionParser(semanticModel);
-        var res = parser.Visit(methodDecl.ReturnType);
-        if (!res.IsTypeInfo)
-            throw new Exception("Parse result is not a ExpressionTypeInfo");
-        Assert.IsTrue(assert(res.TypeInfo));
-    }
-
-    /// <summary>
-    /// 解析AppBox的模型的虚拟代码的类型
-    /// </summary>
-    private static async Task ParseAppBoxType(string returnType, Func<ExpressionTypeInfo, bool> assert)
-    {
-        var prjId = ProjectId.CreateNewId();
-        var docId = DocumentId.CreateNewId(prjId);
-        _designContext.CreateExpressionProject(prjId, docId, "TestExpression", null);
-        
-        var code = BuildExpressionCode(returnType);
-        await DesignHelper.ReplaceCode(_designContext, docId, code);
-        var doc = _designContext.Workspace.CurrentSolution.GetDocument(docId)!;
-
-        var syntaxTree = await doc.GetSyntaxTreeAsync();
-        var root = syntaxTree!.GetCompilationUnitRoot();
-        var semanticModel = await doc.GetSemanticModelAsync();
-        if (semanticModel!.GetDiagnostics().Any(e => e.Severity == DiagnosticSeverity.Error))
-            throw new Exception("存在语义错误");
-
-        var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
-        var parser = new ExpressionParser(semanticModel,
-            ExpressionParserOptions.DynamicEntityMemberAccess, _designContext);
-        var res = parser.Visit(methodDecl.ReturnType);
-        _designContext.RemoveProject(prjId);
-        if (!res.IsTypeInfo)
-            throw new Exception("Parse result is not a ExpressionTypeInfo");
-        Assert.IsTrue(assert(res.TypeInfo));
-    }
-
     [Test]
     public void ParseVoid() => ParseSystemType("void",
         r => r.Type == ExpressionTypeInfo.KnownType.Void);

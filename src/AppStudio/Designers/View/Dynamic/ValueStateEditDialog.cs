@@ -65,7 +65,7 @@ internal sealed class ValueStateEditDialog : Dialog
             var code = $"using System;static class E{{static object? M(){{return {_value.Value};}}}}";
             try
             {
-                var exp = ExpressionParser.ParseCode(code);
+                var exp = ExpressionParser.CodeToExpression(code);
                 _primitive.Value = exp;
                 return ValueTask.FromResult(false);
             }

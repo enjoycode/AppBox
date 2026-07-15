@@ -18,7 +18,7 @@ public class ExpressionCompileTest
     private static T Run<T>(string expLine)
     {
         var code = $"using System;static class E{{static {typeof(T).FullName} M(){{return {expLine};}}}}";
-        var exp = ExpressionParser.ParseCode(code);
+        var exp = ExpressionParser.CodeToExpression(code);
         var body = exp.ToLinqExpression(ExpressionContext.Default)!;
         if (body.Type != typeof(T))
             body = LinqExp.Convert(body, typeof(T));

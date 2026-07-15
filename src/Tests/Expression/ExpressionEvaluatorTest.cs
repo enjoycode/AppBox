@@ -1,93 +1,64 @@
-using System.Diagnostics;
 using AppBoxCore;
-using AppBoxDesign;
-using AppBoxDesign.CodeGenerator;
+using AppBoxStore.Entities;
 using NUnit.Framework;
+using Tests.Design;
 
 namespace Tests.Core;
 
-public class ExpressionEvaluatorTest
+public class ExpressionEvaluatorTest : ExpressionTestBase
 {
-    [SetUp]
-    public static async Task InitSetup()
-    {
-        await MetadataReferences.InitAsync(new MockMetadataReferenceProvider());
-    }
-
-    private static async Task EvalSingleLine(string lineCode, string returnType = "void",
-        Func<AnyValue, bool>? assert = null)
-    {
-        var exp = ParseSingleLine(lineCode, returnType);
-
-        var ts = Stopwatch.GetTimestamp();
-        var evaluator = new ExpressionEvaluator(ExpressionContext.Default);
-        var result = await evaluator.Visit(exp);
-        Console.WriteLine($"Eval used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
-
-        assert?.Invoke(result);
-    }
-
-    private static Expression ParseSingleLine(string lineCode, string returnType = "void", string parameters = "")
-    {
-        var code = $$$"""
-                      using System;
-                      using System.Threading.Tasks;
-                      using System.Collections.Generic;
-                      static class C{
-                        static {{{returnType}}} M({{{parameters}}}){
-                            {{{lineCode}}};
-                        }
-                      }
-                      """;
-
-        var ts = Stopwatch.GetTimestamp();
-        var exp = ExpressionParser.ParseCode(code, lineCode.StartsWith("return "));
-        Console.WriteLine($"Parse used: {Stopwatch.GetElapsedTime(ts).TotalMilliseconds}ms");
-        return exp;
-    }
-
     [Test]
-    public Task TestAddWithConverted() => EvalSingleLine("return 1 + 2.5", "double",
+    public Task EvalAddWithConverted() => EvalExpression("return 1 + 2.5", "double",
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         res => res.GetDouble()!.Value == 1 + 2.5);
 
     [Test]
-    public Task MethoCallTest1() => EvalSingleLine("return object.Equals(null, 1)", "bool",
+    public Task EvalMethoCall1() => EvalExpression("return object.Equals(null, 1)", "bool",
         res => !res.GetBool()!.Value);
 
     [Test]
-    public Task MethodCallTest2() => EvalSingleLine("return Equals(null, 1)", "bool",
+    public Task EvalMethodCall2() => EvalExpression("return Equals(null, 1)", "bool",
         res => !res.GetBool()!.Value);
 
     [Test]
-    public Task StaticPropertyTest() => EvalSingleLine("return System.DateTime.Now", "DateTime",
+    public Task EvalStaticProperty() => EvalExpression("return System.DateTime.Now", "DateTime",
         res => res.GetDateTime()!.Value <= DateTime.Now);
 
     [Test]
-    public Task AwaitVoidTest() => EvalSingleLine("await Task.Delay(500)", "async Task");
+    public Task EvalAwaitVoid() => EvalExpression("await Task.Delay(500)", "async Task");
 
     [Test]
-    public Task AwaitResultTest() => EvalSingleLine("return await Task.FromResult(123)", "async Task<int>",
+    public Task EvalAwaitResult() => EvalExpression("return await Task.FromResult(123)", "async Task<int>",
         res => res.GetInt()!.Value == 123);
+
+    [Test]
+    public Task EvalEntityMemberAccess() => EvalAppBoxExpression("return e.Name", "string", "sys.Entities.Employee e",
+        new Dictionary<string, AnyValue>
+        {
+            { "e", AnyValue.From(new Employee(Guid.NewGuid()) { Name = "Rick" }.ToEntityData()) },
+        },
+        res => res.BoxedValue != null && res.BoxedValue.ToString() == "Rick");
+
+    //----------------------------------------------------------------------
 
     [Test]
     public void ParseIndexerTest1()
     {
-        var exp = ParseSingleLine("return map[\"key\"]", "int", "Dictionary<string,int> map");
+        var exp = ParseExpression("return map[\"key\"]", "int", "Dictionary<string,int> map");
         Assert.IsTrue(exp is IndexExpression);
     }
 
     [Test]
     public void ParseIndexerTest2()
     {
-        var exp = ParseSingleLine("return list[0]", "int", "List<int> list");
+        var exp = ParseExpression("return list[0]", "int", "List<int> list");
         Assert.IsTrue(exp is IndexExpression);
     }
 
     [Test]
     public void ParseArrayAccessTest()
     {
-        var exp = ParseSingleLine("return array[0]", "int", "int[] array");
+        var exp = ParseExpression("return array[0]", "int", "int[] array");
         Assert.IsTrue(exp is IndexExpression);
     }
 }

@@ -22,7 +22,7 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
     private readonly ExpressionParserOptions _options;
     private readonly DesignContext _designContext = null!;
 
-    public static SyntaxTree Parse(string code)
+    public static SyntaxTree CodeToSyntaxTree(string code)
     {
         var parseOptions = new CSharpParseOptions().WithLanguageVersion(LanguageVersion.CSharp13);
         return CSharpSyntaxTree.ParseText(code, parseOptions);
@@ -31,7 +31,7 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
     /// <summary>
     /// 获取SemanticModel,并检查语义错误
     /// </summary>
-    public static SemanticModel GetSemanticModel(SyntaxTree syntaxTree)
+    public static SemanticModel GetAndCheckSemanticModel(SyntaxTree syntaxTree)
     {
         var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
             .WithNullableContextOptions(NullableContextOptions.Enable);
@@ -47,31 +47,37 @@ internal sealed partial class ExpressionParser : CSharpSyntaxVisitor<ParseResult
         return semanticModel;
     }
 
-    public static Expression ParseCode(string code, bool singleLine = true)
+    public static Expression CodeToExpression(string code)
     {
         var syntaxTree = CSharpSyntaxTree.ParseText(code);
-        var root = syntaxTree.GetCompilationUnitRoot();
-        var semanticModel = GetSemanticModel(syntaxTree);
+        var semanticModel = GetAndCheckSemanticModel(syntaxTree);
+        return Parse(semanticModel);
+    }
 
-        var methodDecl = root.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
+    public static Expression Parse(SemanticModel semanticModel,
+        ExpressionParserOptions options = ExpressionParserOptions.None, DesignContext? designContext = null)
+    {
+        var root = semanticModel.SyntaxTree.GetCompilationUnitRoot();
+        var methodDecl = root.DescendantNodes()
+            .OfType<MethodDeclarationSyntax>()
+            .FirstOrDefault();
+        if (methodDecl == null)
+            throw new Exception("Can't find method declaration");
+        if (methodDecl.ExpressionBody != null)
+            throw new NotSupportedException("Parse expression body");
+
         if (methodDecl.Body is { Statements.Count: > 1 })
             throw new NotImplementedException("Parse block body");
 
-        if (methodDecl.ExpressionBody != null)
-            throw new NotImplementedException("Parse expression body");
-
+        // single line now
         var firstStatement = methodDecl.Body!.Statements.FirstOrDefault();
         if (firstStatement == null)
-            throw new Exception("Can't find statement");
+            throw new Exception("Can't find any statement");
         SyntaxNode syntaxNode = firstStatement;
-        if (singleLine)
-        {
-            if (firstStatement is not ReturnStatementSyntax returnNode)
-                throw new Exception("表达式方法不是单行返回语句");
+        if (firstStatement is ReturnStatementSyntax returnNode)
             syntaxNode = returnNode.Expression!;
-        }
 
-        var parser = new ExpressionParser(semanticModel);
+        var parser = new ExpressionParser(semanticModel, options, designContext);
         return parser.Visit(syntaxNode).Expression;
     }
 }
@@ -89,7 +95,7 @@ internal enum ExpressionParserOptions
     /// 所以解析MemberExpression时其ExpressionTypeInfo.Type=Model,其成员名称实际为成员标识
     /// </remarks>
     DynamicEntityMemberAccess = 1,
-    
+
     /// <summary>
     /// 用于查询的表达式
     /// </summary>

@@ -98,7 +98,7 @@ internal sealed class DefaultValuesDialog : Dialog
             var code = $"using System;static class E{{static object? M(){{return {ValueExpression};}}}}";
             try
             {
-                var exp = ExpressionParser.ParseCode(code);
+                var exp = ExpressionParser.CodeToExpression(code);
                 Target.DefaultValue = exp;
             }
             catch (Exception)

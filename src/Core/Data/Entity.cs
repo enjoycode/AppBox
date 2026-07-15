@@ -178,7 +178,8 @@ public abstract class Entity : IBinSerializable
 
         public void WriteBinaryMember(short id, byte[]? value, int flags)
         {
-            throw new NotImplementedException();
+            if (value == null) return;
+            _data.AddMember(id, AnyValue.From(value));
         }
 
         public void WriteEntityRefMember(short id, Entity? value, int flags)
