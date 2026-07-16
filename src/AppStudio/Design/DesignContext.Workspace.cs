@@ -40,6 +40,11 @@ partial class DesignContext
     /// </summary>
     internal readonly ProjectId ServiceProxyProjectId = ProjectId.CreateNewId();
 
+    /// <summary>
+    /// 工作流模型的虚拟工程标识
+    /// </summary>
+    internal readonly ProjectId WorkflowProjectId = ProjectId.CreateNewId();
+
     private static readonly CSharpCompilationOptions DllCompilationOptions =
         new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
             .WithNullableContextOptions(NullableContextOptions.Enable);
@@ -63,16 +68,17 @@ partial class DesignContext
         var modelProjectInfo = ProjectInfo.Create(ModelProjectId, VersionStamp.Create(),
             "ModelProject", "ModelProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
-        var serviceProxyProjectInfo = ProjectInfo.Create(ServiceProxyProjectId,
-            VersionStamp.Create(),
+        var serviceProxyProjectInfo = ProjectInfo.Create(ServiceProxyProjectId, VersionStamp.Create(),
             "ServiceProxyProject", "ServiceProxyProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
         var viewsProjectInfo = ProjectInfo.Create(ViewsProjectId, VersionStamp.Create(),
             "ViewsProject", "ViewsProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
-        var serviceBaseProjectInfo = ProjectInfo.Create(ServiceBaseProjectId,
-            VersionStamp.Create(),
+        var serviceBaseProjectInfo = ProjectInfo.Create(ServiceBaseProjectId, VersionStamp.Create(),
             "ServiceBaseProject", "ServiceBaseProject", LanguageNames.CSharp, null, null,
+            DllCompilationOptions, ParseOptions);
+        var workflowProjectInfo = ProjectInfo.Create(ViewsProjectId, VersionStamp.Create(),
+            "WorkflowProject", "WorkflowProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
 
         var newSolution = Workspace.CurrentSolution
@@ -130,6 +136,14 @@ partial class DesignContext
                     Resources.LoadString("DummyCode.ViewBaseDummyCode.cs"))
                 .AddDocument(DocumentId.CreateNewId(ViewsProjectId), "GlobalUsing.cs",
                     CodeUtil.ViewGlobalUsings())
+                //工作流模型的工程
+                .AddProject(workflowProjectInfo)
+                .AddMetadataReference(WorkflowProjectId, MetadataReferences.CoreLib)
+                .AddMetadataReference(WorkflowProjectId, MetadataReferences.NetstandardLib)
+                .AddMetadataReference(WorkflowProjectId, MetadataReferences.SystemRuntimeLib)
+                .AddMetadataReference(WorkflowProjectId, MetadataReferences.SystemDataLib)
+                .AddMetadataReference(WorkflowProjectId, MetadataReferences.AppBoxCoreLib)
+                .AddProjectReference(WorkflowProjectId, new ProjectReference(ModelProjectId))
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))

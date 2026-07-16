@@ -34,7 +34,7 @@ internal partial class ServiceCodeGenerator
         var expSymbol = SemanticModel.GetSymbolInfo(node).Symbol;
         if (expSymbol != null)
         {
-            var interceptor = GetMemberAccessInterceptor(expSymbol);
+            var interceptor = ServiceInterceptors.Default.GetMemberAccessInterceptor(expSymbol);
             if (interceptor != null)
                 return interceptor.VisitMemberAccess(node, expSymbol, this!);
         }

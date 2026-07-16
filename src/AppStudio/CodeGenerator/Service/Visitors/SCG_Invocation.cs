@@ -11,7 +11,7 @@ internal partial class ServiceCodeGenerator
         var methodSymbol = SemanticModel.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
 
         //先判断有无拦截器
-        var interceptor = GetInvocationInterceptor(methodSymbol);
+        var interceptor = ServiceInterceptors.Default.GetInvocationInterceptor(methodSymbol);
         if (interceptor != null)
             return interceptor.VisitInvocation(node, methodSymbol!, this!);
 

@@ -11,10 +11,12 @@ internal partial class ViewCsGenerator
     public override SyntaxNode? VisitInvocationExpression(InvocationExpressionSyntax node)
     {
         var methodSymbol = SemanticModel.GetSymbolInfo(node.Expression).Symbol as IMethodSymbol;
-        //转换处理调用服务方法
-        if (methodSymbol != null && methodSymbol.IsAppBoxServiceMethod())
-            return CodeGeneratorUtil.VisitInvokeAppBoxService(this, node, methodSymbol);
-        //转换处理Entity.Observe() or RxEntity.Observe()
+        //先判断有无拦截器
+        var interceptor = ViewInterceptors.Default.GetInvocationInterceptor(methodSymbol);
+        if (interceptor != null)
+            return interceptor.VisitInvocation(node, methodSymbol!, this!);
+        
+        //转换处理Entity.Observe() or RxEntity.Observe(), TODO: 使用拦截器实现
         if (methodSymbol is { Name: "Observe" })
         {
             var typeFullName = methodSymbol.ContainingType.ToString() ?? string.Empty;

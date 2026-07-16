@@ -3,7 +3,6 @@ using System.Text;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using RoslynUtils;
 
 namespace AppBoxDesign;
 
@@ -36,7 +35,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
         AppName = appName;
         SemanticModel = semanticModel;
         ViewModel = viewModel;
-        _typeSymbolCache = new TypeSymbolCache(semanticModel);
+        // _typeSymbolCache = new TypeSymbolCache(semanticModel);
         _thisModelFullName = $"{appName}.Views.{viewModel.Name}";
         _forPreview = forPreview;
     }
@@ -45,7 +44,7 @@ internal sealed partial class ViewCsGenerator : CSharpSyntaxRewriter, ICodeGener
     internal readonly string AppName;
     internal readonly SemanticModel SemanticModel;
     internal readonly ViewModel ViewModel;
-    private readonly TypeSymbolCache _typeSymbolCache;
+    // private readonly TypeSymbolCache _typeSymbolCache;
     private readonly string _thisModelFullName;
     private readonly bool _forPreview;
 

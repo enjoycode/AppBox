@@ -134,7 +134,7 @@ internal sealed class ConditionsEditor : ListEditorBase<FlowLink>
             foreach (var parameter in workflowModel.Parameters)
             {
                 sb.Append("public ");
-                sb.Append(WorkflowCodeGenerator.GetParameterRuntimeType(parameter, designContext));
+                sb.Append(WorkflowCodeGenerator.GetParameterRuntimeType(parameter, designContext.DesignTree));
                 sb.Append(' ');
                 sb.Append(parameter.Name);
                 sb.Append("{get;");

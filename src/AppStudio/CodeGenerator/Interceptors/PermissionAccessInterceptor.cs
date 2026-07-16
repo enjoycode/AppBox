@@ -1,4 +1,3 @@
-using System;
 using AppBoxCore;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,6 +8,9 @@ namespace AppBoxDesign;
 internal sealed class PermissionAccessInterceptor : IMemberAccessInterceptor<SyntaxNode>
 {
     internal const string Name = "PermissionAccess";
+    internal static readonly PermissionAccessInterceptor Default = new();
+
+    private PermissionAccessInterceptor() { }
 
     public SyntaxNode VisitMemberAccess(MemberAccessExpressionSyntax node, ISymbol symbol,
         CSharpSyntaxVisitor<SyntaxNode> visitor)
