@@ -1,5 +1,6 @@
 using AppBoxCore;
 using AppBoxDesign;
+using AppBoxDesign.CodeGenerator;
 using NUnit.Framework;
 
 namespace Tests.Design;
@@ -109,5 +110,13 @@ public class CodeGenerateTest : DesignContextTestBase
         var doc = DesignContext.Workspace.CurrentSolution.GetDocument(serviceNode.RoslynDocumentId)!;
         var proxyCode = await ServiceProxyGenerator.GenServiceProxyCode(doc, "sys", serviceModel);
         Console.WriteLine(proxyCode);
+    }
+
+    [Test]
+    public void GenWorkflowCodeTest()
+    {
+        var node = DesignContext.DesignTree.FindModelNodeByFullName("demo.Workflows.LeaveFlow")!;
+        var code = WorkflowCodeGenerator.GenProxyCode(node);
+        Console.WriteLine(code);
     }
 }

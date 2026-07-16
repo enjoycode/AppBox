@@ -77,7 +77,7 @@ partial class DesignContext
         var serviceBaseProjectInfo = ProjectInfo.Create(ServiceBaseProjectId, VersionStamp.Create(),
             "ServiceBaseProject", "ServiceBaseProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
-        var workflowProjectInfo = ProjectInfo.Create(ViewsProjectId, VersionStamp.Create(),
+        var workflowProjectInfo = ProjectInfo.Create(WorkflowProjectId, VersionStamp.Create(),
             "WorkflowProject", "WorkflowProject", LanguageNames.CSharp, null, null,
             DllCompilationOptions, ParseOptions);
 

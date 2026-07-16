@@ -229,7 +229,7 @@ internal sealed class BuildQueryContext
 
     public string GetEntityRefAliasName(EntityExpression exp, SqlJoinable query)
     {
-        var path = exp.ToString();
+        var path = exp.ToString()!;
         var ds = AutoJoins[query];
 
         if (!ds.TryGetValue(path, out var e))

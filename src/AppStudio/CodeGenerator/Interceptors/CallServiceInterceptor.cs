@@ -21,7 +21,7 @@ internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode
     public SyntaxNode VisitInvocation(InvocationExpressionSyntax node, IMethodSymbol symbol,
         CSharpSyntaxVisitor<SyntaxNode> visitor)
     {
-        var generator = (ServiceCodeGenerator)visitor!;
+        var generator = (ICodeGeneratorWithUsages)visitor;
         return VisitInvokeAppBoxService(generator, node, symbol);
     }
 

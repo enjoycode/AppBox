@@ -18,6 +18,7 @@ internal static class WorkflowCodeGenerator
         sb.AppendLine($"public static class {model.Name} {{");
 
         // interceptor attribute
+        sb.Append('\t');
         sb.Append('[');
         sb.Append(TypeHelper.InvocationInterceptorAttribute);
         sb.Append("(\"");
@@ -37,7 +38,7 @@ internal static class WorkflowCodeGenerator
             sb.Append(parameter.Name);
         }
 
-        sb.AppendLine("=> Task.CompletedTask;");
+        sb.AppendLine(") => Task.CompletedTask;");
 
         sb.Append('}');
 
