@@ -18,6 +18,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         obj.CreateTime = instance.CreateTime;
         obj.Status = (byte)instance.Status;
         obj.Context = instance.GetContextData();
+        obj.Parameters = instance.GetParametersData();
 
         return SqlStore.Default.InsertAsync(obj);
     }
@@ -93,6 +94,8 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         var updateCmd = new SqlUpdateCommand(WFInstance.MODELID);
         updateCmd.Update(cmd => Expression.Assign(cmd.T.F(nameof(WFInstance.Status)), (byte)instance.Status));
         updateCmd.Update(cmd => Expression.Assign(cmd.T.F(nameof(WFInstance.Context)), instance.GetContextData()));
+        updateCmd.Update(cmd => Expression.Assign(cmd.T.F(nameof(WFInstance.Parameters)),
+            Expression.Constant(instance.GetParametersData())));
         updateCmd.Where(cmd => cmd.T.F(nameof(WFInstance.Id)) == instance.Id);
         return updateCmd;
     }

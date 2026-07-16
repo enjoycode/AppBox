@@ -73,5 +73,6 @@ namespace AppBoxCore
         DynamicQuery = 93,
         WorkflowActivity = 94,
         WorkflowLink = 95,
+        WorkflowParameters = 96,
     }
 }

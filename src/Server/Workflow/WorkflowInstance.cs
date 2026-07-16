@@ -12,7 +12,7 @@ public sealed class WorkflowInstance : ExpressionContext
     internal WorkflowInstance() { }
 
     public WorkflowInstance(string title, StartActivity startActivity,
-        Guid creatorId, Dictionary<string, AnyValue> parameters)
+        Guid creatorId, WorkflowParameters? parameters)
     {
         Id = SequenceGuid.New();
         Title = title;
@@ -28,7 +28,7 @@ public sealed class WorkflowInstance : ExpressionContext
     public StartActivity StartActivity { get; private set; } = null!;
     public Guid CreatorId { get; private set; }
     public DateTime CreateTime { get; private set; }
-    public Dictionary<string, AnyValue> Parameters { get; } = [];
+    public WorkflowParameters? Parameters { get; }
     public WorkflowStatus Status { get; private set; }
 
     public event Action<SuspendedOrFinishedEventArgs>? SuspendedOrFinished;
@@ -283,14 +283,6 @@ public sealed class WorkflowInstance : ExpressionContext
 
     public void SerializeContext<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        // //Parameters
-        // ws.WriteVariant(Parameters.Count);
-        // foreach (var kv in Parameters)
-        // {
-        //     ws.WriteString(kv.Key);
-        //     kv.Value.SerializeTo(ref ws);
-        // }
-
         //StartActivity
         ws.SerializeActivity(StartActivity);
 
@@ -315,15 +307,6 @@ public sealed class WorkflowInstance : ExpressionContext
 
     public void DeserializeContext<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        // //Parameters
-        // var count = rs.ReadVariant();
-        // for (var i = 0; i < count; i++)
-        // {
-        //     var key = rs.ReadString()!;
-        //     var value = AnyValue.ReadFrom(ref rs);
-        //     Parameters.Add(key, value);
-        // }
-
         //StartActivity
         StartActivity = (StartActivity)rs.DeserializeActivity()!;
 
@@ -350,6 +333,16 @@ public sealed class WorkflowInstance : ExpressionContext
         for (var i = 0; i < count; i++) _resumeLogs.Add(ResumeLog.ReadFrom(ref rs));
 
         rs.ReadFieldId(); //保留
+    }
+
+    public byte[]? GetParametersData()
+    {
+        if (Parameters == null || Parameters.IsEmpty) return null;
+
+        using var ms = new MemoryStream();
+        var ws = new SystemWriteStream(ms);
+        ws.Serialize(Parameters); //不要Write直接序列化，方便WorkflowService直接返回
+        return ms.ToArray();
     }
 
     public byte[] GetContextData()

@@ -14,7 +14,7 @@ internal sealed class WorkflowService
     /// <summary>
     /// 启动工作流实例
     /// </summary>
-    public async Task StartAsync(ModelId modelId, string title, Dictionary<string, AnyValue> parameters)
+    public async Task StartAsync(ModelId modelId, string title, WorkflowParameters? parameters)
     {
         //TODO:检查启动权限
         var session = RuntimeContext.CurrentSession;
