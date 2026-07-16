@@ -4,6 +4,9 @@ using static AppBox.Workflow.WorkflowLogger;
 
 namespace AppBox.Workflow;
 
+/// <summary>
+/// 运行时的工作流实例
+/// </summary>
 public sealed class WorkflowInstance : ExpressionContext
 {
     internal WorkflowInstance() { }
@@ -280,13 +283,13 @@ public sealed class WorkflowInstance : ExpressionContext
 
     public void SerializeContext<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        //Parameters
-        ws.WriteVariant(Parameters.Count);
-        foreach (var kv in Parameters)
-        {
-            ws.WriteString(kv.Key);
-            kv.Value.SerializeTo(ref ws);
-        }
+        // //Parameters
+        // ws.WriteVariant(Parameters.Count);
+        // foreach (var kv in Parameters)
+        // {
+        //     ws.WriteString(kv.Key);
+        //     kv.Value.SerializeTo(ref ws);
+        // }
 
         //StartActivity
         ws.SerializeActivity(StartActivity);
@@ -312,20 +315,20 @@ public sealed class WorkflowInstance : ExpressionContext
 
     public void DeserializeContext<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        //Parameters
-        var count = rs.ReadVariant();
-        for (var i = 0; i < count; i++)
-        {
-            var key = rs.ReadString()!;
-            var value = AnyValue.ReadFrom(ref rs);
-            Parameters.Add(key, value);
-        }
+        // //Parameters
+        // var count = rs.ReadVariant();
+        // for (var i = 0; i < count; i++)
+        // {
+        //     var key = rs.ReadString()!;
+        //     var value = AnyValue.ReadFrom(ref rs);
+        //     Parameters.Add(key, value);
+        // }
 
         //StartActivity
         StartActivity = (StartActivity)rs.DeserializeActivity()!;
 
         //Running
-        count = rs.ReadVariant();
+        var count = rs.ReadVariant();
         for (var i = 0; i < count; i++)
         {
             var link = rs.DeserializeLink()!;

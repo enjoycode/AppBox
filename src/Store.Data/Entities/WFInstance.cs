@@ -2,6 +2,9 @@ using AppBoxCore;
 
 namespace AppBoxStore.Entities;
 
+/// <summary>
+/// 工作流实例的实体，用于持久化存储
+/// </summary>
 internal sealed class WFInstance : SqlEntity, IEntity
 {
     public WFInstance() { }
@@ -18,6 +21,7 @@ internal sealed class WFInstance : SqlEntity, IEntity
     private DateTime _createTime;
     private byte _status;
     private byte[] _context = [];
+    private byte[]? _parameters;
 
     public Guid Id => _id;
 
@@ -48,12 +52,21 @@ internal sealed class WFInstance : SqlEntity, IEntity
     }
 
     /// <summary>
-    /// 序列化的参数及执行状态
+    /// 序列化的执行上下文
     /// </summary>
     public byte[] Context
     {
         get => _context;
         set => SetField(ref _context, value, CONTEXT_ID);
+    }
+
+    /// <summary>
+    /// 序列化的参数集
+    /// </summary>
+    public byte[]? Parameters
+    {
+        get => _parameters;
+        set => SetField(ref _parameters, value, PARAMETERS_ID);
     }
 
     #region ====Overrides====
@@ -67,9 +80,10 @@ internal sealed class WFInstance : SqlEntity, IEntity
     internal const short CREATE_TIME_ID = 5 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     internal const short STATUS_ID = 6 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     internal const short CONTEXT_ID = 7 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short PARAMETERS_ID = 8 << EntityMemberId.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds =
-        [ID_ID, TITLE_ID, CREATOR_ID_ID, CREATOR_ID, CREATE_TIME_ID, STATUS_ID, CONTEXT_ID];
+        [ID_ID, TITLE_ID, CREATOR_ID_ID, CREATOR_ID, CREATE_TIME_ID, STATUS_ID, CONTEXT_ID, PARAMETERS_ID];
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
@@ -98,6 +112,9 @@ internal sealed class WFInstance : SqlEntity, IEntity
                 break;
             case CONTEXT_ID:
                 ws.WriteBinaryMember(id, _context, flags);
+                break;
+            case PARAMETERS_ID:
+                ws.WriteBinaryMember(id, _parameters, flags);
                 break;
             default:
                 throw new SerializationException(SerializationError.UnknownEntityMember, nameof(WFInstance));
@@ -128,6 +145,9 @@ internal sealed class WFInstance : SqlEntity, IEntity
                 break;
             case CONTEXT_ID:
                 _context = rs.ReadBinaryMember(flags);
+                break;
+            case PARAMETERS_ID:
+                _parameters = rs.ReadBinaryMember(flags);
                 break;
             default:
                 throw new SerializationException(SerializationError.UnknownEntityMember, nameof(WFInstance));
