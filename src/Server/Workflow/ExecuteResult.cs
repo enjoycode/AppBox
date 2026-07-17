@@ -29,12 +29,13 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 {
     internal Bookmark() { }
 
-    internal Bookmark(BookmarkType type, string title, Guid[] actors)
+    internal Bookmark(BookmarkType type, string title, Guid[] actors, HumanAction[] actions)
     {
         Id = SequenceGuid.New();
         Type = type;
         Title = title;
         Actors = actors;
+        Actions = actions;
     }
 
     public Guid Id { get; private set; }
@@ -47,6 +48,11 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
     /// 执行者的组织单元标识集合，空表示由工作流管理员进行操作
     /// </summary>
     public Guid[] Actors { get; private set; } = [];
+
+    /// <summary>
+    /// 不需要序列化
+    /// </summary>
+    public HumanAction[] Actions { get; private set; } = [];
 
     internal void CheckCanResume(Guid actorId)
     {

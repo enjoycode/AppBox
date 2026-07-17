@@ -486,7 +486,7 @@ internal static class StoreInitiator
 
         var parameters = new EntityFieldMember(model, nameof(WFInstance.Parameters), EntityFieldType.Binary, true);
         model.AddSysMember(parameters, WFInstance.PARAMETERS_ID);
-        
+
         var version = new EntityFieldMember(model, nameof(WFInstance.ModelVersion), EntityFieldType.Int, false);
         model.AddSysMember(version, WFInstance.VERSION_ID);
 
@@ -535,6 +535,9 @@ internal static class StoreInitiator
 
         var createTime = new EntityFieldMember(model, nameof(WFTask.CreateTime), EntityFieldType.DateTime, false);
         model.AddSysMember(createTime, WFTask.CREATE_TIME_ID);
+
+        var actions = new EntityFieldMember(model, nameof(WFTask.Actions), EntityFieldType.Binary, true);
+        model.AddSysMember(actions, WFTask.ACTIONS_ID);
 
         //Indexes
         var ix_InstanceId_BookmarkId = new SqlIndex(model, "IX_InstanceId_BookmarkId", false,

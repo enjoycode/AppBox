@@ -22,8 +22,9 @@ internal sealed class WFTask : SqlEntity, IEntity
     private OrgUnit? _actor;
     private WFInstance? _instance;
     private string _title = string.Empty;
-
     private DateTime _createTime;
+    private byte[]? _actions;
+
     // private DateTime? _resultTime;
     // private string? _result;
     // private string? _comment;
@@ -46,6 +47,12 @@ internal sealed class WFTask : SqlEntity, IEntity
     {
         get => _createTime;
         set => SetField(ref _createTime, value, CREATE_TIME_ID);
+    }
+
+    public byte[]? Actions
+    {
+        get => _actions;
+        set => SetField(ref _actions, value, ACTIONS_ID);
     }
 
     // public DateTime? ResultTime
@@ -76,8 +83,9 @@ internal sealed class WFTask : SqlEntity, IEntity
     internal const short ACTOR_ID = 4 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     internal const short INSTANCE_ID = 5 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     internal const short TITLE_ID = 6 << EntityMemberId.MEMBERID_SEQ_OFFSET;
-
     internal const short CREATE_TIME_ID = 7 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+
+    internal const short ACTIONS_ID = 8 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     // internal const short RESULT_TIME_ID = 8 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     // internal const short RESULT_ID = 9 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     // internal const short COMMENT_ID = 10 << EntityMemberId.MEMBERID_SEQ_OFFSET;
@@ -85,7 +93,7 @@ internal sealed class WFTask : SqlEntity, IEntity
     private static readonly short[] MemberIds =
     [
         ACTOR_ID_ID, INSTANCE_ID_ID, BOOKMARK_ID_ID,
-        ACTOR_ID, INSTANCE_ID, TITLE_ID, CREATE_TIME_ID
+        ACTOR_ID, INSTANCE_ID, TITLE_ID, CREATE_TIME_ID, ACTIONS_ID
         /*RESULT_TIME_ID, RESULT_ID, COMMENT_ID*/
     ];
 
@@ -116,6 +124,9 @@ internal sealed class WFTask : SqlEntity, IEntity
                 break;
             case CREATE_TIME_ID:
                 ws.WriteDateTimeMember(id, _createTime, flags);
+                break;
+            case ACTIONS_ID:
+                ws.WriteBinaryMember(id, _actions, flags);
                 break;
             // case RESULT_TIME_ID:
             //     ws.WriteDateTimeMember(id, _resultTime, flags);
@@ -155,6 +166,9 @@ internal sealed class WFTask : SqlEntity, IEntity
                 break;
             case CREATE_TIME_ID:
                 _createTime = rs.ReadDateTimeMember(flags);
+                break;
+            case ACTIONS_ID:
+                _actions = rs.ReadBinaryMember(flags);
                 break;
             // case RESULT_TIME_ID:
             //     _resultTime = rs.ReadDateTimeMember(flags);

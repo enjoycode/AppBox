@@ -23,6 +23,16 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         return SqlStore.Default.InsertAsync(obj);
     }
 
+    private static byte[]? GetBookmarkActionsData(Bookmark? bookmark)
+    {
+        if (bookmark == null || bookmark.Actions.Length == 0)
+            return null;
+        using var ms = new MemoryStream();
+        var ws = new SystemWriteStream(ms);
+        ws.Serialize(bookmark.Actions);
+        return ms.ToArray();
+    }
+
     public async Task UpdateWorkflowInstance(WorkflowInstance instance, Bookmark? bookmark)
     {
         await using var txn = await SqlStore.Default.BeginTransactionAsync();
@@ -39,6 +49,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
                     var task = new WFTask(actorId, instance.Id, bookmark.Id);
                     task.Title = bookmark.Title;
                     task.CreateTime = DateTime.Now;
+                    task.Actions = GetBookmarkActionsData(bookmark);
                     await SqlStore.Default.InsertAsync(task, txn);
                 }
             }
