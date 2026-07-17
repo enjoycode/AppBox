@@ -486,6 +486,9 @@ internal static class StoreInitiator
 
         var parameters = new EntityFieldMember(model, nameof(WFInstance.Parameters), EntityFieldType.Binary, true);
         model.AddSysMember(parameters, WFInstance.PARAMETERS_ID);
+        
+        var version = new EntityFieldMember(model, nameof(WFInstance.ModelVersion), EntityFieldType.Int, false);
+        model.AddSysMember(version, WFInstance.VERSION_ID);
 
         //Indexes
         var ix_CrateTime_CreatorId = new SqlIndex(model, "IX_CreateTime_CreatorId", false,

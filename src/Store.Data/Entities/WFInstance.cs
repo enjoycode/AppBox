@@ -16,6 +16,7 @@ internal sealed class WFInstance : SqlEntity, IEntity
 
     private Guid _id;
     private string _title = string.Empty;
+    private int _modelVersion;
     private Guid _creatorId;
     private OrgUnit? _creator;
     private DateTime _createTime;
@@ -29,6 +30,12 @@ internal sealed class WFInstance : SqlEntity, IEntity
     {
         get => _title;
         set => SetField(ref _title, value, TITLE_ID);
+    }
+
+    public int ModelVersion
+    {
+        get => _modelVersion;
+        set => SetField(ref _modelVersion, value, VERSION_ID);
     }
 
     public Guid CreatorId
@@ -81,9 +88,10 @@ internal sealed class WFInstance : SqlEntity, IEntity
     internal const short STATUS_ID = 6 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     internal const short CONTEXT_ID = 7 << EntityMemberId.MEMBERID_SEQ_OFFSET;
     internal const short PARAMETERS_ID = 8 << EntityMemberId.MEMBERID_SEQ_OFFSET;
+    internal const short VERSION_ID = 9 << EntityMemberId.MEMBERID_SEQ_OFFSET;
 
     private static readonly short[] MemberIds =
-        [ID_ID, TITLE_ID, CREATOR_ID_ID, CREATOR_ID, CREATE_TIME_ID, STATUS_ID, CONTEXT_ID, PARAMETERS_ID];
+        [ID_ID, TITLE_ID, CREATOR_ID_ID, CREATOR_ID, CREATE_TIME_ID, STATUS_ID, CONTEXT_ID, PARAMETERS_ID, VERSION_ID];
 
     public override ModelId ModelId => MODELID;
     protected override short[] AllMembers => MemberIds;
@@ -115,6 +123,9 @@ internal sealed class WFInstance : SqlEntity, IEntity
                 break;
             case PARAMETERS_ID:
                 ws.WriteBinaryMember(id, _parameters, flags);
+                break;
+            case VERSION_ID:
+                ws.WriteIntMember(id, _modelVersion, flags);
                 break;
             default:
                 throw new SerializationException(SerializationError.UnknownEntityMember, nameof(WFInstance));
@@ -148,6 +159,9 @@ internal sealed class WFInstance : SqlEntity, IEntity
                 break;
             case PARAMETERS_ID:
                 _parameters = rs.ReadBinaryMember(flags);
+                break;
+            case VERSION_ID:
+                _modelVersion = rs.ReadIntMember(flags);
                 break;
             default:
                 throw new SerializationException(SerializationError.UnknownEntityMember, nameof(WFInstance));
