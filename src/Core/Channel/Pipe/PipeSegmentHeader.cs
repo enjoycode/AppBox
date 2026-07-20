@@ -5,7 +5,7 @@ namespace AppBoxCore.Channel;
 
 internal static class PipeSegmentHeader
 {
-    // |--消息类弄--|--消息标识--|--偏移位置--|--分割或结束标记--|
+    // |--消息类型--|--消息标识--|--偏移位置--|--分割或结束标记--|
     // |    1B     |   4B     |    4B     |     1B         |
 
     public const int HeaderSize = 10;
@@ -37,7 +37,7 @@ internal static class PipeSegmentHeader
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsError(this BytesSegment segment) =>
-        (segment.Buffer[FlagPosition] & IsErrorMask) == IsDividedMask;
+        (segment.Buffer[FlagPosition] & IsErrorMask) == IsErrorMask;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetAsError(this BytesSegment segment) =>
