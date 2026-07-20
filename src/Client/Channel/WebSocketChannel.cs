@@ -312,7 +312,7 @@ public sealed class WebSocketChannel : IClientChannel
                     case MessageType.UploadResponse:
                         ProcessResponse(ref rs); break;
                     case MessageType.DownloadResponse:
-                        ProcessDownloadReponse(ref rs); break;
+                        ProcessDownloadResponse(ref rs); break;
                     case MessageType.DownloadChunk:
                         ProcessDownloadChunk(rs); break;
                     case MessageType.ServerEvent:
@@ -341,7 +341,7 @@ public sealed class WebSocketChannel : IClientChannel
             rs.Free();
     }
 
-    private void ProcessDownloadReponse(ref MessageReadStream rs)
+    private void ProcessDownloadResponse(ref MessageReadStream rs)
     {
         var msgId = rs.ReadInt();
         if (_downloadManager == null || !_downloadManager.TryGetPending(msgId, out var pipeReader))
