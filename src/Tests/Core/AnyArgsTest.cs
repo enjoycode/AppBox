@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using AppBoxCore;
 using NUnit.Framework;
 
@@ -16,8 +17,12 @@ public class AnyArgsTest
     public void AnyValueCastTest()
     {
         var anyValue = AnyValue.From(123);
-        var v = anyValue.CastTo<int>();
-        Assert.IsTrue(v == 123);
+        Assert.IsTrue(anyValue.CastTo<int>() == 123);
+
+        anyValue = AnyValue.Empty;
+        Assert.Throws<InvalidCastException>(() => anyValue.CastTo<int>());
+
+        Assert.IsTrue(anyValue.CastTo<int?>() == null);
     }
 
     [Test]

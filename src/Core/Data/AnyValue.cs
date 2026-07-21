@@ -142,57 +142,80 @@ public readonly struct AnyValue : IEquatable<AnyValue>
 
     #region ====CastTo====
 
-    public T? CastTo<T>() where T : notnull
+    public T CastTo<T>()
     {
-        if (IsEmpty) return default;
-        return typeof(T) switch
+        var type = typeof(T);
+        if (type.IsValueType)
         {
-            { } t when t == typeof(bool) => Type == ValueType.Boolean
+            var nonNullableType = Nullable.GetUnderlyingType(type);
+            if (nonNullableType != null)
+                type = nonNullableType;
+            
+            if (IsEmpty)
+            {
+                if (nonNullableType == null)
+                    throw new InvalidCastException($"Null value can't cast to type {type}");
+#pragma warning disable CS8603 // Possible null reference return.
+                return default;
+#pragma warning restore CS8603 // Possible null reference return.
+            }
+        }
+        else
+        {
+#pragma warning disable CS8603 // Possible null reference return.
+            if (IsEmpty) return default;
+#pragma warning restore CS8603 // Possible null reference return.
+        }
+        
+        return type switch
+        {
+            { } when type == typeof(bool) => Type == ValueType.Boolean
                 ? Unsafe.As<bool, T>(ref Unsafe.AsRef(in BoolValue))
                 : throw new InvalidCastException($"{Type} can't cast to bool"),
-            { } t when t == typeof(byte) => Type == ValueType.Byte
+            { } when type == typeof(byte) => Type == ValueType.Byte
                 ? Unsafe.As<byte, T>(ref Unsafe.AsRef(in ByteValue))
                 : throw new InvalidCastException($"{Type} can't cast to byte"),
-            { } t when t == typeof(sbyte) => Type == ValueType.SByte
+            { } when type == typeof(sbyte) => Type == ValueType.SByte
                 ? Unsafe.As<sbyte, T>(ref Unsafe.AsRef(in SByteValue))
                 : throw new InvalidCastException($"{Type} can't cast to sbyte"),
-            { } t when t == typeof(char) => Type == ValueType.Char
+            { } when type == typeof(char) => Type == ValueType.Char
                 ? Unsafe.As<char, T>(ref Unsafe.AsRef(in CharValue))
                 : throw new InvalidCastException($"{Type} can't cast to char"),
-            { } t when t == typeof(short) => Type == ValueType.Int16
+            { } when type == typeof(short) => Type == ValueType.Int16
                 ? Unsafe.As<short, T>(ref Unsafe.AsRef(in ShortValue))
                 : throw new InvalidCastException($"{Type} can't cast to short"),
-            { } t when t == typeof(ushort) => Type == ValueType.UInt16
+            { } when type == typeof(ushort) => Type == ValueType.UInt16
                 ? Unsafe.As<ushort, T>(ref Unsafe.AsRef(in UShortValue))
                 : throw new InvalidCastException($"{Type} can't cast to ushort"),
-            { } t when t == typeof(int) => Type == ValueType.Int32
+            { } when type == typeof(int) => Type == ValueType.Int32
                 ? Unsafe.As<int, T>(ref Unsafe.AsRef(in IntValue))
                 : throw new InvalidCastException($"{Type} can't cast to int"),
-            { } t when t == typeof(uint) => Type == ValueType.UInt32
+            { } when type == typeof(uint) => Type == ValueType.UInt32
                 ? Unsafe.As<uint, T>(ref Unsafe.AsRef(in UIntValue))
                 : throw new InvalidCastException($"{Type} can't cast to uint"),
-            { } t when t == typeof(long) => Type == ValueType.Int64
+            { } when type == typeof(long) => Type == ValueType.Int64
                 ? Unsafe.As<long, T>(ref Unsafe.AsRef(in LongValue))
                 : throw new InvalidCastException($"{Type} can't cast to long"),
-            { } t when t == typeof(ulong) => Type == ValueType.UInt64
+            { } when type == typeof(ulong) => Type == ValueType.UInt64
                 ? Unsafe.As<ulong, T>(ref Unsafe.AsRef(in ULongValue))
                 : throw new InvalidCastException($"{Type} can't cast to ulong"),
-            { } t when t == typeof(float) => Type == ValueType.Float
+            { } when type == typeof(float) => Type == ValueType.Float
                 ? Unsafe.As<float, T>(ref Unsafe.AsRef(in FloatValue))
                 : throw new InvalidCastException($"{Type} can't cast to float"),
-            { } t when t == typeof(double) => Type == ValueType.Double
+            { } when type == typeof(double) => Type == ValueType.Double
                 ? Unsafe.As<double, T>(ref Unsafe.AsRef(in DoubleValue))
                 : throw new InvalidCastException($"{Type} can't cast to double"),
-            { } t when t == typeof(decimal) => Type == ValueType.Decimal
+            { } when type == typeof(decimal) => Type == ValueType.Decimal
                 ? Unsafe.As<decimal, T>(ref Unsafe.AsRef(in DecimalValue))
                 : throw new InvalidCastException($"{Type} can't cast to decimal"),
-            { } t when t == typeof(DateTime) => Type == ValueType.DateTime
+            { } when type == typeof(DateTime) => Type == ValueType.DateTime
                 ? Unsafe.As<DateTime, T>(ref Unsafe.AsRef(in DateTimeValue))
                 : throw new InvalidCastException($"{Type} can't cast to DateTime"),
-            { } t when t == typeof(Guid) => Type == ValueType.Guid
+            { } when type == typeof(Guid) => Type == ValueType.Guid
                 ? Unsafe.As<Guid, T>(ref Unsafe.AsRef(in GuidValue))
                 : throw new InvalidCastException($"{Type} can't cast to Guid"),
-            _ => (T)BoxedValue!
+            // ReSharper disable once NullableWarningSuppressionIsUsed
+            _ => (T)ObjectValue!
         };
     }
 
@@ -336,7 +359,7 @@ public readonly struct AnyValue : IEquatable<AnyValue>
     public static implicit operator AnyValue(string v) => new(v);
 
     public static explicit operator string(AnyValue v) => v.GetString() ?? string.Empty;
-    public static explicit operator byte[](AnyValue v) => (byte[])v.BoxedValue!;
+    public static explicit operator byte[](AnyValue v) => (byte[])v.ObjectValue!;
 
     //public static implicit operator AnyValue(Entity obj)=> new() { ObjectValue = obj, Type = AnyValueType.Object };
 

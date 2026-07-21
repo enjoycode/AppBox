@@ -74,7 +74,7 @@ public static class Channel
 
     public static string SessionName => Provider.SessionName;
 
-    public static Guid LeafOrgUnitId => Provider?.LeafOrgUnitId ?? Guid.Empty;
+    public static Guid LeafOrgUnitId => Provider.LeafOrgUnitId;
 
     public static IClientChannel Provider { get; private set; } = null!;
 
@@ -104,28 +104,26 @@ public static class Channel
     public static Task Invoke(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4, AnyValue arg5)
         => Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4, arg5));
 
-    public static async Task<T?> Invoke<T>(string service, EntityFactory[]? entityFactories = null)
-        where T : notnull =>
+    public static async Task<T> Invoke<T>(string service, EntityFactory[]? entityFactories = null) =>
         (await Provider.Invoke(service, AnyArgs.Empty, entityFactories)).CastTo<T>();
 
-    public static async Task<T?> Invoke<T>(string service, AnyValue arg, EntityFactory[]? entityFactories = null)
-        where T : notnull =>
+    public static async Task<T> Invoke<T>(string service, AnyValue arg, EntityFactory[]? entityFactories = null) =>
         (await Provider.Invoke(service, AnyArgs.Make(arg), entityFactories)).CastTo<T>();
 
-    public static async Task<T?> Invoke<T>(string service, AnyValue arg1, AnyValue arg2,
-        EntityFactory[]? entityFactories = null) where T : notnull =>
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2,
+        EntityFactory[]? entityFactories = null) =>
         (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2), entityFactories)).CastTo<T>();
 
-    public static async Task<T?> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3,
-        EntityFactory[]? entityFactories = null) where T : notnull =>
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3,
+        EntityFactory[]? entityFactories = null) =>
         (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3), entityFactories)).CastTo<T>();
 
-    public static async Task<T?> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4,
-        EntityFactory[]? entityFactories = null) where T : notnull =>
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4,
+        EntityFactory[]? entityFactories = null) =>
         (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4), entityFactories)).CastTo<T>();
 
-    public static async Task<T?> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4,
-        AnyValue arg5, EntityFactory[]? entityFactories = null) where T : notnull =>
+    public static async Task<T> Invoke<T>(string service, AnyValue arg1, AnyValue arg2, AnyValue arg3, AnyValue arg4,
+        AnyValue arg5, EntityFactory[]? entityFactories = null) =>
         (await Provider.Invoke(service, AnyArgs.Make(arg1, arg2, arg3, arg4, arg5), entityFactories)).CastTo<T>();
 
     public static Task Upload(string service, PipeBytesWriter writer) =>
@@ -137,8 +135,7 @@ public static class Channel
     public static Task Upload(string service, PipeBytesWriter writer, AnyValue arg1, AnyValue arg2) =>
         Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2));
 
-    public static async Task<T?> Upload<T>(string service, PipeBytesWriter writer, AnyValue arg1, AnyValue arg2)
-        where T : notnull =>
+    public static async Task<T> Upload<T>(string service, PipeBytesWriter writer, AnyValue arg1, AnyValue arg2) =>
         (await Provider.Upload(service, writer, AnyArgs.Make(arg1, arg2))).CastTo<T>();
 
     public static PipeBytesReader Download(string service) => Provider.Download(service, AnyArgs.Empty);
