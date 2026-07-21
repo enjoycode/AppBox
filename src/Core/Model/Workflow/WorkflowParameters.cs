@@ -5,11 +5,23 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class WorkflowParameters : IBinSerializable
 {
-    private Dictionary<string, AnyValue> _values = [];
+    public WorkflowParameters() { }
+
+    public WorkflowParameters(string[] names, AnyValue[] values)
+    {
+        if (names.Length != values.Length)
+            throw new ArgumentException("names and values must have the same length");
+        for (var i = 0; i < names.Length; i++)
+        {
+            _values.Add(names[i], values[i]);
+        }
+    }
+
+    private readonly Dictionary<string, AnyValue> _values = [];
 
     public bool IsEmpty => _values.Count == 0;
 
-    public T? GetValue<T>(string name) where T : notnull
+    public T GetValue<T>(string name)
     {
         if (!_values.TryGetValue(name, out var value))
             throw new KeyNotFoundException(name);
@@ -17,7 +29,7 @@ public sealed class WorkflowParameters : IBinSerializable
         return value.CastTo<T>();
     }
 
-    public void SetValue<T>(string name, T? value) where T : notnull
+    public void SetValue<T>(string name, T value)
     {
         if (!_values.ContainsKey(name))
             throw new KeyNotFoundException(name);

@@ -14,7 +14,7 @@ internal sealed class StagedService : IStagedService
     {
         var list = await Channel.Invoke<IList<StagedModel>>("sys.DesignService.StageLoadAll",
             [new EntityFactory(StagedModel.MODELID, typeof(StagedModel))]);
-        return new StagedItems(list!.ToList());
+        return new StagedItems(list.ToList());
     }
 
     public async Task DownloadCodeAsync(Stream toStream, ModelId modelId)

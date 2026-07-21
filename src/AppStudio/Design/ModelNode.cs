@@ -33,6 +33,9 @@ public sealed class ModelNode : DesignNode
             case ModelType.Enum:
                 RoslynDocumentId = DocumentId.CreateNewId(context.ModelProjectId);
                 break;
+            case ModelType.Workflow:
+                RoslynDocumentId = DocumentId.CreateNewId(context.WorkflowProjectId);
+                break;
         }
     }
 

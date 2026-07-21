@@ -89,30 +89,4 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
     {
         return ServiceContainer.InvokeAsync(service, args);
     }
-
-    #region ====供服务模型生成的代码使用的Invoke====
-
-    //TODO:*****以下实现错误，因每个服务的独立性，需要实体类的相关转换参数及返回值
-
-    /// <summary>
-    /// 仅用于服务端服务调用服务(无返回)
-    /// </summary>
-    public static async ValueTask Invoke<T>(string service, T args) where T : struct, IAnyArgs
-    {
-        await ServiceContainer.InvokeAsync(service, args);
-    }
-
-    /// <summary>
-    /// 仅用于服务端服务调用服务(有返回)
-    /// </summary>
-    public static async ValueTask<TResult?> Invoke<TArgs, TResult>(string service, TArgs args)
-        where TArgs : struct, IAnyArgs
-    {
-        var res = await ServiceContainer.InvokeAsync(service, args);
-        if (res.IsEmpty) return default;
-
-        return (TResult)res.BoxedValue!; //TODO: avoid boxed
-    }
-
-    #endregion
 }

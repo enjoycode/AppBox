@@ -43,6 +43,8 @@
         <EmbeddedResource Include="AI\View\Widgets.md" />
         <None Remove="AI\View\Rules.md" />
         <EmbeddedResource Include="AI\View\Rules.md" />
+        <Compile Remove="DummyCode\WorkflowBaseDummyCode.cs" />
+        <EmbeddedResource Include="DummyCode\WorkflowBaseDummyCode.cs" />
     </ItemGroup>
 
     <ItemGroup>

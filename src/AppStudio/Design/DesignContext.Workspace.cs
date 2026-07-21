@@ -1,6 +1,7 @@
 using System.Text;
 using AppBoxClient;
 using AppBoxCore;
+using AppBoxDesign.CodeGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -127,11 +128,12 @@ partial class DesignContext
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUIDrawingLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUIWidgetsLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.MaterialIconsLib)
-                .AddMetadataReference(ViewsProjectId, MetadataReferences.LiveChartsCoreLib)
-                .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILiveChartsLib)
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.LiveChartsCoreLib) //TODO: 根据需要
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILiveChartsLib) //TODO: 根据需要
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(ViewsProjectId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(ViewsProjectId, new ProjectReference(ServiceProxyProjectId))
+                .AddProjectReference(ViewsProjectId, new ProjectReference(WorkflowProjectId))
                 .AddDocument(DocumentId.CreateNewId(ViewsProjectId), "ViewBase.cs",
                     Resources.LoadString("DummyCode.ViewBaseDummyCode.cs"))
                 .AddDocument(DocumentId.CreateNewId(ViewsProjectId), "GlobalUsing.cs",
@@ -144,6 +146,8 @@ partial class DesignContext
                 .AddMetadataReference(WorkflowProjectId, MetadataReferences.SystemDataLib)
                 .AddMetadataReference(WorkflowProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(WorkflowProjectId, new ProjectReference(ModelProjectId))
+                .AddDocument(DocumentId.CreateNewId(WorkflowProjectId), "WorkflowBase.cs",
+                    Resources.LoadString("DummyCode.WorkflowBaseDummyCode.cs"))
             ;
 
         if (!Workspace.TryApplyChanges(newSolution))
@@ -221,6 +225,12 @@ partial class DesignContext
             {
                 var enumCode = EnumCodeGenerator.GenEnumCode((EnumModel)model, appName);
                 newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, enumCode);
+                break;
+            }
+            case ModelType.Workflow:
+            {
+                var workflowCode = WorkflowCodeGenerator.GenProxyCode(node);
+                newSolution = Workspace.CurrentSolution.AddDocument(docId!, docName, workflowCode);
                 break;
             }
         }
@@ -307,7 +317,7 @@ partial class DesignContext
             }
             case ModelType.Service:
             {
-                throw new NotImplementedException();
+                throw new NotImplementedException("UpdateModelDocumentAsync with Service model");
                 // var sourceCode = await MetaStore.Provider.LoadModelCodeAsync(model.Id);
                 // newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(sourceCode));
                 //
@@ -321,6 +331,12 @@ partial class DesignContext
             {
                 var dummyCode = PermissionCodeGenerator.GenServerCode((PermissionModel)model, appName);
                 newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(dummyCode));
+                break;
+            }
+            case ModelType.Workflow:
+            {
+                var code = WorkflowCodeGenerator.GenProxyCode(node);
+                newSolution = Workspace.CurrentSolution.WithDocumentText(docId, SourceText.From(code));
                 break;
             }
         }
@@ -424,6 +440,7 @@ partial class DesignContext
                 .AddProjectReference(prjId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(prjId, new ProjectReference(ServiceBaseProjectId))
                 .AddProjectReference(prjId, new ProjectReference(ServiceProxyProjectId))
+                .AddProjectReference(prjId, new ProjectReference(WorkflowProjectId))
                 .AddDocument(DocumentId.CreateNewId(prjId), "GlobalUsing.cs", CodeUtil.ServiceGlobalUsings())
             ;
 
@@ -585,6 +602,7 @@ partial class DesignContext
         await DumpProjectErrors(ServiceBaseProjectId);
         await DumpProjectErrors(ServiceProxyProjectId);
         await DumpProjectErrors(ViewsProjectId);
+        await DumpProjectErrors(WorkflowProjectId);
     }
 
     private async Task DumpProjectErrors(ProjectId projectId)

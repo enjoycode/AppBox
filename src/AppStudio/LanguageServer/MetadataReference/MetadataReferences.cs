@@ -231,7 +231,7 @@ internal static class MetadataReferences
             SystemNetHttpLib,
             SystemNetHttpJsonLib,
             AppBoxCoreLib,
-            // AppBoxServerLib, //暂不使用
+            // AppBoxServerLib,
             AppBoxStoreLib
         };
 

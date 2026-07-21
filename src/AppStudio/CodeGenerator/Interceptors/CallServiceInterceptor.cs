@@ -9,7 +9,7 @@ namespace AppBoxDesign;
 /// <summary>
 /// 转换调用服务的代码，eg:
 /// var res = await sys.Services.HelloService.SayHello("aa", 123)
-/// var res = await HostRuntimeContext.Invoke~string~("sys.HelloService.SayHello", AnyValue.From("aa"), AnyValue.From(123))
+/// var res = await RuntimeContext.Invoke~string~("sys.HelloService.SayHello", AnyValue.From("aa"), AnyValue.From(123))
 /// </summary>
 internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode>
 {
@@ -61,13 +61,13 @@ internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode
         }
         else
         {
-            methodName = "AppBoxServer.HostRuntimeContext.Invoke";
+            methodName = "RuntimeContext.Invoke";
         }
 
         if (isReturnGenericTask)
         {
-            var rt = ((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0];
-            methodName += $"<{rt}>";
+            var returnType = ((INamedTypeSymbol)symbol.ReturnType).TypeArguments[0];
+            methodName += $"<{returnType}>";
         }
 
         var method = SyntaxFactory.ParseExpression(methodName);
@@ -89,12 +89,8 @@ internal sealed class CallServiceInterceptor : IInvocationInterceptor<SyntaxNode
                 }
                 else
                 {
-                    var anyValueFromMethod = SyntaxFactory.ParseExpression("AnyValue.From");
-                    var anyValueFromValue = SyntaxFactory.Argument(argument.Expression);
-                    var anyValueFromArgs = SyntaxFactory.ArgumentList().AddArguments(anyValueFromValue);
-                    var anyValueFromInvoke = SyntaxFactory.InvocationExpression(anyValueFromMethod, anyValueFromArgs);
-
-                    args = args.AddArguments(SyntaxFactory.Argument(anyValueFromInvoke));
+                    var anyValueFrom = CodeGeneratorUtil.MakeAnyValueFrom(argument.Expression);
+                    args = args.AddArguments(SyntaxFactory.Argument(anyValueFrom));
                 }
             }
         }

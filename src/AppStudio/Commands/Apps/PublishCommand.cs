@@ -1,5 +1,4 @@
 using System.Text;
-using AppBoxClient;
 using AppBoxCore;
 using AppBoxCore.Channel;
 using Microsoft.CodeAnalysis;
@@ -62,7 +61,8 @@ internal sealed class PublishCommand : DesignCommand
         //TODO:
     }
 
-    private static async Task CompileAndUploadAsync(DesignContext context, IList<PendingChange> changes, PublishPackage package)
+    private static async Task CompileAndUploadAsync(DesignContext context, IList<PendingChange> changes,
+        PublishPackage package)
     {
         var isFirst = true;
         foreach (var item in changes)
@@ -89,7 +89,8 @@ internal sealed class PublishCommand : DesignCommand
     /// <remarks>
     /// 因Blazor不支持Brotli,所以暂不压缩
     /// </remarks>
-    internal static async Task CompileServiceAsync(Stream toStream, DesignContext context, ServiceModel model, bool forDebug)
+    internal static async Task CompileServiceAsync(Stream toStream, DesignContext context, ServiceModel model,
+        bool forDebug)
     {
         var designNode = context.DesignTree.FindModelNode(model.Id)!;
         var appName = designNode.AppNode.Model.Name;

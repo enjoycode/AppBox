@@ -163,4 +163,15 @@ internal static class CodeGeneratorUtil
         sb.Append("};\n");
         return StringBuilderCache.GetStringAndRelease(sb);
     }
+
+    /// <summary>
+    /// 生成AnyValue.From(xxxx)
+    /// </summary>
+    internal static InvocationExpressionSyntax MakeAnyValueFrom(ExpressionSyntax valueExpression)
+    {
+        var anyValueFromMethod = SyntaxFactory.ParseExpression("AnyValue.From");
+        var anyValueFromValue = SyntaxFactory.Argument(valueExpression);
+        var anyValueFromArgs = SyntaxFactory.ArgumentList().AddArguments(anyValueFromValue);
+        return SyntaxFactory.InvocationExpression(anyValueFromMethod, anyValueFromArgs);
+    }
 }
