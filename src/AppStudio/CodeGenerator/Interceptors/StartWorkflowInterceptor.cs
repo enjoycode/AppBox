@@ -22,21 +22,33 @@ internal sealed class StartWorkflowInterceptor : IInvocationInterceptor<SyntaxNo
     public SyntaxNode VisitInvocation(InvocationExpressionSyntax node, IMethodSymbol symbol,
         CSharpSyntaxVisitor<SyntaxNode> visitor)
     {
-        var invokeMethodName = visitor switch
+        var workflowModelName = symbol.ContainingType.ToString()!;
+        string invokeMethodName;
+        ModelNode modelNode;
+        switch (visitor)
         {
-            ServiceCodeGenerator => "RuntimeContext.Invoke",
-            ViewCsGenerator => "AppBoxClient.Channel.Invoke",
-            _ => throw new NotImplementedException($"{visitor.GetType().Name} not implemented")
-        };
+            case ServiceCodeGenerator serviceCodeGenerator:
+                invokeMethodName = "RuntimeContext.Invoke";
+                modelNode = serviceCodeGenerator.DesignContext.DesignTree.FindModelNodeByFullName(workflowModelName)!;
+                break;
+            case ViewCsGenerator viewCodeGenerator:
+                invokeMethodName = "AppBoxClient.Channel.Invoke";
+                modelNode = viewCodeGenerator.DesignContext.DesignTree.FindModelNodeByFullName(workflowModelName)!;
+                break;
+            default:
+                throw new NotImplementedException($"{visitor.GetType().Name} not implemented");
+        }
 
-        var parameterCount = symbol.Parameters.Length;
+        long modelId = modelNode.Model.Id;
+
+        var parameterCount = symbol.Parameters.Length - 1;
         var keys = new ExpressionSyntax[parameterCount];
         var values = new ExpressionSyntax[parameterCount];
         for (var i = 0; i < parameterCount; i++)
         {
             keys[i] = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
-                SyntaxFactory.Literal(symbol.Parameters[i].Name));
-            var argument = node.ArgumentList.Arguments[i];
+                SyntaxFactory.Literal(symbol.Parameters[i + 1].Name));
+            var argument = node.ArgumentList.Arguments[i + 1];
             values[i] = CodeGeneratorUtil.MakeAnyValueFrom(argument.Expression).WithTriviaFrom(argument);
         }
 
@@ -57,8 +69,11 @@ internal sealed class StartWorkflowInterceptor : IInvocationInterceptor<SyntaxNo
         var method = SyntaxFactory.ParseExpression(invokeMethodName);
         var arg1 = SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression,
             SyntaxFactory.Literal("sys.WorkflowService.Start")));
-        var arg2 = SyntaxFactory.Argument(CodeGeneratorUtil.MakeAnyValueFrom(newParas));
-        var args = SyntaxFactory.ArgumentList().AddArguments(arg1, arg2);
+        var arg2 = SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
+            SyntaxFactory.Literal(modelId)));
+        var arg3 = SyntaxFactory.Argument(node.ArgumentList.Arguments[0].Expression);
+        var arg4 = SyntaxFactory.Argument(CodeGeneratorUtil.MakeAnyValueFrom(newParas));
+        var args = SyntaxFactory.ArgumentList().AddArguments(arg1, arg2, arg3, arg4);
         var res = SyntaxFactory.InvocationExpression(method, args).WithTriviaFrom(node);
         return res;
     }

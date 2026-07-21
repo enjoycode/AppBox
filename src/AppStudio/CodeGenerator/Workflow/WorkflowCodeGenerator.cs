@@ -26,13 +26,14 @@ internal static class WorkflowCodeGenerator
         sb.Append("\")]\n");
 
         sb.Append("\tpublic static Task StartAsync(");
-        var sep = false;
+        //add title parameter
+        sb.Append("string title");
+        //add workflow parameters
         foreach (var parameter in model.Parameters)
         {
             if (parameter.IsLocalVariable) continue;
-            if (sep) sb.Append(", ");
+            sb.Append(", ");
 
-            sep = true;
             sb.Append(GetParameterRuntimeType(parameter, modelNode.DesignTree!));
             sb.Append(' ');
             sb.Append(parameter.Name);

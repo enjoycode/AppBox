@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBox.Workflow;
 
-internal sealed class WorkflowService
+internal sealed class WorkflowService : IService
 {
     public WorkflowService(IWorkflowStore workflowStore)
     {
@@ -14,7 +14,7 @@ internal sealed class WorkflowService
     /// <summary>
     /// 启动工作流实例
     /// </summary>
-    public async Task StartAsync(ModelId modelId, string title, WorkflowParameters? parameters)
+    public async Task Start(ModelId modelId, string title, WorkflowParameters parameters)
     {
         //TODO:检查启动权限
         var session = RuntimeContext.CurrentSession;
@@ -37,5 +37,17 @@ internal sealed class WorkflowService
     public void Restart()
     {
         //TODO: 从存储加载Status==Running的工作流实例
+    }
+
+    public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IAnyArgs
+    {
+        switch (method.Span)
+        {
+            case nameof(Start):
+                await Start(args.GetLong()!.Value, args.GetString()!, (WorkflowParameters)args.GetObject()!);
+                return AnyValue.Empty;
+            default:
+                throw new Exception($"Can't find method: {method}");
+        }
     }
 }
