@@ -495,7 +495,8 @@ partial class PgSqlStore
             return;
         }
 
-        if (exp.Value.BoxedValue is IEnumerable list && !(exp.Value.BoxedValue is string)) //用于处理In及NotIn的参数
+        var boxedValue = exp.Value.BoxedValue!;
+        if (boxedValue is IEnumerable list and not string and not byte[]) //用于处理In及NotIn的参数
         {
             ctx.Append("(");
             bool first = true;
@@ -510,10 +511,10 @@ partial class PgSqlStore
         }
         else
         {
-            if (exp.Value.BoxedValue is ulong v)
+            if (boxedValue is ulong v)
                 ctx.AppendFormat("@{0}", ctx.GetParameterName(unchecked((long)v)));
             else
-                ctx.AppendFormat("@{0}", ctx.GetParameterName(exp.Value.BoxedValue!));
+                ctx.AppendFormat("@{0}", ctx.GetParameterName(boxedValue));
         }
     }
 
