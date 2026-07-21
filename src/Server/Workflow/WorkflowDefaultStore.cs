@@ -27,10 +27,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
     {
         if (bookmark == null || bookmark.Actions.Length == 0)
             return null;
-        using var ms = new MemoryStream();
-        var ws = new SystemWriteStream(ms);
-        ws.Serialize(bookmark.Actions);
-        return ms.ToArray();
+        return HumanAction.WriteActions(bookmark.Actions);
     }
 
     public async Task UpdateWorkflowInstance(WorkflowInstance instance, Bookmark? bookmark)

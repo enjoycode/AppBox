@@ -48,5 +48,26 @@ public sealed class HumanAction : IBinSerializable
         rs.ReadFieldId();
     }
 
+    public static byte[]? WriteActions(HumanAction[]? actions)
+    {
+        if (actions == null || actions.Length == 0)
+            return null;
+
+        using var ms = new MemoryStream();
+        var ws = new SystemWriteStream(ms);
+        ws.WriteArray(actions);
+        return ms.ToArray();
+    }
+
+    public static HumanAction[]? ReadActions(byte[]? bytes)
+    {
+        if (bytes == null || bytes.Length == 0)
+            return null;
+
+        using var ms = new MemoryStream(bytes);
+        var rs = new SystemReadStream(ms);
+        return rs.ReadArray<SystemReadStream, HumanAction>();
+    }
+
     #endregion
 }

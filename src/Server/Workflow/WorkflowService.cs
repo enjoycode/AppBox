@@ -1,4 +1,5 @@
 using AppBoxCore;
+using static AppBox.Workflow.WorkflowLogger;
 
 namespace AppBox.Workflow;
 
@@ -10,6 +11,8 @@ internal sealed class WorkflowService : IService
     }
 
     private readonly IWorkflowStore _store;
+    private readonly List<WorkflowInstance> _running = [];
+    private readonly SemaphoreSlim _lock = new(1, 1);
 
     /// <summary>
     /// 启动工作流实例
@@ -28,7 +31,47 @@ internal sealed class WorkflowService : IService
         var startActivity = (StartActivity)visitor.Visit(model.StartNode);
         //3.新建工作流实例保存并异步运行
         var instance = new WorkflowInstance(title, startActivity, session.LeafOrgUnitId, parameters);
+        instance.ModelVersion = model.Version;
+        instance.SuspendedOrFinished += OnInstanceSuspendedOrFinished;
         await instance.Start(_store);
+        await AddToRunning(instance);
+    }
+
+    private async Task AddToRunning(WorkflowInstance instance)
+    {
+        await _lock.WaitAsync();
+        try
+        {
+            _running.Add(instance);
+            Logger.Debug($"Add running instance: {instance.Id}, remain: {_running.Count}");
+        }
+        finally
+        {
+            _lock.Release();
+        }
+    }
+
+    private async Task RemoveFromRunning(Guid instanceId)
+    {
+        await _lock.WaitAsync();
+        try
+        {
+            var index = _running.FindIndex(instance => instance.Id == instanceId);
+            if (index >= 0)
+            {
+                _running.RemoveAt(index);
+                Logger.Debug($"Remove running instance: {instanceId}, remain: {_running.Count}");
+            }
+        }
+        finally
+        {
+            _lock.Release();
+        }
+    }
+
+    private async void OnInstanceSuspendedOrFinished(WorkflowInstance.SuspendedOrFinishedEventArgs args)
+    {
+        await RemoveFromRunning(args.InstanceId);
     }
 
     /// <summary>

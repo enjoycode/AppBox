@@ -21,20 +21,7 @@ public sealed class WorkflowParameters : IBinSerializable
 
     public bool IsEmpty => _values.Count == 0;
 
-    public T GetValue<T>(string name)
-    {
-        if (!_values.TryGetValue(name, out var value))
-            throw new KeyNotFoundException(name);
-
-        return value.CastTo<T>();
-    }
-
-    public void SetValue<T>(string name, T value)
-    {
-        if (!_values.ContainsKey(name))
-            throw new KeyNotFoundException(name);
-        _values[name] = AnyValue.From(value); //TODO:
-    }
+    public bool TryGetValue(string name, out AnyValue value) => _values.TryGetValue(name, out value);
 
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {

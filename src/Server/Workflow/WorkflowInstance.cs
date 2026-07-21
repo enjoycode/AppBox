@@ -26,10 +26,12 @@ public sealed class WorkflowInstance : ExpressionContext
     public Guid Id { get; private set; }
     public string Title { get; private set; } = string.Empty;
     public StartActivity StartActivity { get; private set; } = null!;
+
     /// <summary>
     /// 对应的工作流模型的版本号，启动前设置
     /// </summary>
     public int ModelVersion { get; internal set; }
+
     public Guid CreatorId { get; private set; }
     public DateTime CreateTime { get; private set; }
     public WorkflowParameters? Parameters { get; }
@@ -281,6 +283,13 @@ public sealed class WorkflowInstance : ExpressionContext
         {
             _lock.Release();
         }
+    }
+
+    public override AnyValue ResolveParameter(string parameterName)
+    {
+        if (Parameters != null && Parameters.TryGetValue(parameterName, out AnyValue value))
+            return value;
+        return base.ResolveParameter(parameterName);
     }
 
     #region ====Serialization for Context====

@@ -1,3 +1,4 @@
+using AppBox.Workflow;
 using AppBoxCore;
 
 namespace AppBoxServer;
@@ -10,6 +11,7 @@ internal static class SysServiceContainer
     internal static readonly SystemService SystemService = new();
     internal static readonly DesignService DesignService = new();
     private static readonly EntityService EntityService = new();
+    private static readonly WorkflowService WorkflowService = new(new WorkflowDefaultStore());
 
     internal static IService? TryGet(ReadOnlyMemory<char> serviceName)
     {
@@ -18,6 +20,7 @@ internal static class SysServiceContainer
             nameof(SystemService) => SystemService,
             nameof(DesignService) => DesignService,
             nameof(EntityService) => EntityService,
+            nameof(WorkflowService) => WorkflowService,
             _ => null
         };
     }
