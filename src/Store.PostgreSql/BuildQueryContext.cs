@@ -42,6 +42,7 @@ internal sealed class BuildQueryContext
 
     private Dictionary<SqlJoinable, Dictionary<string, EntityExpression>>? _autoJoins;
 
+    //TODO: 修改AutoJoins为Dictionary<SqlJoinable, HashSet<EntityExpression>>
     private Dictionary<SqlJoinable, Dictionary<string, EntityExpression>> AutoJoins =>
         _autoJoins ??= new Dictionary<SqlJoinable, Dictionary<string, EntityExpression>>();
 
@@ -229,7 +230,7 @@ internal sealed class BuildQueryContext
 
     public string GetEntityRefAliasName(EntityExpression exp, SqlJoinable query)
     {
-        var path = exp.ToString()!;
+        var path = exp.ToString();
         var ds = AutoJoins[query];
 
         if (!ds.TryGetValue(path, out var e))

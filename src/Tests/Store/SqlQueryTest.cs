@@ -147,6 +147,23 @@ public sealed class SqlQueryTest
     }
 
     [Test]
+    public async Task AutoJoinTest()
+    {
+        var q = new SqlQuery<WFTask>(WFTask.MODELID);
+        var list = await q.ToListAsync(r => new WorkflowTaskInfo()
+            {
+                InstanceTitle = r.ReadStringMember(0),
+                ActorName = r.ReadStringMember(1),
+            },
+            t =>
+            [
+                t.R("Instance", WFInstance.MODELID).F("Title"),
+                t.R("Actor", OrgUnit.MODELID).F("Name"),
+            ]
+        );
+    }
+
+    [Test]
     public async Task GroupByTest()
     {
         var q = new SqlQuery<Checkout>(Checkout.MODELID);

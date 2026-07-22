@@ -182,6 +182,13 @@ public sealed class EntityExpression : Expression, IMemberPathBuilder, IEntityPa
         }
     }
 
+    public override string ToString()
+    {
+        if (Equals(Owner, null))
+            return string.IsNullOrEmpty(AliasName) ? "t" : AliasName;
+        return $"{Owner}.{Name}";
+    }
+
     #endregion
 
     #region ====Serialization====
