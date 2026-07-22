@@ -46,6 +46,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
                     var task = new WFTask(actorId, instance.Id, bookmark.Id);
                     task.Title = bookmark.Title;
                     task.CreateTime = DateTime.Now;
+                    task.ViewModelId = bookmark.ViewModelId;
                     task.Actions = GetBookmarkActionsData(bookmark);
                     await SqlStore.Default.InsertAsync(task, txn);
                 }

@@ -13,6 +13,8 @@ public sealed class WorkflowTaskInfo : IBinSerializable
     public string TaskTitle { get; set; } = string.Empty;
     public string ActorName { get; set; } = string.Empty;
     public string CreatorName { get; set; } = string.Empty;
+    public ModelId? ViewModelId { get; set; }
+
     public WorkflowParameters? Parameters { get; set; }
     public HumanAction[]? Actions { get; set; }
 
@@ -30,6 +32,9 @@ public sealed class WorkflowTaskInfo : IBinSerializable
         ws.WriteString(TaskTitle);
         ws.WriteString(ActorName);
         ws.WriteString(CreatorName);
+        ws.WriteBool(ViewModelId.HasValue);
+        if (ViewModelId.HasValue)
+            ws.WriteLong(ViewModelId.Value);
     }
 
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
@@ -42,5 +47,8 @@ public sealed class WorkflowTaskInfo : IBinSerializable
         TaskTitle = rs.ReadString()!;
         ActorName = rs.ReadString()!;
         CreatorName = rs.ReadString()!;
+        var hasViewModelId = rs.ReadBool();
+        if (hasViewModelId)
+            ViewModelId = rs.ReadLong();
     }
 }

@@ -29,13 +29,14 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
 {
     internal Bookmark() { }
 
-    internal Bookmark(BookmarkType type, string title, Guid[] actors, HumanAction[] actions)
+    internal Bookmark(BookmarkType type, string title, Guid[] actors, ModelId? viewModelId, HumanAction[] actions)
     {
         Id = SequenceGuid.New();
         Type = type;
         Title = title;
         Actors = actors;
         Actions = actions;
+        ViewModelId = viewModelId;
     }
 
     public Guid Id { get; private set; }
@@ -53,6 +54,11 @@ public sealed class Bookmark : IExecuteResult, IBinSerializable
     /// 不需要序列化
     /// </summary>
     public HumanAction[] Actions { get; private set; } = [];
+
+    /// <summary>
+    /// 不需要序列化
+    /// </summary>
+    public ModelId? ViewModelId { get; private set; }
 
     internal void CheckCanResume(Guid actorId)
     {
