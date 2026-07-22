@@ -347,17 +347,7 @@ public sealed class WorkflowInstance : ExpressionContext
 
         rs.ReadFieldId(); //保留
     }
-
-    public byte[]? GetParametersData()
-    {
-        if (Parameters == null || Parameters.IsEmpty) return null;
-
-        using var ms = new MemoryStream();
-        var ws = new SystemWriteStream(ms);
-        ws.Serialize(Parameters); //不要Write直接序列化，方便WorkflowService直接返回
-        return ms.ToArray();
-    }
-
+    
     public byte[] GetContextData()
     {
         using var ms = new MemoryStream();

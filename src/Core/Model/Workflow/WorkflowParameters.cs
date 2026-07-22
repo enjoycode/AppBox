@@ -23,6 +23,8 @@ public sealed class WorkflowParameters : IBinSerializable
 
     public bool TryGetValue(string name, out AnyValue value) => _values.TryGetValue(name, out value);
 
+    #region ====Serialization====
+
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         ws.WriteVariant(_values.Count);
@@ -47,4 +49,25 @@ public sealed class WorkflowParameters : IBinSerializable
 
         rs.ReadFieldId(); //保留
     }
+
+    public static byte[]? Serialize(WorkflowParameters? parameters)
+    {
+        if (parameters == null || parameters.IsEmpty) return null;
+
+        using var ms = new MemoryStream();
+        var ws = new SystemWriteStream(ms);
+        ws.Serialize(parameters);
+        return ms.ToArray();
+    }
+
+    public static WorkflowParameters? Deserialize(byte[]? data)
+    {
+        if (data == null || data.Length == 0) return null;
+
+        using var ms = new MemoryStream(data);
+        var rs = new SystemReadStream(ms);
+        return (WorkflowParameters?)rs.Deserialize();
+    }
+
+    #endregion
 }

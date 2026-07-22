@@ -1,7 +1,7 @@
 namespace AppBoxCore;
 
 /// <summary>
-/// 仅用于运行时封装工作流任务
+/// 用于运行时封装工作流任务
 /// </summary>
 public sealed class WorkflowTaskInfo
 {
