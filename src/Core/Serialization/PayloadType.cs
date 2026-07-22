@@ -74,5 +74,6 @@ namespace AppBoxCore
         WorkflowActivity = 94,
         WorkflowLink = 95,
         WorkflowParameters = 96,
+        WorkflowTaskInfo = 97,
     }
 }
