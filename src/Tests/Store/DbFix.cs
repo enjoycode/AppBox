@@ -25,11 +25,11 @@ public class DbFix
     // 临时用于修复一些错误的模型数据
 
     // [Test]
-    // public async Task AddWorkflowTaskActions()
+    // public async Task AddWorkflowTaskViewModelId()
     // {
     //     var model = (EntityModel)await MetaStore.Provider.LoadModelAsync(WFTask.MODELID);
-    //     var actions = new EntityFieldMember(model, nameof(WFTask.Actions), EntityFieldType.Binary, true);
-    //     model.AddSysMember(actions, WFTask.ACTIONS_ID);
+    //     var viewModelId = new EntityFieldMember(model, nameof(WFTask.ViewModelId), EntityFieldType.Long, true);
+    //     model.AddSysMember(viewModelId, WFTask.VIEW_MODEL_ID_ID);
     //
     //     var txn = await SqlStore.Default.BeginTransactionAsync();
     //     await MetaStore.Provider.UpdateModelAsync(model, txn);
