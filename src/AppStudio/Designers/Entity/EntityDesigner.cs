@@ -48,8 +48,16 @@ internal sealed class EntityDesigner : View, IModelDesigner
                     Children =
                     {
                         new Button("Members") { Width = 75, OnTap = _ => _activePad.Value = 0 },
-                        new Button("Options") { Width = 75, OnTap = _ => _activePad.Value = 1 },
-                        new Button("Data") { Width = 75, OnTap = _ => _activePad.Value = 2 },
+                        new Button("Options")
+                        {
+                            Width = 75, OnTap = _ => _activePad.Value = 1,
+                            Enabled = _entityModel.SqlStoreOptions != null
+                        },
+                        new Button("Data")
+                        {
+                            Width = 75, OnTap = _ => _activePad.Value = 2,
+                            Enabled = _entityModel.SqlStoreOptions != null
+                        },
                     }
                 },
                 new IfConditional(_activePad.ToStateOfBool(i => i == 0), () => new ButtonGroup
