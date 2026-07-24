@@ -538,9 +538,10 @@ internal static class StoreInitiator
 
         var actions = new EntityFieldMember(model, nameof(WFTask.Actions), EntityFieldType.Binary, true);
         model.AddSysMember(actions, WFTask.ACTIONS_ID);
-        
-        var viewModelId = new EntityFieldMember(model, nameof(WFTask.ViewModelId), EntityFieldType.Long, true);
-        model.AddSysMember(viewModelId, WFTask.VIEW_MODEL_ID_ID);
+
+        var formName = new EntityFieldMember(model, nameof(WFTask.FormName), EntityFieldType.String, true);
+        formName.Length = 200;
+        model.AddSysMember(formName, WFTask.FORM_NAME_ID);
 
         //Indexes
         var ix_InstanceId_BookmarkId = new SqlIndex(model, "IX_InstanceId_BookmarkId", false,

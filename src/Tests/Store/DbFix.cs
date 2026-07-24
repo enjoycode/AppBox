@@ -28,8 +28,11 @@ public class DbFix
     // public async Task AddWorkflowTaskViewModelId()
     // {
     //     var model = (EntityModel)await MetaStore.Provider.LoadModelAsync(WFTask.MODELID);
-    //     var viewModelId = new EntityFieldMember(model, nameof(WFTask.ViewModelId), EntityFieldType.Long, true);
-    //     model.AddSysMember(viewModelId, WFTask.VIEW_MODEL_ID_ID);
+    //     var formName = new EntityFieldMember(model, nameof(WFTask.FormName), EntityFieldType.String, true);
+    //     model.AddSysMember(formName, WFTask.FORM_NAME_ID);
+    //
+    //     var oldViewId = model.GetMember("ViewModelId")!;
+    //     model.RemoveMember(oldViewId);
     //
     //     var txn = await SqlStore.Default.BeginTransactionAsync();
     //     await MetaStore.Provider.UpdateModelAsync(model, txn);

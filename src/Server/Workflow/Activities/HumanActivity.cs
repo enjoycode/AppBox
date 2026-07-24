@@ -7,17 +7,17 @@ public abstract class HumanActivity : Activity
 {
     protected HumanActivity() { }
 
-    protected HumanActivity(string title, HumanActor[] actors, HumanAction[] actions, ModelId? formModelId = null) :
+    protected HumanActivity(string title, HumanActor[] actors, HumanAction[] actions, string? formName = null) :
         base(title)
     {
         Actors = actors;
         Actions = actions;
-        FormModelId = formModelId;
+        FormName = formName;
     }
 
     public HumanActor[] Actors { get; private set; } = null!;
     public HumanAction[] Actions { get; private set; } = null!;
-    public ModelId? FormModelId { get; private set; }
+    public string? FormName { get; private set; }
 
     internal override void InitActivity(ActivityNode node)
     {
@@ -31,7 +31,7 @@ public abstract class HumanActivity : Activity
 
         Actions = humanNode.Actions.ToArray();
         Actors = humanNode.Actors.ToArray();
-        FormModelId = humanNode.FormModelId;
+        FormName = humanNode.FormName;
     }
 
     /// <summary>
@@ -97,10 +97,7 @@ public abstract class HumanActivity : Activity
 
         ws.WriteArray(Actors);
         ws.WriteArray(Actions);
-
-        ws.WriteBool(FormModelId.HasValue);
-        if (FormModelId.HasValue)
-            ws.WriteLong(FormModelId.Value);
+        ws.WriteString(FormName);
 
         ws.WriteFieldEnd(); //保留
     }
@@ -111,10 +108,7 @@ public abstract class HumanActivity : Activity
 
         Actors = rs.ReadArray<TReader, HumanActor>();
         Actions = rs.ReadArray<TReader, HumanAction>();
-
-        var hasFormModelId = rs.ReadBool();
-        if (hasFormModelId)
-            FormModelId = rs.ReadLong();
+        FormName = rs.ReadString();
 
         rs.ReadFieldId(); //保留
     }

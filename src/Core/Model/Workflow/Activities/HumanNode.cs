@@ -15,7 +15,8 @@ public abstract class HumanNode : ActivityNode
     /// <summary>
     /// 用于设置人工处理时所显示的用户表单界面
     /// </summary>
-    public ModelId? FormModelId { get; internal set; }
+    /// <remarks>eg: sys.LeaveRequest</remarks>
+    public string? FormName { get; internal set; }
 
     /// <summary>
     /// 处理人员的动作集合
@@ -49,10 +50,7 @@ public abstract class HumanNode : ActivityNode
         ws.WriteCollection(ResultConditions);
         ws.WriteCollection(Actions);
         ws.WriteCollection(Actors);
-
-        ws.WriteBool(FormModelId.HasValue);
-        if (FormModelId.HasValue)
-            ws.WriteLong(FormModelId.Value);
+        ws.WriteString(FormName);
 
         ws.WriteFieldEnd();
     }
@@ -64,10 +62,7 @@ public abstract class HumanNode : ActivityNode
         rs.ReadCollection(ResultConditions);
         rs.ReadCollection(Actions);
         rs.ReadCollection(Actors);
-
-        var hasFormModelId = rs.ReadBool();
-        if (hasFormModelId)
-            FormModelId = rs.ReadLong();
+        FormName = rs.ReadString();
 
         rs.ReadFieldId();
     }

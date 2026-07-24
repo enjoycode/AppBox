@@ -81,7 +81,7 @@ public sealed class MultiHumanActivity : HumanActivity
             return new Bookmark(BookmarkType.WaitAdmin, Title, [], null, []);
 
         //3.新建Bookmark并返回
-        return new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray(), FormModelId, Actions);
+        return new Bookmark(BookmarkType.WaitActor, Title, ids.ToArray(), FormName, Actions);
     }
 
     internal override async ValueTask<ResumeResult> Resume(WorkflowInstance instance, IActorResult actionResult)
