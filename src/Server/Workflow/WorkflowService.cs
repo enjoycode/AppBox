@@ -1,4 +1,6 @@
 using AppBoxCore;
+using AppBoxStore;
+using AppBoxStore.Entities;
 using static AppBox.Workflow.WorkflowLogger;
 
 namespace AppBox.Workflow;
@@ -82,6 +84,22 @@ internal sealed class WorkflowService : IService
         //TODO: 从存储加载Status==Running的工作流实例
     }
 
+    public static Task<byte[]?> FetchParameters(Guid instanceId)
+    {
+        var q = new SqlQuery<WFInstance>(WFInstance.MODELID);
+        q.Where(t => t.F(nameof(WFInstance.Id)) == instanceId);
+        return q.ToScalarAsync<byte[]>(t => t.F(nameof(WFInstance.Parameters)));
+    }
+
+    public static Task<byte[]?> FetchTaskActions(Guid actorId, Guid instanceId, Guid bookmarkId)
+    {
+        var q = new SqlQuery<WFTask>(WFTask.MODELID);
+        q.Where(t => t.F(nameof(WFTask.ActorId)) == actorId &
+                     t.F(nameof(WFTask.InstanceId)) == instanceId &
+                     t.F(nameof(WFTask.BookmarkId)) == bookmarkId);
+        return q.ToScalarAsync<byte[]>(t => t.F(nameof(WFTask.Actions)));
+    }
+
     public async ValueTask<AnyValue> InvokeAsync<T>(ReadOnlyMemory<char> method, T args) where T : struct, IAnyArgs
     {
         switch (method.Span)
@@ -89,6 +107,11 @@ internal sealed class WorkflowService : IService
             case nameof(Start):
                 await Start(args.GetLong()!.Value, args.GetString()!, (WorkflowParameters)args.GetObject()!);
                 return AnyValue.Empty;
+            case nameof(FetchParameters):
+                return AnyValue.From(await FetchParameters(args.GetGuid()!.Value));
+            case nameof(FetchTaskActions):
+                return AnyValue.From(await FetchTaskActions(args.GetGuid()!.Value, args.GetGuid()!.Value,
+                    args.GetGuid()!.Value));
             default:
                 throw new Exception($"Can't find method: {method}");
         }
