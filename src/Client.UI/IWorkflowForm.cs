@@ -7,5 +7,7 @@ namespace AppBoxClient;
 /// </summary>
 public interface IWorkflowForm
 {
-    public WorkflowTaskInfo TaskInfo { get; set; }
+    void OnLoaded(WorkflowTaskInfo taskInfo);
+    
+    
 }

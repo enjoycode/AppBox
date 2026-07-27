@@ -93,5 +93,14 @@ namespace AppBoxClient
             where TEntity : Entity
             => throw new Exception();
     }
+
+    public static class AppAssemblies
+    {
+        /// <summary>
+        /// 创建视图模型的实例，如果尚未加载程序集则从服务端加载所有依赖的程序集
+        /// </summary>
+        /// <param name="viewModelName">eg: sys.HomePage</param>
+        public static ValueTask<Widget> MakeViewWidgetAsync(string viewModelName) => throw new Exception();
+    }
 }
 

@@ -10,7 +10,27 @@ namespace AppBox.Workflow;
 /// </summary>
 public sealed class WorkflowDefaultStore : IWorkflowStore
 {
-    public Task InsertWorkflowInstance(WorkflowInstance instance)
+    public async Task<WorkflowInstance> FetchInstance(Guid instanceId)
+    {
+        var wfInstance = new WFInstance(instanceId);
+        await SqlStore.Default.FetchAsync(wfInstance);
+
+        var instance = new WorkflowInstance();
+        instance.Id = wfInstance.Id;
+        instance.Title = wfInstance.Title;
+        instance.ModelVersion = wfInstance.ModelVersion;
+        instance.CreatorId = wfInstance.CreatorId;
+        instance.CreateTime = wfInstance.CreateTime;
+        instance.Status = (WorkflowStatus)wfInstance.Status;
+        instance.Parameters = WorkflowParameters.Deserialize(wfInstance.Parameters);
+
+        using var ms = new MemoryStream(wfInstance.Context);
+        var rs = new SystemReadStream(ms);
+        instance.DeserializeContext(ref rs);
+        return instance;
+    }
+
+    public Task InsertInstance(WorkflowInstance instance)
     {
         var obj = new WFInstance(instance.Id);
         obj.Title = instance.Title;
@@ -30,7 +50,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         return HumanAction.WriteActions(bookmark.Actions);
     }
 
-    public async Task UpdateWorkflowInstance(WorkflowInstance instance, Bookmark? bookmark)
+    public async Task UpdateInstance(WorkflowInstance instance, Bookmark? bookmark)
     {
         await using var txn = await SqlStore.Default.BeginTransactionAsync();
 
@@ -62,7 +82,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         }
     }
 
-    public async Task UpdateWorkflowInstance(WorkflowInstance instance, Guid bookmarkId, Guid actorId,
+    public async Task UpdateInstance(WorkflowInstance instance, Guid bookmarkId, Guid actorId,
         ResumeResult resumeResult)
     {
         await using var txn = await SqlStore.Default.BeginTransactionAsync();

@@ -7,25 +7,27 @@ internal sealed class MockWorkflowStore : IWorkflowStore
 {
     private readonly Dictionary<Guid, byte[]> _instances = new();
 
-    public Task InsertWorkflowInstance(WorkflowInstance instance)
+    public Task InsertInstance(WorkflowInstance instance)
     {
         if (!_instances.TryAdd(instance.Id, SerializeInstance(instance)))
             throw new Exception($"Duplicate instance id: {instance.Id}");
         return Task.CompletedTask;
     }
 
-    public Task UpdateWorkflowInstance(WorkflowInstance instance, Bookmark? bookmark)
+    public Task UpdateInstance(WorkflowInstance instance, Bookmark? bookmark)
     {
         _instances[instance.Id] = SerializeInstance(instance);
         return Task.CompletedTask;
     }
 
-    public Task UpdateWorkflowInstance(WorkflowInstance instance, Guid bookmarkId, Guid actorId,
+    public Task UpdateInstance(WorkflowInstance instance, Guid bookmarkId, Guid actorId,
         ResumeResult resumeResult)
     {
         _instances[instance.Id] = SerializeInstance(instance);
         return Task.CompletedTask;
     }
+
+    public Task<WorkflowInstance> FetchInstance(Guid instanceId) => throw new NotImplementedException();
 
     private static byte[] SerializeInstance(WorkflowInstance instance)
     {

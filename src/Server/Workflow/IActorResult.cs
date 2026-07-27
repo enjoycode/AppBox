@@ -9,6 +9,8 @@ public interface IActorResult : IBinSerializable
 {
     byte TypeId { get; }
 
+    Guid ActorId { get; }
+
     public static IActorResult Make(byte typeId)
     {
         return typeId switch
@@ -22,16 +24,19 @@ public interface IActorResult : IBinSerializable
 
 public sealed class HumanActionResult : IActorResult
 {
-    internal HumanActionResult() {}
-    
-    public HumanActionResult(string actorName, string result, string? memo = null)
+    internal HumanActionResult() { }
+
+    public HumanActionResult(Guid actorId, string actorName, string result, string? memo = null)
     {
+        ActorId = actorId;
         ActorName = actorName;
         Result = result;
         Memo = memo;
     }
 
     public byte TypeId => 0;
+
+    public Guid ActorId { get; private set; }
 
     public string ActorName { get; private set; } = string.Empty;
 
@@ -47,6 +52,7 @@ public sealed class HumanActionResult : IActorResult
 
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
+        ws.WriteGuid(ActorId);
         ws.WriteString(ActorName);
         ws.WriteString(Result);
         ws.WriteString(Memo);
@@ -54,6 +60,7 @@ public sealed class HumanActionResult : IActorResult
 
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
+        ActorId = rs.ReadGuid();
         ActorName = rs.ReadString() ?? string.Empty;
         Result = rs.ReadString() ?? string.Empty;
         Memo = rs.ReadString();
@@ -66,6 +73,8 @@ public sealed class HumanActionResult : IActorResult
 public sealed class AssignmentResult : IActorResult
 {
     public byte TypeId => 1;
+
+    public Guid ActorId => throw new NotImplementedException();
 
     public Guid[] Assignments { get; init; } = [];
 

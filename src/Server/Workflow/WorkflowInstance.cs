@@ -23,8 +23,8 @@ public sealed class WorkflowInstance : ExpressionContext
         StartActivity = startActivity;
     }
 
-    public Guid Id { get; private set; }
-    public string Title { get; private set; } = string.Empty;
+    public Guid Id { get; internal set; }
+    public string Title { get; internal set; } = string.Empty;
     public StartActivity StartActivity { get; private set; } = null!;
 
     /// <summary>
@@ -32,10 +32,10 @@ public sealed class WorkflowInstance : ExpressionContext
     /// </summary>
     public int ModelVersion { get; internal set; }
 
-    public Guid CreatorId { get; private set; }
-    public DateTime CreateTime { get; private set; }
-    public WorkflowParameters? Parameters { get; }
-    public WorkflowStatus Status { get; private set; }
+    public Guid CreatorId { get; internal set; }
+    public DateTime CreateTime { get; internal set; }
+    public WorkflowParameters? Parameters { get; internal set; }
+    public WorkflowStatus Status { get; internal set; }
 
     public event Action<SuspendedOrFinishedEventArgs>? SuspendedOrFinished;
 
@@ -53,7 +53,7 @@ public sealed class WorkflowInstance : ExpressionContext
     {
         _store = workflowStore;
         _running.Add(new RunningPath(StartActivity.Next));
-        await _store.InsertWorkflowInstance(this);
+        await _store.InsertInstance(this);
         Continue(StartActivity.Next);
     }
 
@@ -146,14 +146,14 @@ public sealed class WorkflowInstance : ExpressionContext
         {
             _running.RemoveAt(pathIndex);
             CheckStatus();
-            await _store.UpdateWorkflowInstance(this, null);
+            await _store.UpdateInstance(this, null);
             TryNotifySuspendedOrFinished();
             return;
         }
 
         _running[pathIndex] = new RunningPath(next);
         CheckStatus();
-        await _store.UpdateWorkflowInstance(this, null);
+        await _store.UpdateInstance(this, null);
         Continue(next);
     }
 
@@ -161,7 +161,7 @@ public sealed class WorkflowInstance : ExpressionContext
     {
         _running[pathIndex] = new RunningPath(link, bookmark);
         CheckStatus();
-        await _store.UpdateWorkflowInstance(this, bookmark);
+        await _store.UpdateInstance(this, bookmark);
         TryNotifySuspendedOrFinished();
     }
 
@@ -174,7 +174,7 @@ public sealed class WorkflowInstance : ExpressionContext
             _running.Add(new RunningPath(branch));
 
         CheckStatus();
-        await _store.UpdateWorkflowInstance(this, null);
+        await _store.UpdateInstance(this, null);
 
         foreach (var branch in forkResult.Branches)
             Continue(branch);
@@ -188,7 +188,7 @@ public sealed class WorkflowInstance : ExpressionContext
         {
             _running[pathIndex] = new RunningPath(link);
             CheckStatus();
-            await _store.UpdateWorkflowInstance(this, null);
+            await _store.UpdateInstance(this, null);
             return;
         }
 
@@ -199,14 +199,14 @@ public sealed class WorkflowInstance : ExpressionContext
         if (joinResult.Next?.Target == null)
         {
             CheckStatus();
-            await _store.UpdateWorkflowInstance(this, null);
+            await _store.UpdateInstance(this, null);
             TryNotifySuspendedOrFinished();
             return;
         }
 
         _running.Add(new RunningPath(joinResult.Next));
         CheckStatus();
-        await _store.UpdateWorkflowInstance(this, null);
+        await _store.UpdateInstance(this, null);
         Continue(joinResult.Next);
     }
 
@@ -238,7 +238,7 @@ public sealed class WorkflowInstance : ExpressionContext
         .ToList();
 #endif
 
-    internal async Task Resume(Guid bookmarkId, Guid actorId, IActorResult result)
+    internal async Task Resume(Guid bookmarkId, IActorResult result)
     {
         await _lock.WaitAsync();
         try
@@ -250,7 +250,7 @@ public sealed class WorkflowInstance : ExpressionContext
 
             var found = _running[pathIndex];
             //检查当前用户是否允许恢复操作
-            found.Bookmark!.CheckCanResume(actorId);
+            found.Bookmark!.CheckCanResume(result.ActorId);
             //开始恢复操作
             var resumeResult = await found.Link.Target!.Resume(this, result);
             //根据结果处理执行路径
@@ -267,7 +267,7 @@ public sealed class WorkflowInstance : ExpressionContext
 
             //保存实例
             CheckStatus();
-            await _store.UpdateWorkflowInstance(this, bookmarkId, actorId, resumeResult);
+            await _store.UpdateInstance(this, bookmarkId, result.ActorId, resumeResult);
             //如果有下一活动继续执行
             if (resumeResult is { Suspended: false, Next.Target: not null })
                 Continue(resumeResult.Next);
@@ -347,7 +347,7 @@ public sealed class WorkflowInstance : ExpressionContext
 
         rs.ReadFieldId(); //保留
     }
-    
+
     public byte[] GetContextData()
     {
         using var ms = new MemoryStream();

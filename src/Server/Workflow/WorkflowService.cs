@@ -77,6 +77,38 @@ internal sealed class WorkflowService : IService
     }
 
     /// <summary>
+    /// 人员操作恢复挂起的工作流实例
+    /// </summary>
+    public async Task Resume(Guid instanceId, Guid bookmarkId, string result, string? memo)
+    {
+        var session = RuntimeContext.CurrentSession;
+        if (session == null) throw new Exception("Can't find current session");
+
+        var instance = await GetInstance(instanceId);
+        await instance.Resume(bookmarkId, new HumanActionResult(session.LeafOrgUnitId, session.Name, result, memo));
+    }
+
+    private async Task<WorkflowInstance> GetInstance(Guid instanceId)
+    {
+        await _lock.WaitAsync();
+        try
+        {
+            var index = _running.FindIndex(instance => instance.Id == instanceId);
+            if (index >= 0)
+                return _running[index];
+
+            var instance = await _store.FetchInstance(instanceId);
+            instance.SuspendedOrFinished += OnInstanceSuspendedOrFinished;
+            _running.Add(instance);
+            return instance;
+        }
+        finally
+        {
+            _lock.Release();
+        }
+    }
+
+    /// <summary>
     /// 重启后重新启动执行中的工作流实例
     /// </summary>
     public void Restart()
@@ -106,6 +138,9 @@ internal sealed class WorkflowService : IService
         {
             case nameof(Start):
                 await Start(args.GetLong()!.Value, args.GetString()!, (WorkflowParameters)args.GetObject()!);
+                return AnyValue.Empty;
+            case nameof(Resume):
+                await Resume(args.GetGuid()!.Value, args.GetGuid()!.Value, args.GetString()!, args.GetString());
                 return AnyValue.Empty;
             case nameof(FetchParameters):
                 return AnyValue.From(await FetchParameters(args.GetGuid()!.Value));
