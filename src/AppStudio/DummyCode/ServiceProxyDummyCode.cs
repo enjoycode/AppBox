@@ -43,6 +43,12 @@ namespace sys.Services
         
         [AppBoxCore.InvocationInterceptor("CallService")]
         public static Task<byte[]?> FetchTaskActions(Guid actorId, Guid instanceId, Guid bookmarkId) => throw new Exception();
+        
+        /// <summary>
+        /// 人员操作恢复挂起的工作流实例
+        /// </summary>
+        [AppBoxCore.InvocationInterceptor("CallService")]
+        public Task Resume(Guid instanceId, Guid bookmarkId, string result, string? memo) => throw new Exception();
     }
 }
 

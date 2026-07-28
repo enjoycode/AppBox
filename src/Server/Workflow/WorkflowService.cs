@@ -5,6 +5,9 @@ using static AppBox.Workflow.WorkflowLogger;
 
 namespace AppBox.Workflow;
 
+/// <summary>
+/// 工作流服务，用于启动、恢复各工作流实例
+/// </summary>
 internal sealed class WorkflowService : IService
 {
     public WorkflowService(IWorkflowStore workflowStore)
