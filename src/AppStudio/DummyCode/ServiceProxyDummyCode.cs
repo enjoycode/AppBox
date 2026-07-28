@@ -48,7 +48,7 @@ namespace sys.Services
         /// 人员操作恢复挂起的工作流实例
         /// </summary>
         [AppBoxCore.InvocationInterceptor("CallService")]
-        public Task Resume(Guid instanceId, Guid bookmarkId, string result, string? memo) => throw new Exception();
+        public static Task Resume(Guid instanceId, Guid bookmarkId, string result, string? memo) => throw new Exception();
     }
 }
 
