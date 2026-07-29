@@ -15,7 +15,10 @@ public abstract class HumanNode : ActivityNode
     /// <summary>
     /// 用于设置人工处理时所显示的用户表单界面
     /// </summary>
-    /// <remarks>eg: sys.LeaveRequest</remarks>
+    /// <remarks>
+    /// eg1: 代码视图的名称 sys.LeaveRequest
+    /// eg2: 动态视图的模型标识字符串
+    /// </remarks>
     public string? FormName { get; internal set; }
 
     /// <summary>
