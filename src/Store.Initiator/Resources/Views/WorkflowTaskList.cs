@@ -49,16 +49,17 @@ public sealed class WorkflowTaskList : View
                 data = await sys.Services.WorkflowService.FetchTaskActions(taskInfo.ActorId, taskInfo.InstanceId, taskInfo.BookmarkId);
                 taskInfo.Actions = HumanAction.ReadActions(data);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Notification.Error($"Can't load parameters and actions.\n{ex.Message}'");
                 return;
             }
         }
-    
+
         var form = new WorkflowTaskView(taskInfo);
-        await Dialog.ShowAsync(taskInfo.InstanceTitle, dlg => form, null, form.ViewSize);
-        if (form.HasSubmit)
+        var dlgResult = await Dialog.ShowAsync(taskInfo.InstanceTitle, dlg => form, form.BuildCmdBar, form.ViewSize);
+        if (dlgResult == DialogResult.OK)
             LoadData();
     }
+
 }

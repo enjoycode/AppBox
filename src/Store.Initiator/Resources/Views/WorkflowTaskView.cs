@@ -13,32 +13,23 @@ public sealed class WorkflowTaskView : View
     {
         _taskInfo = taskInfo;
 
-        Child = new Column()
-        {
-            Children =
-            [
-                  BuildCmdBar(taskInfo),
-                  BuildForm(taskInfo),
-            ]
-        };
+        Child = BuildForm(taskInfo);
     }
 
     private readonly WorkflowTaskInfo _taskInfo;
     private readonly State<string> _memo = string.Empty;
-    private readonly State<bool> _hasSubmit = false;
     private IWorkflowForm? _form;
-    public bool HasSubmit => _hasSubmit.Value;
     public Size ViewSize => _form == null ? new(300, 200) : _form.ViewSize;
 
-    private Widget BuildCmdBar(WorkflowTaskInfo taskInfo)
+    public Widget BuildCmdBar(Dialog dialog)
     {
         var children = new List<Widget>();
         //children.Add(new Text(taskInfo.InstanceTitle));
         children.Add(new Text("备注:"));
-        children.Add(new Expanded(new TextInput(_memo) { Readonly = _hasSubmit }));
-        foreach (var action in taskInfo.Actions)
+        children.Add(new Expanded(new TextInput(_memo)));
+        foreach (var action in _taskInfo.Actions)
         {
-            children.Add(new Button(action.Name) { OnTap = _ => SubmitAction(action), Enabled = _hasSubmit.ToReversed() });
+            children.Add(new Button(action.Name) { OnTap = _ => SubmitAction(dialog, action) });
         }
 
         return new Card()
@@ -66,7 +57,7 @@ public sealed class WorkflowTaskView : View
         return new Card() { Child = new Container() { Child = form } };
     }
 
-    private async void SubmitAction(HumanAction action)
+    private async void SubmitAction(Dialog dialog, HumanAction action)
     {
         if (_form != null)
         {
@@ -78,7 +69,7 @@ public sealed class WorkflowTaskView : View
         {
             await sys.Services.WorkflowService.Resume(_taskInfo.InstanceId, _taskInfo.BookmarkId,
                 action.Name, _memo.Value);
-            _hasSubmit.Value = true;
+            dialog.Close(DialogResult.OK);
         }
         catch (Exception ex) { Notification.Error($"Submit error: {ex.Message}"); }
     }
