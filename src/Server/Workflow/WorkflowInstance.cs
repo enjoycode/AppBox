@@ -11,6 +11,11 @@ public sealed class WorkflowInstance : ExpressionContext
 {
     internal WorkflowInstance() { }
 
+    internal WorkflowInstance(IWorkflowStore workflowStore)
+    {
+        _store = workflowStore;
+    }
+
     public WorkflowInstance(string title, StartActivity startActivity,
         Guid creatorId, WorkflowParameters? parameters)
     {

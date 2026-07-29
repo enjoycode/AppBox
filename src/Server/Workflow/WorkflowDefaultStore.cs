@@ -15,7 +15,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         var wfInstance = new WFInstance(instanceId);
         await SqlStore.Default.FetchAsync(wfInstance);
 
-        var instance = new WorkflowInstance();
+        var instance = new WorkflowInstance(this);
         instance.Id = wfInstance.Id;
         instance.Title = wfInstance.Title;
         instance.ModelVersion = wfInstance.ModelVersion;
