@@ -160,7 +160,6 @@ public abstract class TypeSerializer
         RegisterKnownType(new BinSerializer(PayloadType.DataTable, typeof(DataTable), () => new DataTable()));
         RegisterKnownType(new BinSerializer(PayloadType.DynamicQuery, typeof(DynamicQuery), () => new DynamicQuery()));
         RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField, typeof(PrimaryKeyField), () => new PrimaryKeyField()));
-        RegisterKnownType(new BinSerializer(PayloadType.WorkflowParameters, typeof(WorkflowParameters), () => new WorkflowParameter()));
         RegisterKnownType(new BinSerializer(PayloadType.WorkflowTaskInfo, typeof(WorkflowTaskInfo), () => new WorkflowTaskInfo()));
         //@formatter:on
     }

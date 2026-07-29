@@ -22,7 +22,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         instance.CreatorId = wfInstance.CreatorId;
         instance.CreateTime = wfInstance.CreateTime;
         instance.Status = (WorkflowStatus)wfInstance.Status;
-        instance.Parameters = WorkflowParameters.Deserialize(wfInstance.Parameters);
+        instance.Parameters = WorkflowParameters.ReadFromData(wfInstance.Parameters);
 
         using var ms = new MemoryStream(wfInstance.Context);
         var rs = new SystemReadStream(ms);
@@ -38,7 +38,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         obj.CreateTime = instance.CreateTime;
         obj.Status = (byte)instance.Status;
         obj.Context = instance.GetContextData();
-        obj.Parameters = WorkflowParameters.Serialize(instance.Parameters);
+        obj.Parameters = WorkflowParameters.WriteToData(instance.Parameters);
 
         return SqlStore.Default.InsertAsync(obj);
     }
@@ -124,7 +124,7 @@ public sealed class WorkflowDefaultStore : IWorkflowStore
         updateCmd.Update(cmd => Expression.Assign(cmd.T.F(nameof(WFInstance.Status)), (byte)instance.Status));
         updateCmd.Update(cmd => Expression.Assign(cmd.T.F(nameof(WFInstance.Context)), instance.GetContextData()));
         updateCmd.Update(cmd => Expression.Assign(cmd.T.F(nameof(WFInstance.Parameters)),
-            Expression.Constant(WorkflowParameters.Serialize(instance.Parameters))));
+            Expression.Constant(WorkflowParameters.WriteToData(instance.Parameters))));
         updateCmd.Where(cmd => cmd.T.F(nameof(WFInstance.Id)) == instance.Id);
         return updateCmd;
     }

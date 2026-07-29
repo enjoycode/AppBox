@@ -50,23 +50,25 @@ public sealed class WorkflowParameters : IBinSerializable
         rs.ReadFieldId(); //保留
     }
 
-    public static byte[]? Serialize(WorkflowParameters? parameters)
+    public static byte[]? WriteToData(WorkflowParameters? parameters)
     {
         if (parameters == null || parameters.IsEmpty) return null;
 
         using var ms = new MemoryStream();
         var ws = new SystemWriteStream(ms);
-        ws.Serialize(parameters);
+        parameters.WriteTo(ref ws);
         return ms.ToArray();
     }
 
-    public static WorkflowParameters? Deserialize(byte[]? data)
+    public static WorkflowParameters? ReadFromData(byte[]? data)
     {
         if (data == null || data.Length == 0) return null;
 
         using var ms = new MemoryStream(data);
         var rs = new SystemReadStream(ms);
-        return (WorkflowParameters?)rs.Deserialize();
+        var parameters = new WorkflowParameters();
+        parameters.ReadFrom(ref rs);
+        return parameters;
     }
 
     #endregion
