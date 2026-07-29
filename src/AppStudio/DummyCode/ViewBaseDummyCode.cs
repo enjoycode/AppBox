@@ -105,14 +105,6 @@ namespace AppBoxClient
         Size ViewSize { get; }
 
         /// <summary>
-        /// 工作流任务加载完成后的操作
-        /// </summary>
-        /// <remarks>
-        /// 可用于加载表单数据
-        /// </remarks>
-        ValueTask OnLoaded(WorkflowTaskInfo taskInfo);
-
-        /// <summary>
         /// 开始递交人员处理结果前的操作
         /// </summary>
         /// <remarks>
