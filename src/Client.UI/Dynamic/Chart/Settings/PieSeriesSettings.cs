@@ -15,7 +15,7 @@ public sealed class PieSeriesSettings
     /// <summary>
     /// 对应数据集的名称字段 eg: 月份
     /// </summary>
-    public string? Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public double? InnerRadius { get; set; }
 
@@ -29,7 +29,7 @@ public sealed class PieSeriesSettings
             {
                 var s = new PieSeries<double?>()
                 {
-                    Values = new[] { e[Field].ToDouble() }
+                    Values = [e[Field].ToDouble()]
                 };
                 if (!string.IsNullOrEmpty(Name))
                     s.Name = e[Name!].ToStringValue();
@@ -46,7 +46,7 @@ public sealed class PieSeriesSettings
         catch (Exception e)
         {
             Log.Error(e.Message);
-            return Array.Empty<ISeries>();
+            return [];
         }
     }
 }

@@ -203,10 +203,18 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
 
     private DiagramPropertyGroup GetSingleHumanPropertyGroup()
     {
+        var singleHumanNode = (SingleHumanNode)Node;
+
         var titleProperty = new DiagramProperty(this, "Title", TextEditor.Factory)
         {
             ValueGetter = () => Node.Title,
             ValueSetter = v => Node.Title = v?.ToString() ?? string.Empty
+        };
+
+        var formProperty = new DiagramProperty(this, "Form", FormSelectEditor.Factory)
+        {
+            ValueGetter = () => singleHumanNode.FormName,
+            ValueSetter = v => singleHumanNode.FormName = v?.ToString()
         };
 
         var actorProperty = new DiagramProperty(this, "Actor", HumanActorEditor.Factory)
@@ -222,7 +230,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         return new DiagramPropertyGroup()
         {
             GroupName = "Properties",
-            Properties = [titleProperty, actorProperty, actionProperty]
+            Properties = [titleProperty, formProperty, actorProperty, actionProperty]
         };
     }
 
@@ -240,6 +248,12 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         {
             ValueGetter = () => multiHumanNode.WaitAllActor,
             ValueSetter = v => multiHumanNode.WaitAllActor = (bool)v!
+        };
+
+        var formProperty = new DiagramProperty(this, "Form", FormSelectEditor.Factory)
+        {
+            ValueGetter = () => multiHumanNode.FormName,
+            ValueSetter = v => multiHumanNode.FormName = v?.ToString()
         };
 
         var actorProperty = new DiagramProperty(this, "Actor", HumanActorEditor.Factory)
@@ -260,7 +274,7 @@ internal sealed class ActivityDesigner : DiagramShape, IDiagramItemDesigner
         return new DiagramPropertyGroup()
         {
             GroupName = "Properties",
-            Properties = [titleProperty, waitAllProperty, actorProperty, actionProperty, consProperty]
+            Properties = [titleProperty, waitAllProperty, formProperty, actorProperty, actionProperty, consProperty]
         };
     }
 

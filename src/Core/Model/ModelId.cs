@@ -35,6 +35,18 @@ public readonly struct ModelId : IComparable<ModelId>, IEquatable<ModelId>
 
     public static implicit operator long(ModelId value) => value._encoded;
 
+    public static bool TryParse(string value, out ModelId id)
+    {
+        if (ulong.TryParse(value, out ulong result))
+        {
+            id = new((long)result);
+            return true;
+        }
+
+        id = default;
+        return false;
+    }
+
     public int CompareTo(ModelId other) => _encoded.CompareTo(other._encoded);
 
     public override string ToString() => ((ulong)_encoded).ToString();

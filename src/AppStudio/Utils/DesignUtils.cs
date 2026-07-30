@@ -74,4 +74,9 @@ internal static class DesignUtils
             .Where(m => ((ViewModel)m.Model).ViewType == ViewModelType.PixUIDynamic)
             .ToArray();
     }
+
+    public static ModelNode[] GetAllViewModels(DesignContext designContext)
+    {
+        return designContext.DesignTree.FindNodesByType(ModelType.View).ToArray();
+    }
 }

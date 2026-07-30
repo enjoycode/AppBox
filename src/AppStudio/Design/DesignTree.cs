@@ -173,6 +173,10 @@ public sealed class DesignTree
     public ModelNode? FindModelNodeByName(int appId, ModelType modelType, ReadOnlyMemory<char> name)
         => FindModelRootNode(appId, modelType)?.FindModelNodeByName(name);
 
+    /// <summary>
+    /// 根据全名称查找模型节点
+    /// </summary>
+    /// <param name="fullName">eg: sys.Views.OrderList</param>
     public ModelNode? FindModelNodeByFullName(string fullName)
         => FindModelNodeByFullName(fullName.AsMemory());
 
