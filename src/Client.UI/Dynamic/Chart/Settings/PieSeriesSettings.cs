@@ -1,4 +1,4 @@
-using LiveCharts;
+using PixUI.LiveCharts;
 using LiveChartsCore;
 using PixUI.Dynamic;
 using Log = PixUI.Log;

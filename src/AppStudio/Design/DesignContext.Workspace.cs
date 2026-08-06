@@ -130,6 +130,7 @@ partial class DesignContext
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.MaterialIconsLib)
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.LiveChartsCoreLib) //TODO: 根据需要
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILiveChartsLib) //TODO: 根据需要
+                .AddMetadataReference(ViewsProjectId, MetadataReferences.PixUILiveChartsWidgetsLib) //TODO: 根据需要
                 .AddMetadataReference(ViewsProjectId, MetadataReferences.AppBoxCoreLib)
                 .AddProjectReference(ViewsProjectId, new ProjectReference(ModelProjectId))
                 .AddProjectReference(ViewsProjectId, new ProjectReference(ServiceProxyProjectId))

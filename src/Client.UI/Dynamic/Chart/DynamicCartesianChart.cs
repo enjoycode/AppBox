@@ -1,9 +1,9 @@
 using System.Text.Json.Serialization;
-using LiveCharts;
+using PixUI.LiveCharts;
 using LiveChartsCore;
 using PixUI;
 using PixUI.Dynamic;
-using Axis = LiveCharts.Axis;
+using Axis = PixUI.LiveCharts.Axis;
 
 namespace AppBoxClient.Dynamic;
 

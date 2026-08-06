@@ -11,6 +11,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic\PixUI.Dynamic.csproj" />
+      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts.Widgets\PixUI.LiveCharts.Widgets.csproj" />
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj" />
       <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
       <ProjectReference Include="..\Client\Client.csproj" />

@@ -18,7 +18,7 @@ internal static class MetadataReferences
     internal static async Task InitAsync(IMetadataReferenceProvider provider)
     {
         _provider = provider;
-        
+
         string[] sdkLibs =
         [
             "System.Private.CoreLib.dll", "netstandard.dll", "System.Linq.dll", "System.Linq.Expressions.dll",
@@ -30,8 +30,9 @@ internal static class MetadataReferences
         string[] commonLibs = ["AppBoxCore.dll"];
         string[] clientLibs =
         [
-            "PixUI.dll", "PixUI.Drawing.dll", "PixUI.Widgets.dll", "PixUI.MaterialIcons.dll", "LiveChartsCore.dll",
-            "PixUI.LiveCharts.dll", "PixUI.Dynamic.dll", "AppBoxClient.dll", "AppBoxClientUI.dll"
+            "PixUI.dll", "PixUI.Drawing.dll", "PixUI.Widgets.dll", "PixUI.MaterialIcons.dll",
+            "LiveChartsCore.dll", "PixUI.LiveCharts.dll", "PixUI.LiveCharts.Widgets.dll",
+            "PixUI.Dynamic.dll", "AppBoxClient.dll", "AppBoxClientUI.dll"
         ];
         string[] serverLibs = ["AppBoxStore.dll"];
 
@@ -98,6 +99,7 @@ internal static class MetadataReferences
     internal static MetadataReference MaterialIconsLib => GetClientLib("PixUI.MaterialIcons.dll");
     internal static MetadataReference LiveChartsCoreLib => GetClientLib("LiveChartsCore.dll");
     internal static MetadataReference PixUILiveChartsLib => GetClientLib("PixUI.LiveCharts.dll");
+    internal static MetadataReference PixUILiveChartsWidgetsLib => GetClientLib("PixUI.LiveCharts.Widgets.dll");
     internal static MetadataReference PixUIDynamicLib => GetClientLib("PixUI.Dynamic.dll");
     internal static MetadataReference AppBoxCoreLib => GetCommonLib("AppBoxCore.dll");
     internal static MetadataReference AppBoxClientLib => GetClientLib("AppBoxClient.dll");
@@ -198,6 +200,7 @@ internal static class MetadataReferences
         {
             deps.Add(LiveChartsCoreLib);
             deps.Add(PixUILiveChartsLib);
+            deps.Add(PixUILiveChartsWidgetsLib);
         }
 
         if (usedDynamic)

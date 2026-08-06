@@ -79,6 +79,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Drawing", "..\ext\Pix
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.Drawing.Skia", "..\ext\PixUI\src\PixUI.Drawing.Skia\PixUI.Drawing.Skia.csproj", "{495A3960-5E5E-49F0-974E-8D1D26EF9E2F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixUI.LiveCharts.Widgets", "..\ext\PixUI\src\PixUI.LiveCharts.Widgets\PixUI.LiveCharts.Widgets.csproj", "{5DD37AA5-F10A-4D79-A9D1-380221A2B09A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -229,6 +231,10 @@ Global
 		{495A3960-5E5E-49F0-974E-8D1D26EF9E2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{495A3960-5E5E-49F0-974E-8D1D26EF9E2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{495A3960-5E5E-49F0-974E-8D1D26EF9E2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DD37AA5-F10A-4D79-A9D1-380221A2B09A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DD37AA5-F10A-4D79-A9D1-380221A2B09A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DD37AA5-F10A-4D79-A9D1-380221A2B09A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DD37AA5-F10A-4D79-A9D1-380221A2B09A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -250,6 +256,7 @@ Global
 		{1D688551-8705-4721-A0C0-3EA3376F9DF7} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 		{7C124D62-DEBD-49A2-9299-327B75DCFAFD} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 		{495A3960-5E5E-49F0-974E-8D1D26EF9E2F} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
+		{5DD37AA5-F10A-4D79-A9D1-380221A2B09A} = {85ACE26B-88CA-4817-A24D-C50E5A5D430F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0AED9DEB-9800-4131-95EE-564DCE3157C0}

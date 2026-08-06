@@ -1,5 +1,5 @@
 using AppBoxCore;
-using LiveCharts;
+using PixUI.LiveCharts;
 using LiveChartsCore;
 using LiveChartsCore.Kernel;
 using PixUI.Dynamic;
@@ -22,20 +22,17 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, AppBoxCore.DataTable list)
+    public override ISeries Build(IDynamicContext dynamicContext, DataTable list)
     {
         var res = new LineSeries<DataRow>
         {
             Name = Name ?? Field,
             Values = list,
             LineSmoothness = Smoothness ?? 0.65f,
-            Mapping = (obj, point) =>
+            Mapping = (obj, index) =>
             {
                 var v = obj[Field].ToDouble();
-                if (v.HasValue)
-                {
-                    point.Coordinate = new Coordinate(point.Index, v.Value);
-                }
+                return v == null ? Coordinate.Empty : new Coordinate(index, v.Value);
             }
         };
 

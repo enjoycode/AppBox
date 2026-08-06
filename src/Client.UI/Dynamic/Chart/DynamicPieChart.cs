@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
-using LiveCharts;
-using LiveCharts.Painting;
+using PixUI.LiveCharts;
+using PixUI.LiveCharts.Painting;
 using LiveChartsCore;
 using LiveChartsCore.Measure;
 using PixUI;
@@ -62,8 +62,8 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
             return null;
         }
         set => _chart.LegendTextPaint = value.HasValue
-            ? new SolidColorPaint() { Color = value.Value }
-            : SolidColorPaint.MakeByColor(new Color(30, 30, 30, 255));
+            ? new SolidColorPaint(value.Value)
+            : new SolidColorPaint(new Color(30, 30, 30, 255));
     }
 
     private async void OnSeriesChanged()
@@ -130,11 +130,11 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
 
     private static IEnumerable<ISeries> MakeMockSeries() => new PieSeries<float>[]
     {
-        new() { Values = new[] { 1f } },
-        new() { Values = new[] { 2f } },
-        new() { Values = new[] { 3f } },
-        new() { Values = new[] { 4f } },
-        new() { Values = new[] { 5f } },
-        new() { Values = new[] { 6f } },
+        new() { Values = [1f] },
+        new() { Values = [2f] },
+        new() { Values = [3f] },
+        new() { Values = [4f] },
+        new() { Values = [5f] },
+        new() { Values = [6f] },
     };
 }

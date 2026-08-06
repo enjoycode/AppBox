@@ -1,4 +1,4 @@
-using LiveCharts.Painting;
+using PixUI.LiveCharts.Painting;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -33,9 +33,9 @@ public sealed class ChartAxisSettings
         MinStep = MinStep, ForceStepToMin = ForceStepToMin, TextSize = TextSize
     };
 
-    public LiveCharts.Axis Build(IDynamicContext dynamicContext, AppBoxCore.DataTable list)
+    public PixUI.LiveCharts.Axis Build(IDynamicContext dynamicContext, AppBoxCore.DataTable list)
     {
-        var res = new LiveCharts.Axis();
+        var res = new PixUI.LiveCharts.Axis();
         // if (!string.IsNullOrEmpty(Formatter))
         // {
         //     res.Labeler = v => string.Format(null, Formatter, v);
