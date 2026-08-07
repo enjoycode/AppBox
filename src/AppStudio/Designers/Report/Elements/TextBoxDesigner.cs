@@ -1,6 +1,6 @@
 using System.Text;
 using AppBox.Reporting.Drawing;
-using AppBox.Reporting.Processing;
+using AppBox.Reporting.Runtime;
 using AppBoxDesign.Diagram;
 using PixUI;
 using TextBox = AppBox.Reporting.TextBox;
@@ -68,7 +68,7 @@ internal sealed class TextBoxDesigner : ReportItemDesigner<TextBox>
         using var graphics = new Graphics(canvas);
         using (brush)
         {
-            AppBox.Reporting.Processing.TextRenderer.DrawText(graphics,
+            AppBox.Reporting.Runtime.TextRenderer.DrawText(graphics,
                 text, ReportItem.Style.Font, brush, clientRect, ReportItem.Angle, textFormat);
         }
     }

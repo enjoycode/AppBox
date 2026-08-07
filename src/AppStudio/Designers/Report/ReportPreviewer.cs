@@ -2,7 +2,7 @@ using System.Collections;
 using AppBox.ReportDataSource;
 using AppBox.Reporting;
 using PixUI;
-using Processing = AppBox.Reporting.Processing;
+using Runtime = AppBox.Reporting.Runtime;
 
 namespace AppBoxDesign;
 
@@ -52,12 +52,12 @@ internal sealed class ReportPreviewer : View
             { "ProcessItemActions", false },
             { "WriteClientAction", false }
         };
-        var renderContext = new Processing.RenderingContext()
+        var renderContext = new Runtime.RenderingContext()
         {
             { "ReportDocumentState", null }
         };
-        var processingReports = new Processing.ReportProcessor().ProcessReport(rs, deviceInfo, renderContext);
-        var res = Processing.ReportProcessor.RenderReport("IMAGE", processingReports, deviceInfo, renderContext);
+        var processingReports = new Runtime.ReportProcessor().ProcessReport(rs, deviceInfo, renderContext);
+        var res = Runtime.ReportProcessor.RenderReport("IMAGE", processingReports, deviceInfo, renderContext);
         _reportView.Pictures = res.OutputPictures!;
         _reportView.Repaint();
     }

@@ -1,9 +1,9 @@
 using AppBox.Reporting.Drawing;
-using AppBox.Reporting.Processing.Common;
-using AppBox.Reporting.Processing.Primitives;
+using AppBox.Reporting.Runtime.Common;
+using AppBox.Reporting.Runtime.Primitives;
 using AppBoxDesign.Diagram;
 using PixUI;
-using Processing = AppBox.Reporting.Processing;
+using Runtime = AppBox.Reporting.Runtime;
 using Barcode = AppBox.Reporting.Barcode;
 using Colors = AppBox.Reporting.Drawing.Colors;
 
@@ -59,15 +59,15 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
 
         try
         {
-            var processingBarcode = new Processing.Barcode();
+            var processingBarcode = new Runtime.Barcode();
             processingBarcode.Initialize(ReportItem);
-            processingBarcode.ProcessingContext = new Processing.ProcessingContext();
+            processingBarcode.RuntimeContext = new Runtime.RuntimeContext();
             processingBarcode.Process(null);
 
             if (processingBarcode.HasError)
-                throw processingBarcode.Exception;
+                throw processingBarcode.Exception!;
 
-            using var measureContext = new Processing.MeasureContext();
+            using var measureContext = new Runtime.MeasureContext();
             measureContext.PageUnit = GraphicsUnit.Pixel;
             var layoutRect = new RectangleRF(0, 0, Bounds.Width, Bounds.Height);
             processingBarcode.Arrange(measureContext, layoutRect);
@@ -84,8 +84,8 @@ internal sealed class BarcodeDesigner : ReportItemDesigner<Barcode>
     private void DrawString(Graphics graphics, string text)
     {
         using var format = new StringFormat();
-        format.Alignment = Processing.BarcodeHelper.GetAlignment(ReportItem.Style.TextAlign);
-        format.LineAlignment = Processing.BarcodeHelper.GetAlignment(ReportItem.Style.VerticalAlign);
+        format.Alignment = Runtime.BarcodeHelper.GetAlignment(ReportItem.Style.TextAlign);
+        format.LineAlignment = Runtime.BarcodeHelper.GetAlignment(ReportItem.Style.VerticalAlign);
         using var font = ReportItem.Style.Font.ToDrawingFont();
         graphics.DrawString(text, font, ReportItem.Style.Color, Bounds, format);
     }

@@ -51,6 +51,9 @@
         <Reference Include="AppBox.Reporting">
             <HintPath>..\..\ext\AppBox.Reporting.dll</HintPath>
         </Reference>
+        <Reference Include="AppBox.Reporting.Runtime">
+            <HintPath>..\..\ext\AppBox.Reporting.Runtime.dll</HintPath>
+        </Reference>
         <Reference Include="Microsoft.CodeAnalysis">
             <HintPath>..\..\ext\Roslyn\Microsoft.CodeAnalysis.dll</HintPath>
         </Reference>
