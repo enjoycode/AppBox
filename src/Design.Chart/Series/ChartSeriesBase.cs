@@ -1,0 +1,14 @@
+namespace AppBoxDesign;
+
+public abstract class ChartSeriesBase
+{
+    /// <summary>
+    /// 对应数据集的字段名
+    /// </summary>
+    public string Field { get; set; } = null!;
+
+    /// <summary>
+    /// 显示名称，如无等于FieldName，eg: "销售额"
+    /// </summary>
+    public string? Name { get; set; }
+}
