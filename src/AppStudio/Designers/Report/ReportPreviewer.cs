@@ -81,8 +81,9 @@ internal sealed class ReportPreviewer : View
             canvas.DrawRect(Rect.FromLTWH(0, 0, width, height), bgPaint);
 
             //draw picture
-            using var image = Image.FromPicture(pic, new SizeI((int)width, (int)height));
-            canvas.DrawImage(image, Rect.FromLTWH(0, 0, width, height));
+            // using var image = Image.FromPicture(pic, new SizeI((int)width, (int)height));
+            // canvas.DrawImage(image, Rect.FromLTWH(0, 0, width, height));
+            canvas.DrawPicture(pic, 0, 0);
         }
     }
 }
