@@ -4,17 +4,6 @@ public abstract class ChartAxisBase
 {
     public string? Name { get; set; }
 
-    /// <summary>
-    /// 数据集的标签表达式
-    /// </summary>
-    /// <remarks>
-    /// 用于报表时 eg: =Fields.姓名
-    /// 可以设置为空
-    /// </remarks>
-    public string? Labels { get; set; }
-
-    public bool HasLabels => !string.IsNullOrEmpty(Labels);
-
     // public Color? LabelsColor { get; set; }
 
     /// <summary>
