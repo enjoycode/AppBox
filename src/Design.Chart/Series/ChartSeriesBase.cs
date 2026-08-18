@@ -18,4 +18,13 @@ public abstract class ChartSeriesBase
     public bool ShowDataLabels { get; set; }
 
     public bool IsVisibleAtLegend { get; set; } = true;
+
+    /// <summary>
+    /// 数据点标签格式化
+    /// </summary>
+    /// <remarks>
+    /// 1.非表达式 eg: "C2"
+    /// 2.表达式 eg: =Coordinate.PrimaryValue.ToString("C2")
+    /// </remarks>
+    public string? DataLabelsFormatter { get; set; }
 }
