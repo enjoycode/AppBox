@@ -26,7 +26,16 @@ internal sealed class ReportDesigner : View, IModelDesigner
                     BuildCommandBar(),
                     new IfConditional(_isPreview,
                         () => new ReportPreviewer(() => _report),
-                        () => new DiagramView(_diagramService))
+                        () => new Container
+                        {
+                            FillColor = new Color(0xFFA2A2A2),
+                            Padding = EdgeInsets.All(10),
+                            Child = new Card
+                            {
+                                Elevation = 10,
+                                Child = new DiagramView(_diagramService)
+                            }
+                        })
                 }
             },
             Panel2 = _diagramService.PropertyPanel,

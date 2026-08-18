@@ -16,10 +16,12 @@
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.CodeEditor\PixUI.CodeEditor.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Diagram\PixUI.Diagram.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Dynamic.Design\PixUI.Dynamic.Design.csproj"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts.Image\PixUI.LiveCharts.Image.csproj" />
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj"/>
         <ProjectReference Include="..\Client.UI\Client.UI.csproj"/>
         <ProjectReference Include="..\Client\Client.csproj"/>
         <ProjectReference Include="..\Core\Core.csproj"/>
+        <ProjectReference Include="..\Design.Chart\Design.Chart.csproj" />
         <ProjectReference Include="..\Design.Data\Design.Data.csproj"/>
         <ProjectReference Include="..\ReportDataSource\ReportDataSource.csproj"/>
         <ProjectReference Include="..\Store.Data\Store.Data.csproj" />

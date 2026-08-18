@@ -5,7 +5,6 @@ using AppBoxDesign.Diagram;
 using PixUI;
 using Runtime = AppBox.Reporting.Runtime;
 using Barcode = AppBox.Reporting.Barcode;
-using Colors = AppBox.Reporting.Drawing.Colors;
 
 namespace AppBoxDesign.Reporting;
 
