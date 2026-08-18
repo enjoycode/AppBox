@@ -286,7 +286,7 @@ internal sealed class DesignStore : IDesignUIService
 
     #region ====AI Options====
 
-    public static string AIModelName = "qwen3-coder";
+    public static string AIModelName = "qwen3.8";
     public static string AIApiUrl = "http://localhost:11434/api/chat";
 
     //TODO: 其他选项

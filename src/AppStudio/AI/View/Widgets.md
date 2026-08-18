@@ -6,7 +6,7 @@
 {
   "Summary": "显示文本",
   "Properties": [
-    { "Name": "Text", "Type": "State<string>" },
+    { "Name": "Text", "Type": "State<string>", "Required": true },
     { "Name": "TextColor", "Type": "State<Color>?", "Summary": "可选文本颜色" },
     { "Name": "FontSize", "Type": "State<float>?", "Summary": "可选字体大小" },
     { "Name": "Width", "Type": "State<float>?", "Summary": "指定的宽度" },
@@ -113,7 +113,7 @@
 {
   "Summary": "文本输入框",
   "Properties": [
-    { "Name": "Text", "Type": "State<string>" },
+    { "Name": "Text", "Type": "State<string>", "Required": true },
     { "Name": "TextColor", "Type": "State<Color>?", "Summary": "文本的颜色" },
     { "Name": "IsObscure", "Type": "bool", "Summary": "是否隐藏文本，用于密码输入" },
     { "Name": "HintText", "Type": "string?", "Summary": "Placeholder" },

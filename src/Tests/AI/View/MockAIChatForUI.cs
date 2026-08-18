@@ -18,6 +18,7 @@ internal sealed class MockAIChatForUI : AIChat
     protected override void ParseAIResponse(AIMessage responseMessage)
     {
         Console.WriteLine($"Role: {responseMessage.Role}");
+        Console.WriteLine("==============================");
         Console.WriteLine(responseMessage.Content);
     }
 }

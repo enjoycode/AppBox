@@ -16,7 +16,7 @@ internal abstract class AIChat : IDisposable
 
     private readonly string _model;
     private readonly string _url;
-    private readonly HttpClient _httpClient = new();
+    private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromMinutes(10) };
     private readonly List<AIMessage> _history = [];
 
     private static readonly JsonSerializerOptions JsonRequestSerializerOptions = new JsonSerializerOptions
