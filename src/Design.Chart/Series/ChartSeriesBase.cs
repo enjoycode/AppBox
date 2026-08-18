@@ -16,4 +16,6 @@ public abstract class ChartSeriesBase
     public string? Name { get; set; }
 
     public bool ShowDataLabels { get; set; }
+
+    public bool IsVisibleAtLegend { get; set; } = true;
 }
