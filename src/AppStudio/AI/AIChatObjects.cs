@@ -8,7 +8,7 @@ internal readonly struct AIMessage
 
 internal sealed class AIRequest
 {
-    public string Model { get; set; } = "qwen3-coder";
+    public string Model { get; set; } = "qwen3.8:27b-mlx";
 
     public bool Stream { get; } = false;
 
