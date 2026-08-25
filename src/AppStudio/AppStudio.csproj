@@ -21,7 +21,6 @@
         <ProjectReference Include="..\Client.UI\Client.UI.csproj"/>
         <ProjectReference Include="..\Client\Client.csproj"/>
         <ProjectReference Include="..\Core\Core.csproj"/>
-        <ProjectReference Include="..\Design.Chart\Design.Chart.csproj" />
         <ProjectReference Include="..\Design.Data\Design.Data.csproj"/>
         <ProjectReference Include="..\ReportDataSource\ReportDataSource.csproj"/>
         <ProjectReference Include="..\Store.Data\Store.Data.csproj" />

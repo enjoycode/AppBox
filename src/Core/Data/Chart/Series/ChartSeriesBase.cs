@@ -1,3 +1,5 @@
+using AppBoxCore;
+
 namespace AppBoxDesign;
 
 public abstract class ChartSeriesBase
@@ -27,4 +29,9 @@ public abstract class ChartSeriesBase
     /// 2.表达式 eg: =Coordinate.PrimaryValue.ToString("C2")
     /// </remarks>
     public string? DataLabelsFormatter { get; set; }
+    
+    public virtual void WriteTo<TWriter>(ref TWriter writer) where TWriter : struct, IOutputStream
+    {
+        
+    }
 }
