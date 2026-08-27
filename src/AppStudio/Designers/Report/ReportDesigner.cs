@@ -71,7 +71,7 @@ internal sealed class ReportDesigner : View, IModelDesigner
             {
                 ms.Position = 0;
                 _report = new Report();
-                var reader = new ReportReader(ms, _report, new ReportDatasourceFactory());
+                var reader = new ReportReader(ms, _report, ReportDatasourceFactory.Instance);
                 _report.ReadFrom(ref reader);
 
                 //2. 转换为相应的设计器

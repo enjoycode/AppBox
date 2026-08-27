@@ -5,6 +5,10 @@ namespace AppBox.ReportDataSource;
 
 public sealed class ReportDatasourceFactory : DataSourceFactory
 {
+    public static readonly ReportDatasourceFactory Instance = new();
+
+    private ReportDatasourceFactory() { }
+
     public override IDataSource CreateDataSource(string type)
     {
         return type switch
