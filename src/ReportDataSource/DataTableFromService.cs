@@ -1,7 +1,5 @@
-using System.Text.Json;
 using AppBox.Reporting;
 using AppBoxCore;
-using DeserializeContext = AppBox.Reporting.Serialization.DeserializeContext;
 
 namespace AppBox.ReportDataSource;
 
@@ -11,23 +9,16 @@ public sealed class DataTableFromService : ObjectDataSource, IAsyncReportDataSou
 
     public DataTableFromServiceBase Wrap => _wrap;
 
-    public override void WriteTo(Utf8JsonWriter writer)
+    public override void WriteTo<TWriter>(ref TWriter ws)
     {
-        writer.WriteStartObject();
-        writer.WriteString(Reporting.Serialization.JsonSerializer.TypeDiscriminator, nameof(DataTableFromService));
-        writer.WriteString(nameof(Name), Name);
-        _wrap.WriteProperties(writer);
-        writer.WriteEndObject();
+        ws.WriteString(Name);
+        _wrap.WriteTo(ref ws);
     }
 
-    public override void ReadFrom(ref Utf8JsonReader reader, DeserializeContext context)
+    public override void ReadFrom<TReader>(ref TReader rs)
     {
-        if (!reader.Read() || reader.TokenType != JsonTokenType.PropertyName || reader.GetString() != nameof(Name))
-            throw new JsonException("Expected name property.");
-        if (!reader.Read() || reader.TokenType != JsonTokenType.String)
-            throw new JsonException("Expected string value.");
-        Name = reader.GetString() ?? string.Empty;
-        _wrap.ReadProperties(ref reader);
+        Name = rs.ReadString() ?? string.Empty;
+        _wrap.ReadFrom(ref rs);
     }
 
     public Task FetchDataAsync()

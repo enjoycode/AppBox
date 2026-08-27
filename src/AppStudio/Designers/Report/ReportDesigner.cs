@@ -1,6 +1,6 @@
-using System.Text.Json;
 using AppBox.ReportDataSource;
 using AppBox.Reporting;
+using AppBox.Reporting.Serialization;
 using AppBoxDesign.Reporting;
 using PixUI;
 using PixUI.Diagram;
@@ -69,9 +69,10 @@ internal sealed class ReportDesigner : View, IModelDesigner
             await _designContext.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
-                var jsonReader = new Utf8JsonReader(ms.GetBuffer().AsSpan(0, (int)ms.Length));
-                var ctx = new ReportDeserializeContext();
-                _report = AppBox.Reporting.Serialization.JsonSerializer.Deserialize(ref jsonReader, ctx);
+                ms.Position = 0;
+                _report = new Report();
+                var reader = new ReportReader(ms, _report, new ReportDatasourceFactory());
+                _report.ReadFrom(ref reader);
 
                 //2. 转换为相应的设计器
                 var rootDesigner = new ReportRootDesigner(_diagramService, _report);
@@ -140,11 +141,9 @@ internal sealed class ReportDesigner : View, IModelDesigner
         if (_report == null!)
             throw new Exception("Report instance has not created");
 
-        //TODO: 暂转换处理
         await using var ms = new MemoryStream(2048);
-        var jsonWriter = new Utf8JsonWriter(ms);
-        AppBox.Reporting.Serialization.JsonSerializer.Serialize(jsonWriter, _report);
-        await jsonWriter.FlushAsync();
+        var writer = new ReportWriter(ms);
+        _report.WriteTo(ref writer);
         ms.Position = 0;
 
         await ModelNode.SaveAsync(ms);

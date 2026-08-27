@@ -3,7 +3,7 @@ using AppBox.Reporting.Serialization;
 
 namespace AppBox.ReportDataSource;
 
-public sealed class ReportDeserializeContext : DeserializeContext
+public sealed class ReportDatasourceFactory : DataSourceFactory
 {
     public override IDataSource CreateDataSource(string type)
     {

@@ -86,7 +86,7 @@ internal sealed class ReportRootDesigner : ReportObjectDesigner<Report>
                 yield return section;
         }
 
-        if (null != (section = report.FindFirstChild<Details>()))
+        if (null != (section = report.FindFirstChild<ReportBody>()))
             yield return section;
 
         for (var i = report.Groups.Count - 1; i >= 0; i--)

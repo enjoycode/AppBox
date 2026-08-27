@@ -31,6 +31,26 @@ public abstract class DataTableFromQueryBase
 
     #region ====Serialization====
 
+    public void WriteTo<TWriter>(ref TWriter writer) where TWriter : struct, IOutputStream
+    {
+        writer.SerializeExpression(Root);
+        writer.WriteInt(PageSize);
+        writer.WriteInt(PageIndex);
+        writer.WriteCollection(Selects);
+        writer.WriteCollection(Filters);
+        writer.WriteCollection(Orders);
+    }
+
+    public void ReadFrom<TReader>(ref TReader reader) where TReader : struct, IInputStream
+    {
+        Root = (EntityExpression?)reader.Deserialize();
+        PageSize = reader.ReadInt();
+        PageIndex = reader.ReadInt();
+        reader.ReadCollection(Selects);
+        reader.ReadCollection(Filters);
+        reader.ReadCollection(Orders);
+    }
+
     public void WriteProperties(Utf8JsonWriter writer)
     {
         if (Expression.IsNull(Root))
@@ -143,7 +163,7 @@ public abstract class DataTableFromQueryBase
 
     #region ====FilterItem====
 
-    public sealed class FilterItem
+    public sealed class FilterItem : IBinSerializable
     {
         public Expression Field { get; internal set; } = null!;
         public BinaryOperatorType Operator { get; internal set; }
@@ -154,6 +174,20 @@ public abstract class DataTableFromQueryBase
         public string State { get; internal set; } = null!;
 
         #region ====Serialization=====
+
+        public void WriteTo<TWriter>(ref TWriter writer) where TWriter : struct, IOutputStream
+        {
+            writer.SerializeExpression(Field);
+            writer.WriteByte((byte)Operator);
+            writer.WriteString(State);
+        }
+
+        public void ReadFrom<TReader>(ref TReader reader) where TReader : struct, IInputStream
+        {
+            Field = (Expression)reader.Deserialize()!;
+            Operator = (BinaryOperatorType)reader.ReadByte();
+            State = reader.ReadString()!;
+        }
 
         public void WriteTo(Utf8JsonWriter writer, EntityExpression root)
         {

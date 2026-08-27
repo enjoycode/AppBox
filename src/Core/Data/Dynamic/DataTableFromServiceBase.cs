@@ -19,6 +19,27 @@ public abstract class DataTableFromServiceBase
 
     #region ====Serialization====
 
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+    {
+        ws.WriteString(Service);
+        ws.WriteVariant(Arguments.Length);
+        foreach (var arg in Arguments)
+        {
+            ws.WriteString(arg);
+        }
+    }
+
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+    {
+        Service = rs.ReadString() ?? string.Empty;
+        var count = rs.ReadVariant();
+        Arguments = new string?[count];
+        for (var i = 0; i < count; i++)
+        {
+            Arguments[i] = rs.ReadString();
+        }
+    }
+
     public void WriteProperties(Utf8JsonWriter writer)
     {
         writer.WriteString(nameof(Service), Service);

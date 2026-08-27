@@ -9,7 +9,7 @@ internal static class ReportDesignerFactory
     {
         { typeof(ReportHeader), t => new ReportSectionDesigner((ReportSectionBase)t) },
         { typeof(PageHeader), t => new ReportSectionDesigner((ReportSectionBase)t) },
-        { typeof(Details), t => new ReportSectionDesigner((ReportSectionBase)t) },
+        { typeof(ReportBody), t => new ReportSectionDesigner((ReportSectionBase)t) },
         { typeof(PageFooter), t => new ReportSectionDesigner((ReportSectionBase)t) },
         { typeof(ReportFooter), t => new ReportSectionDesigner((ReportSectionBase)t) },
         { typeof(TextBox), t => new TextBoxDesigner((TextBox)t) },

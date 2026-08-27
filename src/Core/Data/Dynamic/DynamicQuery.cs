@@ -13,11 +13,11 @@ public sealed class DynamicQuery : IBinSerializable
 
     public int PageIndex { get; set; }
 
-    public SelectItem[] Selects { get; set; } = null!;
+    public SelectItem[] Selects { get; set; } = [];
 
     public Expression? Filter { get; set; }
 
-    public OrderByItem[]? Orders { get; set; }
+    public OrderByItem[] Orders { get; set; } = [];
 
     #region ====Serialization====
 
@@ -29,20 +29,8 @@ public sealed class DynamicQuery : IBinSerializable
 
         ws.SerializeExpression(Filter);
 
-        ws.WriteVariant(Selects.Length);
-        for (var i = 0; i < Selects.Length; i++)
-        {
-            Selects[i].WriteTo(ref ws);
-        }
-
-        ws.WriteVariant(Orders?.Length ?? 0);
-        if (Orders != null)
-        {
-            for (var i = 0; i < Orders.Length; i++)
-            {
-                Orders[i].WriteTo(ref ws);
-            }
-        }
+        ws.WriteArray(Selects);
+        ws.WriteArray(Orders);
     }
 
     public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
@@ -53,28 +41,16 @@ public sealed class DynamicQuery : IBinSerializable
 
         Filter = (Expression?)rs.Deserialize();
 
-        var count = rs.ReadVariant();
-        Selects = new SelectItem[count];
-        for (var i = 0; i < count; i++)
-        {
-            Selects[i] = SelectItem.ReadFrom(ref rs);
-        }
-
-        count = rs.ReadVariant();
-        if (count > 0)
-        {
-            Orders = new OrderByItem[count];
-            for (var i = 0; i < count; i++)
-            {
-                Orders[i] = OrderByItem.ReadFrom(ref rs);
-            }
-        }
+        Selects = rs.ReadArray<TReader, SelectItem>();
+        Orders = rs.ReadArray<TReader, OrderByItem>();
     }
 
     #endregion
 
-    public sealed class SelectItem
+    public sealed class SelectItem : IBinSerializable
     {
+        public SelectItem() { }
+
         public SelectItem(string alias, Expression item, DataType type)
         {
             Alias = alias;
@@ -82,25 +58,24 @@ public sealed class DynamicQuery : IBinSerializable
             Type = type;
         }
 
-        public Expression Item { get; internal init; }
-        public DataType Type { get; internal init; }
-        public string Alias { get; internal init; }
+        public Expression Item { get; private set; } = null!;
+        public DataType Type { get; private set; }
+        public string Alias { get; private set; } = string.Empty;
 
         #region ====Serialization====
 
-        internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+        public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
         {
             ws.SerializeExpression(Item);
             ws.WriteByte((byte)Type);
             ws.WriteString(Alias);
         }
 
-        internal static SelectItem ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+        public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
         {
-            var item = (Expression)rs.Deserialize()!;
-            var type = (DataType)rs.ReadByte();
-            var alias = rs.ReadString()!;
-            return new SelectItem(alias, item, type);
+            Item = (Expression)rs.Deserialize()!;
+            Type = (DataType)rs.ReadByte();
+            Alias = rs.ReadString()!;
         }
 
         internal void WriteTo(Utf8JsonWriter writer, EntityExpression root)
@@ -149,30 +124,31 @@ public sealed class DynamicQuery : IBinSerializable
         #endregion
     }
 
-    public sealed class OrderByItem
+    public sealed class OrderByItem : IBinSerializable
     {
+        public OrderByItem() { }
+
         public OrderByItem(Expression field, bool descending = false)
         {
             Field = field;
             Descending = descending;
         }
 
-        public Expression Field { get; internal init; }
+        public Expression Field { get; internal set; } = null!;
         public bool Descending { get; internal set; }
 
         #region ====Serialization====
 
-        internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+        public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
         {
             ws.SerializeExpression(Field);
             ws.WriteBool(Descending);
         }
 
-        internal static OrderByItem ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+        public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
         {
-            var field = (Expression)rs.Deserialize()!;
-            var descending = rs.ReadBool();
-            return new OrderByItem(field, descending);
+            Field = (Expression)rs.Deserialize()!;
+            Descending = rs.ReadBool();
         }
 
         internal void WriteTo(Utf8JsonWriter writer, EntityExpression root)

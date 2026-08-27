@@ -1,5 +1,9 @@
+using AppBox.Reporting;
+using AppBox.Reporting.Drawing;
+using AppBox.Reporting.Serialization;
 using AppBoxCore;
 using PixUI;
+using TextBox = AppBox.Reporting.TextBox;
 
 namespace AppBoxDesign;
 
@@ -174,33 +178,52 @@ internal sealed class NewCommand : DesignCommand
 
         private Task<NewNodeResult> NewReport(DesignNode selectedNode, string name)
         {
+            var report = new Report()
+            {
+                PageSettings = { PaperSize = new RSize(Scalar.Cm(21), Scalar.Cm(29.7)) },
+                Items =
+                {
+                    new PageHeader()
+                    {
+                        Height = Scalar.Cm(2),
+                        Items =
+                        {
+                            new TextBox()
+                            {
+                                Width = Scalar.Cm(3), Height = Scalar.Cm(1), Left = Scalar.Cm(5), Top = Scalar.Cm(0.5),
+                                Value = "Header"
+                            }
+                        }
+                    },
+                    new ReportBody()
+                    {
+                        Height = Scalar.Cm(5),
+                        Items =
+                        {
+                            new TextBox()
+                            {
+                                Width = Scalar.Cm(3), Height = Scalar.Cm(1), Left = Scalar.Cm(5), Top = Scalar.Cm(1),
+                                Value = "Hello Future",
+                                Style =
+                                {
+                                    Color = 0xFFFF0000, VerticalAlign = VerticalAlign.Middle,
+                                    BorderStyle = { Default = BorderType.Solid }, Font = { Size = Scalar.Point(12) }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var ms = new MemoryStream(512);
+            var writer = new ReportWriter(ms);
+            report.WriteTo(ref writer);
+            ms.Position = 0;
+
             return ModelCreator.Make(_designContext, ModelType.Report,
                 id => new ReportModel(id, name),
                 selectedNode.Type, selectedNode.Id, name,
-                _ => $$"""
-                       {
-                         "PageSettings": {"PaperSize":["21cm","29.7cm"]},
-                         "Items": [
-                           {
-                             "$T": "PageHeader",
-                             "Height": "2cm",
-                             "Items": [
-                               {"$T": "TextBox", "Width": "3cm", "Height": "1cm", "Left": "5cm", "Top": "0.5cm", "Value": "Header"}
-                             ]
-                           },
-                           {
-                             "$T": "Details",
-                             "Height": "5cm",
-                             "Items": [
-                               { 
-                                 "$T": "TextBox", "Width": "3cm", "Height": "1cm", "Left": "5cm", "Top": "1cm", "Value": "Hello Future",
-                                 "Style": { "Color": "FFFF0000", "VerticalAlign": "Middle", "BorderStyle": { "Default": "Solid" }, "Font": { "Size": "12pt" } }
-                               }
-                             ]
-                           }
-                         ]
-                       }
-                       """);
+                _ => ms);
         }
 
         private Task<NewNodeResult> NewWorkflow(DesignNode selectedNode, string name)

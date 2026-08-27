@@ -7,7 +7,7 @@ internal static class ModelCreator
     public static async Task<NewNodeResult> Make(DesignContext context, ModelType modelType,
         Func<ModelId, ModelBase> creator,
         DesignNodeType selectedNodeType, string selectedNodeId, string name,
-        Func<string, string?> initSrcCodeGen)
+        Func<string, object?> initSrcCodeGen)
     {
         //验证名称有效性
         if (string.IsNullOrEmpty(name) || !CodeUtil.IsValidIdentifier(name))
@@ -51,15 +51,21 @@ internal static class ModelCreator
         context.DesignTree.AddCheckoutInfos(new List<CheckoutInfo>() { checkout });
 
         //保存至Staged
-        var initSrcCode = initSrcCodeGen(appNode.Model.Name);
+        string? initSrcCode = null;
         Stream? codeStream = null;
-        if (!string.IsNullOrEmpty(initSrcCode))
+        var initResult = initSrcCodeGen(appNode.Model.Name); //报表及动态视图直接返回序列化的Stream
+        if (initResult is string srcCode && !string.IsNullOrEmpty(srcCode))
         {
+            initSrcCode = srcCode;
             codeStream = new MemoryStream(512);
             await using var streamWriter = new StreamWriter(codeStream, leaveOpen: true);
             await streamWriter.WriteAsync(initSrcCode);
             await streamWriter.FlushAsync();
             codeStream.Seek(0, SeekOrigin.Begin);
+        }
+        else if (initResult is Stream stream && stream.Length > 0)
+        {
+            codeStream = stream;
         }
 
         await node.SaveAsync(codeStream);
