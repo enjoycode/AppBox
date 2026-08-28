@@ -1,15 +1,13 @@
-using System.Text.Json;
 using AppBoxCore;
 using AppBoxStore.Entities;
 using NUnit.Framework;
-using LinqExpression = System.Linq.Expressions.Expression;
 
 namespace Tests.Core;
 
 public class ExpressionSerializationTest
 {
     [Test]
-    public void Test1()
+    public void MethodCallTest()
     {
         var exp1 = Expression.InstanceCall(
             Expression.StaticProperty(ExpressionTypeInfo.DateTime, "Today", ExpressionTypeInfo.DateTime),
@@ -22,7 +20,7 @@ public class ExpressionSerializationTest
     }
 
     [Test]
-    public async Task EntityPathSerializeToJsonTest()
+    public async Task EntityPathTest()
     {
         ServerRuntimeHelper.MockUserSession();
 
@@ -32,14 +30,12 @@ public class ExpressionSerializationTest
         var exp1 = root.R("Parent", OrgUnit.MODELID).F("Name");
 
         using var ms = new MemoryStream();
-        await using var writer = new Utf8JsonWriter(ms);
-        ExpressionSerialization.SerializeToJson(writer, exp1, [root]);
-        await writer.FlushAsync();
+        var writer = new SystemWriteStream(ms);
+        writer.SerializeExpression(exp1);
 
         ms.Position = 0;
-        var reader = new Utf8JsonReader(ms.GetBuffer().AsSpan(0, (int)ms.Length));
-        var exp2 = (EntityFieldExpression)ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
-        Assert.True(exp2!.ToString() == exp1.ToString());
-        Assert.AreSame(exp2.Owner!.Owner!, root);
+        var reader = new SystemReadStream(ms);
+        var exp2 = (EntityFieldExpression)reader.Deserialize()!;
+        Assert.True(exp2.ToString() == exp1.ToString());
     }
 }
