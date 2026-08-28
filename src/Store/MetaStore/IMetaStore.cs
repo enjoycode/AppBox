@@ -118,18 +118,6 @@ public static class MetaStoreExtensions
     }
 
     /// <summary>
-    /// 用于运行时加载动态视图模型的json配置
-    /// </summary>
-    /// <returns>utf8 bytes</returns>
-    public static async Task<byte[]?> LoadDynamicViewJsonAsync(this IMetaStore metaStore, ModelId viewModelId)
-    {
-        using var ms = new MemoryStream();
-        await metaStore.LoadMetaDataAsync(ms, MetaType.META_CODE, viewModelId.ToString());
-        if (ms.Length == 0) return null;
-        return ModelCodeUtil.DecompressCodeToUtf8Bytes(ms.ToArray());
-    }
-
-    /// <summary>
     /// 加载视图模型所依赖的所有程序集列表
     /// </summary>
     /// <param name="metaStore"></param>

@@ -1,11 +1,11 @@
-using System.Diagnostics;
-using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.Json;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
 using AppBoxClient.Utils;
+using AppBoxCore;
 using PixUI.Dynamic;
+using Expression = System.Linq.Expressions.Expression;
+using ParameterExpression = System.Linq.Expressions.ParameterExpression;
 
 namespace PixUI;
 
@@ -70,9 +70,12 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
     {
         await DynamicInitiator.TryInitAsync();
 
-        //TODO:考虑缓存加载过的json配置
-        var json = await Channel.Invoke<byte[]?>("sys.SystemService.LoadDynamicViewJson", _viewModelId);
-        if (json == null || json.Length == 0)
+        //TODO:考虑缓存加载过的(写入本地文件)
+        await using var ms = new MemoryStream(2048);
+        var pipeReader = Channel.Download("sys.SystemService.LoadDynamicView", _viewModelId);
+        await pipeReader.CopyToStreamAsync(ms);
+
+        if (ms.Length == 0)
         {
             ReplaceTo(new Text("Can't find dynamic view")); //TODO: ErrorWidget
             return;
@@ -80,7 +83,8 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
 
         try
         {
-            var root = ParseJson(json);
+            ms.Position = 0;
+            var root = ReadDynamicView(ms);
             ReplaceTo(root);
             OnLoaded?.Invoke();
         }
@@ -91,28 +95,30 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         }
     }
 
-    #region ====Parse Json====
+    #region ====Load Dynamic Widget====
 
-    private Widget ParseJson(byte[] json)
+    private static IDynamicStateValue CreateStateValue(DynamicStateType stateType) => stateType switch
     {
-        var reader = new Utf8JsonReader(json);
-        Widget? root = null;
-        while (reader.Read())
-        {
-            if (reader.TokenType != JsonTokenType.PropertyName) continue;
+        DynamicStateType.DataTable => new DynamicDataTable(),
+        DynamicStateType.DataRow => new DynamicDataRow(),
+        _ => new DynamicPrimitive()
+    };
 
-            var propName = reader.GetString();
-            switch (propName)
+    private Widget ReadDynamicView(Stream stream)
+    {
+        var reader = new SystemReadStream(stream);
+        Widget? root = null;
+
+        while (true)
+        {
+            var fieldId = reader.ReadFieldId();
+            if (fieldId == 0) break;
+            switch (fieldId)
             {
-                case "Background":
-                    ReadBackground(ref reader);
-                    break;
-                case "State":
-                    ReadStates(ref reader);
-                    break;
-                case "Root":
-                    root = ReadWidget(ref reader /*, string.Empty*/);
-                    break;
+                case 1: _background = reader.ReadBackground(); break;
+                case 2: _states = reader.ReadStates(CreateStateValue); break;
+                case 3: root = ReadWidget(ref reader); break;
+                default: throw SerializationException.ReadUnknownField(nameof(DynamicWidget), fieldId);
             }
         }
 
@@ -120,109 +126,30 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         return root;
     }
 
-    private void ReadBackground(ref Utf8JsonReader reader)
-    {
-        _background = JsonSerializer.Deserialize<DynamicBackground>(ref reader);
-    }
-
-    private void ReadStates(ref Utf8JsonReader reader)
-    {
-        _states = new List<DynamicState>();
-
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndObject) break;
-            if (reader.TokenType != JsonTokenType.PropertyName) continue;
-
-            var propName = reader.GetString()!;
-            ReadState(ref reader, propName, _states);
-        }
-    }
-
-    private static void ReadState(ref Utf8JsonReader reader, string name, IList<DynamicState> states)
-    {
-        reader.Read(); //{
-        reader.Read(); //Type prop
-        reader.Read(); //Type value
-        var type = Enum.Parse<DynamicStateType>(reader.GetString()!);
-        var state = new DynamicState { Name = name, Type = type };
-
-        if (type == DynamicStateType.DataTable)
-        {
-            reader.Read(); //Value prop
-            var peekReader = reader;
-            if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
-            {
-                var ds = new DynamicDataTable();
-                ds.ReadFrom(ref reader, state);
-                state.Value = ds;
-            }
-            else
-            {
-                reader.Read(); //Value null
-            }
-        }
-        else
-        {
-            //AllowNull
-            reader.Read(); //AllowNull prop
-            reader.Read(); //AllowNull value
-            state.AllowNull = reader.GetBoolean();
-
-            //Value
-            reader.Read(); //Value prop
-            var peekReader = reader;
-            if (!(peekReader.Read() && peekReader.TokenType == JsonTokenType.Null))
-            {
-                IDynamicStateValue vs = type == DynamicStateType.DataRow
-                    ? new DynamicDataRow()
-                    : new DynamicPrimitive();
-                vs.ReadFrom(ref reader, state);
-                state.Value = vs;
-            }
-            else
-            {
-                reader.Read(); //Value null
-            }
-        }
-
-        reader.Read(); //}
-
-        states.Add(state);
-    }
-
-    private Widget ReadWidget(ref Utf8JsonReader reader /*, string slotName*/)
+    private Widget ReadWidget<TReader>(ref TReader reader) where TReader : struct, IInputStream
     {
         Widget result = null!;
         DynamicWidgetMeta meta = null!;
 
-        while (reader.Read())
+        while (true)
         {
-            if (reader.TokenType == JsonTokenType.EndObject) break;
-            if (reader.TokenType != JsonTokenType.PropertyName) continue;
+            var propName = reader.ReadString();
+            if (string.IsNullOrEmpty(propName)) break;
 
-            var propName = reader.GetString()!;
-            if (propName == "Type")
+            if (propName == DynamicReader.TYPE_PROPERTY)
             {
-                reader.Read();
-                var type = reader.GetString();
-                if (string.IsNullOrEmpty(type))
+                var type = reader.ReadString();
+                if (string.IsNullOrEmpty(type)) //element is a placeholder
                 {
-                    //element is a placeholder
-                    reader.Read();
-                    reader.Read();
-                    var width = reader.GetSingle();
-                    reader.Read();
-                    reader.Read();
-                    var height = reader.GetSingle();
-                    result = new Container { Width = width, Height = height };
+                    var width = reader.ReadFloat();
+                    var height = reader.ReadFloat();
+                    result = new Container() {Width = width, Height = height};
                     continue;
                 }
-
                 meta = DynamicWidgetManager.GetByName(type);
                 result = meta.CreateInstance();
             }
-            else if (propName == "Events")
+            else if (propName == DynamicReader.EVENT_PROPERTY)
             {
                 ReadEvents(ref reader, result);
             }
@@ -230,18 +157,23 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             {
                 if (childSlot!.ContainerType == ContainerType.MultiChild)
                 {
-                    ReadWidgetArray(ref reader, result, childSlot);
+                    var count = reader.ReadVariant();
+                    for (var i = 0; i < count; i++)
+                    {
+                        var child = ReadWidget(ref reader);
+                        childSlot.AddChild(result, child);
+                    }
                 }
                 else
                 {
-                    var child = ReadWidget(ref reader /*, childSlot!.PropertyName*/);
+                    var child = ReadWidget(ref reader);
                     childSlot.SetChild(result, child);
                 }
             }
             else
             {
                 var propMeta = meta.GetPropertyMeta(propName);
-                var propValue = DynamicValue.Read(ref reader, propMeta);
+                var propValue = reader.ReadDynamicValue();
                 propMeta.SetRuntimeValue(meta, result, propValue, this);
             }
         }
@@ -249,44 +181,15 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         return result;
     }
 
-    private void ReadWidgetArray(ref Utf8JsonReader reader, Widget parent, ContainerSlot childrenSlot)
+    private void ReadEvents<TReader>(ref TReader reader, Widget widget)  where TReader : struct, IInputStream
     {
-        while (reader.Read())
+        var count = reader.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            if (reader.TokenType == JsonTokenType.EndArray) break;
-            if (reader.TokenType != JsonTokenType.StartObject) continue;
-
-            var child = ReadWidget(ref reader /*, childrenSlot.PropertyName*/);
-            childrenSlot.AddChild(parent, child);
-        }
-    }
-
-    private void ReadEvents(ref Utf8JsonReader reader, Widget widget)
-    {
-        reader.Read(); //{
-
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndObject) break;
-
-            var eventName = reader.GetString()!;
-            var eventAction = ReadEventAction(ref reader);
+            var eventValue = reader.ReadEventValue();
             //绑定事件
-            BindEventAction(widget, eventName, eventAction);
+            BindEventAction(widget, eventValue.Name, eventValue.Action);
         }
-    }
-
-    private static IEventAction ReadEventAction(ref Utf8JsonReader reader)
-    {
-        reader.Read(); //{
-        reader.Read(); // Handler prop
-        Debug.Assert(reader.GetString() == "Handler");
-        reader.Read(); // Handler value
-        var handler = reader.GetString()!;
-        //根据类型创建实例
-        var res = DynamicWidgetManager.EventActionManager.Create(handler);
-        res.ReadProperties(ref reader);
-        return res;
     }
 
     private void BindEventAction(Widget widget, string eventName, IEventAction eventAction)

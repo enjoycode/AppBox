@@ -65,7 +65,8 @@ internal sealed class NewViewDialog : Dialog
         DesignStore.OnNewNode(res!);
     }
 
-    private static Task<NewNodeResult> NewView(DesignContext context, DesignNode selectedNode, string name, bool isDynamic)
+    private static Task<NewNodeResult> NewView(DesignContext context, DesignNode selectedNode, string name,
+        bool isDynamic)
     {
         var selectedNodeType = selectedNode.Type;
         var selectedNodeId = selectedNode.Id;
@@ -75,17 +76,7 @@ internal sealed class NewViewDialog : Dialog
             return ModelCreator.Make(context, ModelType.View,
                 id => new ViewModel(id, name, ViewModelType.PixUIDynamic),
                 selectedNodeType, selectedNodeId, name,
-                _ => """
-                     {
-                       "Root": {
-                         "Type": "Center",
-                         "Child": {
-                           "Type": "Button",
-                           "Text": { "Const": "Button" }
-                         }
-                       }
-                     }
-                     """
+                _ => null
             );
         }
 

@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using AppBoxClient.Dynamic;
 using AppBoxClient.Dynamic.Events;
+using AppBoxCore;
 using AppBoxDesign.EventEditors;
 using AppBoxDesign.PropertyEditors;
 using PixUI;
@@ -92,9 +93,6 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
                 new Button("Add") { OnTap = OnAdd },
                 new Button("Remove") { OnTap = OnRemove },
                 new Button("Background") { OnTap = OnSetBackground },
-#if DEBUG
-                new Button("Json") { OnTap = _ => BuildJson() },
-#endif
             }
         }
     };
@@ -119,7 +117,10 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
             await _designContext.DownloadSourceCode(ms, ModelNode);
             if (ms.Length > 0)
             {
-                _designController.Load(ms.GetBuffer().AsSpan(0, (int)ms.Length));
+                ms.Position = 0;
+                var reader = new SystemReadStream(ms);
+                var serializer = new DynamicBinSerializer(_designController);
+                serializer.Read(ref reader);
             }
         }
         catch (Exception e)
@@ -129,24 +130,12 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         }
     }
 
-#if DEBUG
-    private void BuildJson()
-    {
-        using var ms = new MemoryStream();
-        using var writer = new Utf8JsonWriter(ms, new JsonWriterOptions() { Indented = true });
-        _designController.Write(writer);
-        writer.Flush();
-        var json = Encoding.UTF8.GetString(ms.GetBuffer().AsSpan(0, (int)ms.Length));
-        Log.Debug(json);
-    }
-#endif
-
     public async Task SaveAsync()
     {
         await using var ms = new MemoryStream(2048);
-        await using var writer = new Utf8JsonWriter(ms);
-        _designController.Write(writer);
-        await writer.FlushAsync();
+        var writer = new SystemWriteStream(ms);
+        var serializer = new DynamicBinSerializer(_designController);
+        serializer.Write(ref writer);
         ms.Seek(0, SeekOrigin.Begin);
 
         await ModelNode.SaveAsync(ms);

@@ -8,24 +8,24 @@ namespace Tests.ClientUI;
 
 public class EventActionSerializationTest
 {
-    [Test]
-    public void Test1()
-    {
-        const string json = """
-                            {
-                              "View": {
-                                "Type": "Center",
-                                "Child": {
-                                  "Type": "Button",
-                                  "TextColor": { "Const": "FFFF0000" },
-                                  "Events": { "OnTap": { "Handler": "FetchDataSource", "DataSource": "orders" } }
-                                }
-                              }
-                            }
-                            """;
-        DynamicWidgetManager.TryInitEventActionManager(() => new EventActionManager());
-        var controller = new DesignController();
-        var canvas = new DesignCanvas(controller);
-        controller.Load(Encoding.UTF8.GetBytes(json));
-    }
+    // [Test]
+    // public void Test1()
+    // {
+    //     const string json = """
+    //                         {
+    //                           "Root": {
+    //                             "Type": "Center",
+    //                             "Child": {
+    //                               "Type": "Button",
+    //                               "TextColor": { "Const": "FFFF0000" },
+    //                               "Events": { "OnTap": { "Handler": "FetchDataSource", "DataSource": "orders" } }
+    //                             }
+    //                           }
+    //                         }
+    //                         """;
+    //     DynamicWidgetManager.TryInitEventActionManager(() => new EventActionManager());
+    //     var controller = new DesignController();
+    //     var canvas = new DesignCanvas(controller);
+    //     controller.Load(Encoding.UTF8.GetBytes(json));
+    // }
 }

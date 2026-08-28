@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using PixUI;
 using PixUI.Dynamic;
 using PixUI.Dynamic.Design;
@@ -128,7 +124,8 @@ internal sealed class EventEditDialog : Dialog
     {
         if (result != DialogResult.OK || _currentAction == null) return new ValueTask<bool>(false);
 
-        _element.Data.SetEventValue(_eventMeta.Name, _currentAction);
+        var eventValue = new EventValue() { Name = _eventMeta.Name, Action = _currentAction };
+        _element.Data.SetEventValue(eventValue);
         return new ValueTask<bool>(false);
     }
 
