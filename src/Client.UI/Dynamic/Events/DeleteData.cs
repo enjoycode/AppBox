@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Text.Json;
 using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
@@ -9,7 +7,7 @@ namespace AppBoxClient.Dynamic.Events;
 /// <summary>
 /// 删除数据行(DataTable的当前行或详情页的数据行)的操作
 /// </summary>
-public sealed class DeleteData : IEventAction
+public sealed class DeleteData : IEventAction, IBinSerializable
 {
     public string ActionName => nameof(DeleteData);
 
@@ -25,33 +23,16 @@ public sealed class DeleteData : IEventAction
 
     #region ====Serialization====
 
-    public void WriteProperties(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WriteString(nameof(DataSource), DataSource);
-        writer.WriteString(nameof(ConfirmMessage), ConfirmMessage);
+        ws.WriteString(DataSource);
+        ws.WriteString(ConfirmMessage);
     }
 
-    public void ReadProperties(ref Utf8JsonReader reader)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                break;
-
-            Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-            var propName = reader.GetString();
-            reader.Read();
-            switch (propName)
-            {
-                case nameof(DataSource):
-                    DataSource = reader.GetString() ?? string.Empty;
-                    break;
-                case nameof(ConfirmMessage):
-                    ConfirmMessage = reader.GetString() ?? string.Empty;
-                    break;
-                default: throw new Exception($"Unknown property: {nameof(ConfirmMessage)}.{propName}");
-            }
-        }
+        DataSource = rs.ReadString() ?? string.Empty;
+        ConfirmMessage = rs.ReadString() ?? string.Empty;
     }
 
     #endregion

@@ -1,5 +1,4 @@
-using System.Diagnostics;
-using System.Text.Json;
+using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -8,7 +7,7 @@ namespace AppBoxClient.Dynamic.Events;
 /// <summary>
 /// 填充数据操作
 /// </summary>
-public sealed class FetchData : IEventAction
+public sealed class FetchData : IEventAction, IBinSerializable
 {
     public string ActionName => nameof(FetchData);
 
@@ -17,29 +16,14 @@ public sealed class FetchData : IEventAction
     /// </summary>
     public string DataSource { get; set; } = null!;
 
-    public void WriteProperties(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WriteString(nameof(DataSource), DataSource);
+        ws.WriteString(DataSource);
     }
 
-    public void ReadProperties(ref Utf8JsonReader reader)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                break;
-
-            Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-            var propName = reader.GetString();
-            reader.Read();
-            switch (propName)
-            {
-                case nameof(DataSource):
-                    DataSource = reader.GetString() ?? string.Empty;
-                    break;
-                default: throw new Exception($"Unknown property: {nameof(FetchData)}.{propName}");
-            }
-        }
+        DataSource = rs.ReadString() ?? string.Empty;
     }
 
     public void Run(IDynamicContext dynamicContext, object? eventArg = null)

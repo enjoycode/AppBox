@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Text.Json;
 using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
@@ -9,38 +7,25 @@ namespace AppBoxClient.Dynamic.Events;
 /// <summary>
 /// 保存数据操作
 /// </summary>
-public sealed class SaveData : IEventAction
+public sealed class SaveData : IEventAction, IBinSerializable
 {
     public string ActionName => nameof(SaveData);
 
     public List<string> DataSources { get; } = [];
 
-    public void WriteProperties(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WritePropertyName(nameof(DataSources));
-        writer.WriteStartArray();
+        ws.WriteVariant(DataSources.Count);
         foreach (var dataSource in DataSources)
-            writer.WriteStringValue(dataSource);
-        writer.WriteEndArray();
+            ws.WriteString(dataSource);
     }
 
-    public void ReadProperties(ref Utf8JsonReader reader)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        while (reader.Read())
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                break;
-
-            Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-            var propName = reader.GetString();
-            reader.Read();
-            switch (propName)
-            {
-                case nameof(DataSources):
-                    DataSources.AddRange(JsonSerializer.Deserialize<string[]>(ref reader)!);
-                    break;
-                default: throw new Exception($"Unknown property: {nameof(FetchData)}.{propName}");
-            }
+            DataSources.Add(rs.ReadString() ?? string.Empty);
         }
     }
 
