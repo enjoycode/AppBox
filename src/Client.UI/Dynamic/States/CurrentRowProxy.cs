@@ -1,4 +1,3 @@
-using System.Text.Json;
 using PixUI;
 using PixUI.Dynamic;
 
@@ -17,10 +16,6 @@ internal sealed class CurrentRowProxy : IDynamicPrimitive
     private State? _runtimeState;
 
     public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState) => throw new NotSupportedException();
-
-    public void WriteTo(Utf8JsonWriter writer) => throw new NotSupportedException();
-
-    public void ReadFrom(ref Utf8JsonReader reader, DynamicState state) => throw new NotSupportedException();
 
     public object? GetDesignValue(IDynamicContext ctx)
     {

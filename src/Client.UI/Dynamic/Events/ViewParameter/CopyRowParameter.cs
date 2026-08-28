@@ -1,4 +1,4 @@
-using System.Text.Json;
+using AppBoxCore;
 using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic.Events;
@@ -7,14 +7,14 @@ public sealed class CopyRowParameter : IViewParameterSource
 {
     internal const string SourceName = "CopyRow";
 
-    public string Name => SourceName;
+    public string TypeName => SourceName;
 
-    public void WriteProperties(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
         throw new NotImplementedException();
     }
 
-    public void ReadProperties(ref Utf8JsonReader reader)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
         throw new NotImplementedException();
     }

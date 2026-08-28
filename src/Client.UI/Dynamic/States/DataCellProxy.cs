@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AppBoxCore;
 
 namespace PixUI.Dynamic;
@@ -14,10 +13,6 @@ internal sealed class DataCellProxy : IDynamicPrimitive
     private readonly DataRow _row;
     private readonly string _name;
     private State? _runtimeState;
-
-    public void WriteTo(Utf8JsonWriter writer) => throw new NotSupportedException();
-
-    public void ReadFrom(ref Utf8JsonReader reader, DynamicState state) => throw new NotSupportedException();
 
     public void CopyFrom(IDynamicContext otherCtx, DynamicState otherState)
     {

@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Text.Json;
 using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
@@ -13,62 +11,20 @@ public sealed class CreateRowParameter : IViewParameterSource
 {
     internal const string SourceName = "CreateRow";
 
-    public string Name => SourceName;
+    public string TypeName => SourceName;
 
     public List<FieldDefaultValue> DefaultValues { get; } = [];
 
     #region ====Serialization====
 
-    public void WriteProperties(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WritePropertyName(nameof(DefaultValues));
-        writer.WriteStartArray();
-        foreach (var item in DefaultValues)
-        {
-            writer.WriteStartObject();
-            writer.WriteString("Target", item.TargetFieldName);
-            writer.WritePropertyName("DefaultValue");
-            ExpressionSerialization.SerializeToJson(writer, item.DefaultValue);
-            writer.WriteEndObject();
-        }
-
-        writer.WriteEndArray();
+        ws.WriteCollection(DefaultValues);
     }
 
-    public void ReadProperties(ref Utf8JsonReader reader)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        reader.Read(); // PkValues prop name
-        Debug.Assert(reader.TokenType == JsonTokenType.PropertyName && reader.GetString() == nameof(DefaultValues));
-        reader.Read(); // [
-
-        FieldDefaultValue defaultValue = null!;
-        while (reader.Read())
-        {
-            switch (reader.TokenType)
-            {
-                case JsonTokenType.StartObject:
-                    defaultValue = new();
-                    break;
-                case JsonTokenType.PropertyName:
-                    var propName = reader.GetString();
-                    if (propName == "Target")
-                    {
-                        reader.Read();
-                        defaultValue.TargetFieldName = reader.GetString()!;
-                    }
-                    else if (propName == "DefaultValue")
-                        defaultValue.DefaultValue = ExpressionSerialization.DeserializeFromJson(ref reader);
-                    else
-                        throw new Exception($"Unknown property: {nameof(CreateRowParameter)}.{propName}");
-
-                    break;
-                case JsonTokenType.EndObject:
-                    DefaultValues.Add(defaultValue);
-                    break;
-                case JsonTokenType.EndArray:
-                    return;
-            }
-        }
+        rs.ReadCollection(DefaultValues);
     }
 
     #endregion
@@ -113,7 +69,7 @@ public sealed class CreateRowParameter : IViewParameterSource
     /// <summary>
     /// 新建数据行时的字段默认值
     /// </summary>
-    public sealed class FieldDefaultValue
+    public sealed class FieldDefaultValue : IBinSerializable
     {
         /// <summary>
         /// 目标字段名称(不需要全路径) eg: CreateTime
@@ -124,5 +80,17 @@ public sealed class CreateRowParameter : IViewParameterSource
         /// 默认值的表达式 eg: DateTime.Now
         /// </summary>
         public Expression? DefaultValue { get; set; }
+
+        public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+        {
+            ws.WriteString(TargetFieldName);
+            ws.SerializeExpression(DefaultValue);
+        }
+
+        public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+        {
+            TargetFieldName = rs.ReadString()!;
+            DefaultValue = (Expression?)rs.Deserialize();
+        }
     }
 }

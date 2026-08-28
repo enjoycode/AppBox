@@ -1,5 +1,4 @@
-using System.Diagnostics;
-using System.Text.Json;
+using AppBoxCore;
 using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic.Events;
@@ -11,57 +10,31 @@ public sealed class FetchRowParameter : IViewParameterSource
 {
     internal const string SourceName = "FetchRow";
 
-    public string Name => SourceName;
+    public string TypeName => SourceName;
 
     public List<PrimaryKeyValue> PkValues { get; } = [];
 
     #region ====Serialization====
 
-    public void WriteProperties(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WritePropertyName(nameof(PkValues));
-        writer.WriteStartArray();
-        foreach (var pkValue in PkValues)
+        ws.WriteVariant(PkValues.Count);
+        foreach (var pk in PkValues)
         {
-            writer.WriteStartObject();
-            writer.WriteString("Current", pkValue.FromStateName);
-            writer.WriteString("Target", pkValue.TargetFieldName);
-            writer.WriteEndObject();
+            ws.WriteString(pk.FromStateName);
+            ws.WriteString(pk.TargetFieldName);
         }
-
-        writer.WriteEndArray();
     }
 
-    public void ReadProperties(ref Utf8JsonReader reader)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        reader.Read(); // PkValues prop name
-        Debug.Assert(reader.TokenType == JsonTokenType.PropertyName && reader.GetString() == nameof(PkValues));
-        reader.Read(); // [
-
-        PrimaryKeyValue pkValue = null!;
-        while (reader.Read())
+        var count = rs.ReadVariant();
+        for (var i = 0; i < count; i++)
         {
-            switch (reader.TokenType)
-            {
-                case JsonTokenType.StartObject:
-                    pkValue = new();
-                    break;
-                case JsonTokenType.PropertyName:
-                    var propName = reader.GetString();
-                    reader.Read();
-                    if (propName == "Current")
-                        pkValue.FromStateName = reader.GetString()!;
-                    else if (propName == "Target")
-                        pkValue.TargetFieldName = reader.GetString()!;
-                    else
-                        throw new Exception($"Unknown property: {propName}");
-                    break;
-                case JsonTokenType.EndObject:
-                    PkValues.Add(pkValue);
-                    break;
-                case JsonTokenType.EndArray:
-                    return;
-            }
+            var pk = new PrimaryKeyValue();
+            pk.FromStateName = rs.ReadString()!;
+            pk.TargetFieldName = rs.ReadString()!;
+            PkValues.Add(pk);
         }
     }
 

@@ -1,4 +1,4 @@
-using System.Text.Json;
+using AppBoxCore;
 using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic.Events;
@@ -6,13 +6,9 @@ namespace AppBoxClient.Dynamic.Events;
 /// <summary>
 /// 视图参数的来源
 /// </summary>
-public interface IViewParameterSource
+public interface IViewParameterSource : IBinSerializable
 {
-    string Name { get; }
-
-    void WriteProperties(Utf8JsonWriter writer);
-
-    void ReadProperties(ref Utf8JsonReader reader);
+    string TypeName { get; }
 
     ValueTask Run(IDynamicContext current, IDynamicContext target, string targetName);
 }

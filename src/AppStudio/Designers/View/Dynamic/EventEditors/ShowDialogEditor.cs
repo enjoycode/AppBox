@@ -61,7 +61,7 @@ internal sealed class ShowDialogEditor : SingleChildWidget
             },
             new DataGrid<ViewParameter>(_dgController)
                 .AddTextColumn("State", v => v.StateName)
-                .AddTextColumn("Source", v => v.Source.Name)
+                .AddTextColumn("Source", v => v.Source.TypeName)
                 .AddButtonColumn("Edit", (v, _) => new Button(icon: MaterialIcons.Edit)
                 {
                     Style = ButtonStyle.Transparent,
