@@ -97,13 +97,6 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
 
     #region ====Load Dynamic Widget====
 
-    private static IDynamicStateValue CreateStateValue(DynamicStateType stateType) => stateType switch
-    {
-        DynamicStateType.DataTable => new DynamicDataTable(),
-        DynamicStateType.DataRow => new DynamicDataRow(),
-        _ => new DynamicPrimitive()
-    };
-
     private Widget ReadDynamicView(Stream stream)
     {
         var reader = new SystemReadStream(stream);
@@ -116,7 +109,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             switch (fieldId)
             {
                 case 1: _background = reader.ReadBackground(); break;
-                case 2: _states = reader.ReadStates(CreateStateValue); break;
+                case 2: _states = reader.ReadStates(DynamicInitiator.CreateStateValue); break;
                 case 3: root = ReadWidget(ref reader); break;
                 default: throw SerializationException.ReadUnknownField(nameof(DynamicWidget), fieldId);
             }
@@ -143,9 +136,10 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
                 {
                     var width = reader.ReadFloat();
                     var height = reader.ReadFloat();
-                    result = new Container() {Width = width, Height = height};
+                    result = new Container() { Width = width, Height = height };
                     continue;
                 }
+
                 meta = DynamicWidgetManager.GetByName(type);
                 result = meta.CreateInstance();
             }
@@ -181,7 +175,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
         return result;
     }
 
-    private void ReadEvents<TReader>(ref TReader reader, Widget widget)  where TReader : struct, IInputStream
+    private void ReadEvents<TReader>(ref TReader reader, Widget widget) where TReader : struct, IInputStream
     {
         var count = reader.ReadVariant();
         for (var i = 0; i < count; i++)

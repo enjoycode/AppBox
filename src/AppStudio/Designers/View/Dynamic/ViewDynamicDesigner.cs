@@ -18,12 +18,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         if (DesignSettings.CreateDynamicStateValue != null!) return;
 
         // 初始化一些动态视图设计时的委托
-        DesignSettings.CreateDynamicStateValue = static (type) => type switch
-        {
-            DynamicStateType.DataTable => new DynamicDataTable(),
-            DynamicStateType.DataRow => new DynamicDataRow(),
-            _ => new DynamicPrimitive()
-        };
+        DesignSettings.CreateDynamicStateValue = DynamicInitiator.CreateStateValue;
         DesignSettings.GetStateEditor = (controller, state) => state.Type switch
         {
             DynamicStateType.DataTable => new DataTableEditDialog(designContext, controller, state),

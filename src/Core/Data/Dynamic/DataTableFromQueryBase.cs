@@ -26,6 +26,15 @@ public abstract class DataTableFromQueryBase
     /// </summary>
     public List<DynamicQuery.OrderByItem> Orders { get; } = [];
 
+    public void AddSelect(string alias, Expression item, DataType type) =>
+        Selects.Add(new DynamicQuery.SelectItem(alias, item, type));
+
+    public void AddOrderBy(Expression field, bool descending = false) =>
+        Orders.Add(new DynamicQuery.OrderByItem(field, descending));
+
+    public void AddFilter(Expression field, BinaryOperatorType op, string state) =>
+        Filters.Add(new FilterItem(field, op, state));
+
     #region ====Serialization====
 
     public void WriteTo<TWriter>(ref TWriter writer) where TWriter : struct, IOutputStream
@@ -54,6 +63,15 @@ public abstract class DataTableFromQueryBase
 
     public sealed class FilterItem : IBinSerializable
     {
+        public FilterItem() { }
+
+        public FilterItem(Expression field, BinaryOperatorType op, string state)
+        {
+            Field = field;
+            Operator = op;
+            State = state;
+        }
+
         public Expression Field { get; internal set; } = null!;
         public BinaryOperatorType Operator { get; internal set; }
 

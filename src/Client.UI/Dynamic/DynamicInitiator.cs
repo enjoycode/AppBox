@@ -14,12 +14,13 @@ public static class DynamicInitiator
 
     public const string DataSourceEditorName = "DataSourceSelect";
 
-    public static async Task<bool> TryInitAsync()
+    public static async Task<bool> TryInitAsync(bool forTest = false)
     {
         var res = false;
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) == 0)
         {
-            _initTask = Init();
+            Init();
+            _initTask = forTest ? Task.CompletedTask : LoadDynamicWidgets();
             res = true;
         }
 
@@ -27,7 +28,7 @@ public static class DynamicInitiator
         return res;
     }
 
-    private static async Task Init()
+    private static void Init()
     {
         const string dataCatalog = "Data";
 
@@ -67,7 +68,10 @@ public static class DynamicInitiator
                 new(nameof(DynamicPieChart.LegendPosition), typeof(LegendPosition), false),
                 new(nameof(DynamicPieChart.LegendColor), typeof(Color), true)
             ]);
+    }
 
+    private static async Task LoadDynamicWidgets()
+    {
         //注册标为动态组件的视图模型
         var widgets = await Channel.Invoke<string[]>("sys.SystemService.LoadDynamicWidgets");
         foreach (var viewModelName in widgets!)
@@ -93,4 +97,11 @@ public static class DynamicInitiator
         }
         //TODO：DynamicWidgetManager移除不存在的
     }
+
+    public static IDynamicStateValue CreateStateValue(DynamicStateType stateType) => stateType switch
+    {
+        DynamicStateType.DataTable => new DynamicDataTable(),
+        DynamicStateType.DataRow => new DynamicDataRow(),
+        _ => new DynamicPrimitive()
+    };
 }
