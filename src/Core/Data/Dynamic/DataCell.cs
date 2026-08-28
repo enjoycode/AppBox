@@ -6,7 +6,7 @@ namespace AppBoxCore;
 [Flags]
 public enum DataType : byte
 {
-    //注意类型名称与EntityFieldType一致,值暂不需要一致
+    //注意类型名称与EntityFieldType一致,值暂不需要一致，另因序列化不要改变值
     Empty = 0,
     String = 1,
     Binary = 2,

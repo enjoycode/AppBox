@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Text.Json;
 using AppBoxClient;
 using AppBoxClient.Utils;
 using AppBoxCore;
@@ -135,76 +133,26 @@ internal sealed class DataRowFromQuery : IDataRowSource
 
     #region ====Serialization====
 
-    public void WriteTo(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        if (Expression.IsNull(Root))
-            return;
-
-        writer.WriteNumber("ModelId", Root!.ModelId);
-
-        //Selects
-        writer.WritePropertyName(nameof(Selects));
-        writer.WriteStartArray();
-        for (var i = 0; i < Selects.Count; i++)
+        ws.SerializeExpression(Root);
+        ws.WriteCollection(Selects);
+        ws.WriteVariant(PrimaryKeys.Length);
+        foreach (var primaryKey in PrimaryKeys)
         {
-            Selects[i].WriteTo(writer, Root);
+            primaryKey.WriteTo(ref ws);
         }
-
-        writer.WriteEndArray();
-
-        //PrimaryKeys
-        writer.WritePropertyName(nameof(PrimaryKeys));
-        writer.WriteStartArray();
-        for (var i = 0; i < PrimaryKeys.Length; i++)
-        {
-            PrimaryKeys[i].WriteTo(writer);
-        }
-
-        writer.WriteEndArray();
     }
 
-    public void ReadFrom(ref Utf8JsonReader reader)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        while (reader.Read())
+        Root = (EntityExpression?)rs.Deserialize();
+        rs.ReadCollection(Selects);
+        var count = rs.ReadVariant();
+        PrimaryKeys = new PrimaryKey[count];
+        for (var i = 0; i < count; i++)
         {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                break;
-
-            var propName = reader.GetString();
-            switch (propName)
-            {
-                case "ModelId":
-                    reader.Read();
-                    var modelId = reader.GetInt64();
-                    Root = new EntityExpression(modelId, null);
-                    break;
-                case nameof(Selects):
-                    reader.Read(); //[
-                    while (reader.Read())
-                    {
-                        if (reader.TokenType == JsonTokenType.EndArray)
-                            break;
-                        Debug.Assert(reader.TokenType == JsonTokenType.StartObject);
-                        Selects.Add(DynamicQuery.SelectItem.ReadFrom(ref reader, Root!));
-                    }
-
-                    break;
-                case nameof(PrimaryKeys):
-                    reader.Read(); //[
-                    var list = new List<PrimaryKey>();
-                    while (reader.Read())
-                    {
-                        if (reader.TokenType == JsonTokenType.EndArray)
-                            break;
-                        list.Add(PrimaryKey.ReadFrom(ref reader));
-                    }
-
-                    PrimaryKeys = list.ToArray();
-
-                    break;
-                default:
-                    throw new Exception($"Unknown property name: {nameof(DataRowFromQuery)}.{propName}");
-            }
+            PrimaryKeys[i] = PrimaryKey.ReadFrom(ref rs);
         }
     }
 
@@ -223,40 +171,16 @@ internal sealed class DataRowFromQuery : IDataRowSource
         public readonly string Name;
         public readonly DataType Type;
 
-        internal void WriteTo(Utf8JsonWriter writer)
+        internal void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
         {
-            writer.WriteStartObject();
-            writer.WriteString(nameof(Name), Name);
-            writer.WriteString(nameof(Type), Type.ToString());
-            writer.WriteEndObject();
+            ws.WriteString(Name);
+            ws.WriteByte((byte)Type);
         }
 
-        internal static PrimaryKey ReadFrom(ref Utf8JsonReader reader)
+        internal static PrimaryKey ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
         {
-            var name = string.Empty;
-            var type = DataType.Empty;
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                    break;
-                Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-                var propName = reader.GetString();
-                switch (propName)
-                {
-                    case nameof(Name):
-                        reader.Read();
-                        name = reader.GetString()!;
-                        break;
-                    case nameof(Type):
-                        reader.Read();
-                        type = Enum.Parse<DataType>(reader.GetString()!);
-                        break;
-                    default:
-                        throw new Exception($"Unknown property name: {nameof(PrimaryKey)}.{propName}");
-                }
-            }
-
+            var name = rs.ReadString()!;
+            var type = (DataType)rs.ReadByte();
             return new PrimaryKey(name, type);
         }
     }

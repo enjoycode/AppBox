@@ -1,6 +1,3 @@
-using System.Diagnostics;
-using System.Text.Json;
-
 namespace AppBoxCore;
 
 public sealed class DynamicQuery : IBinSerializable
@@ -78,49 +75,6 @@ public sealed class DynamicQuery : IBinSerializable
             Alias = rs.ReadString()!;
         }
 
-        internal void WriteTo(Utf8JsonWriter writer, EntityExpression root)
-        {
-            writer.WriteStartObject();
-            writer.WritePropertyName(nameof(Item));
-            ExpressionSerialization.SerializeToJson(writer, Item, [root]);
-            writer.WriteString(nameof(Type), Type.ToString());
-            writer.WriteString(nameof(Alias), Alias);
-            writer.WriteEndObject();
-        }
-
-        internal static SelectItem ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
-        {
-            Expression item = null!;
-            var type = DataType.Empty;
-            var alias = string.Empty;
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                    break;
-                Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-                var propName = reader.GetString();
-                switch (propName)
-                {
-                    case nameof(Item):
-                        item = ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
-                        break;
-                    case nameof(Type):
-                        reader.Read();
-                        type = Enum.Parse<DataType>(reader.GetString()!);
-                        break;
-                    case nameof(Alias):
-                        reader.Read();
-                        alias = reader.GetString()!;
-                        break;
-                    default:
-                        throw new Exception($"Unknown property name: {nameof(OrderByItem)}.{propName}");
-                }
-            }
-
-            return new SelectItem(alias, item, type);
-        }
-
         #endregion
     }
 
@@ -149,44 +103,6 @@ public sealed class DynamicQuery : IBinSerializable
         {
             Field = (Expression)rs.Deserialize()!;
             Descending = rs.ReadBool();
-        }
-
-        internal void WriteTo(Utf8JsonWriter writer, EntityExpression root)
-        {
-            writer.WriteStartObject();
-            writer.WritePropertyName(nameof(Field));
-            ExpressionSerialization.SerializeToJson(writer, Field, [root]);
-            writer.WritePropertyName(nameof(Descending));
-            writer.WriteBooleanValue(Descending);
-            writer.WriteEndObject();
-        }
-
-        internal static OrderByItem ReadFrom(ref Utf8JsonReader reader, EntityExpression root)
-        {
-            Expression field = null!;
-            var descending = false;
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                    break;
-                Debug.Assert(reader.TokenType == JsonTokenType.PropertyName);
-                var propName = reader.GetString();
-                switch (propName)
-                {
-                    case nameof(Field):
-                        field = ExpressionSerialization.DeserializeFromJson(ref reader, [root])!;
-                        break;
-                    case nameof(Descending):
-                        reader.Read();
-                        descending = reader.GetBoolean();
-                        break;
-                    default:
-                        throw new Exception($"Unknown property name: {nameof(OrderByItem)}.{propName}");
-                }
-            }
-
-            return new OrderByItem(field, descending);
         }
 
         #endregion

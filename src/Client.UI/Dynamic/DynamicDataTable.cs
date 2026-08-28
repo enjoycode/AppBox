@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AppBoxClient;
 using AppBoxClient.Dynamic;
 using AppBoxCore;
@@ -9,7 +8,7 @@ namespace PixUI.Dynamic;
 /// <summary>
 /// 数据表的配置信息
 /// </summary>
-public sealed class DynamicDataTable : IDynamicDataTable
+public sealed class DynamicDataTable : IDynamicDataTable, IBinSerializable
 {
     internal const string FromService = "Service";
     internal const string FromQuery = "Query";
@@ -63,33 +62,22 @@ public sealed class DynamicDataTable : IDynamicDataTable
 
     #region ====Serialization====
 
-    public void WriteTo(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WriteStartObject();
-
-        writer.WriteString(nameof(Source), Source.SourceType);
-        Source.WriteProperties(writer);
-
-        writer.WriteEndObject();
+        ws.WriteString(Source.SourceType);
+        Source.WriteTo(ref ws);
     }
 
-    public void ReadFrom(ref Utf8JsonReader reader, DynamicState state)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        reader.Read(); //{
-
-        reader.Read(); //Source
-        reader.Read();
-        var sourceType = reader.GetString()!;
-
+        var sourceType = rs.ReadString();
         Source = sourceType switch
         {
             FromQuery => new DataTableFromQuery(),
             FromService => new DataTableFromService(),
             _ => throw new Exception($"Unknown source type: {sourceType}")
         };
-        Source.ReadProperties(ref reader);
-
-        //不需要reader.Read(); //}
+        Source.ReadFrom(ref rs);
     }
 
     #endregion
@@ -148,7 +136,7 @@ public sealed class DynamicDataTable : IDynamicDataTable
 /// <summary>
 /// 数据表的来源
 /// </summary>
-internal interface IDataTableSource
+internal interface IDataTableSource : IBinSerializable
 {
     string SourceType { get; }
 
@@ -161,10 +149,6 @@ internal interface IDataTableSource
     /// 获取填充数据的任务，eg:执行查询或调用服务
     /// </summary>
     Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext);
-
-    void WriteProperties(Utf8JsonWriter writer);
-
-    void ReadProperties(ref Utf8JsonReader reader);
 }
 
 /// <summary>
@@ -219,32 +203,29 @@ internal sealed class DataTableFromService : DataTableFromServiceBase, IDataTabl
         return fetchTask is { IsCompletedSuccessfully: true, Result: DataTable table } ? table.Columns : [];
     }
 
-    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext)
+    public Task<DataTable?> GetFetchTask(IDynamicContext dynamicContext) => Arguments.Length switch
     {
-        return Arguments.Length switch
-        {
-            0 => Channel.Invoke<DataTable?>(Service),
-            1 => Channel.Invoke<DataTable?>(Service,
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue)),
-            2 => Channel.Invoke<DataTable?>(Service,
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue)),
-            3 => Channel.Invoke<DataTable?>(Service,
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue)),
-            4 => Channel.Invoke<DataTable?>(Service,
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[3]!).BoxedValue)),
-            5 => Channel.Invoke<DataTable?>(Service,
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[3]!).BoxedValue),
-                AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[4]!).BoxedValue)),
-            _ => throw new NotSupportedException("Argument count > 5")
-        };
-    }
+        0 => Channel.Invoke<DataTable?>(Service),
+        1 => Channel.Invoke<DataTable?>(Service,
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue)),
+        2 => Channel.Invoke<DataTable?>(Service,
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue)),
+        3 => Channel.Invoke<DataTable?>(Service,
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue)),
+        4 => Channel.Invoke<DataTable?>(Service,
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[3]!).BoxedValue)),
+        5 => Channel.Invoke<DataTable?>(Service,
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[0]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[1]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[2]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[3]!).BoxedValue),
+            AnyValue.From(dynamicContext.GetPrimitiveState(Arguments[4]!).BoxedValue)),
+        _ => throw new NotSupportedException("Argument count > 5")
+    };
 }

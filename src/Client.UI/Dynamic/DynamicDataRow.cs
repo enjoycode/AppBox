@@ -1,9 +1,8 @@
-using System.Text.Json;
 using AppBoxCore;
 
 namespace PixUI.Dynamic;
 
-public sealed class DynamicDataRow : IDynamicDataRow
+public sealed class DynamicDataRow : IDynamicDataRow, IBinSerializable
 {
     internal const string FromService = "Service";
     internal const string FromQuery = "Query";
@@ -22,33 +21,22 @@ public sealed class DynamicDataRow : IDynamicDataRow
 
     #region ====Serialization====
 
-    public void WriteTo(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WriteStartObject();
-
-        writer.WriteString(nameof(Source), Source.SourceType);
-        Source.WriteTo(writer);
-
-        writer.WriteEndObject();
+        ws.WriteString(Source.SourceType);
+        Source.WriteTo(ref ws);
     }
 
-    public void ReadFrom(ref Utf8JsonReader reader, DynamicState state)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        reader.Read(); //{
-
-        reader.Read(); //Source
-        reader.Read();
-        var sourceType = reader.GetString()!;
-
+        var sourceType = rs.ReadString()!;
         Source = sourceType switch
         {
             FromQuery => new DataRowFromQuery(),
             // FromService => new DynamicTableFromService(),
             _ => throw new Exception($"Unknown source type: {sourceType}")
         };
-        Source.ReadFrom(ref reader);
-
-        //不需要reader.Read(); //}
+        Source.ReadFrom(ref rs);
     }
 
     #endregion
@@ -57,7 +45,7 @@ public sealed class DynamicDataRow : IDynamicDataRow
 /// <summary>
 /// 数据行的来源
 /// </summary>
-internal interface IDataRowSource
+internal interface IDataRowSource : IBinSerializable
 {
     string SourceType { get; }
 
@@ -72,8 +60,4 @@ internal interface IDataRowSource
     /// 转换为数据表，用于传输至后端保存数据
     /// </summary>
     DataTable ToDataTable();
-
-    void WriteTo(Utf8JsonWriter writer);
-
-    void ReadFrom(ref Utf8JsonReader reader);
 }

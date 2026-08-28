@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace AppBoxCore;
 
 /// <summary>
@@ -37,52 +35,6 @@ public abstract class DataTableFromServiceBase
         for (var i = 0; i < count; i++)
         {
             Arguments[i] = rs.ReadString();
-        }
-    }
-
-    public void WriteProperties(Utf8JsonWriter writer)
-    {
-        writer.WriteString(nameof(Service), Service);
-
-        writer.WritePropertyName(nameof(Arguments));
-        writer.WriteStartArray();
-        for (var i = 0; i < Arguments.Length; i++)
-        {
-            writer.WriteStringValue(Arguments[i]);
-        }
-
-        writer.WriteEndArray();
-    }
-
-    public void ReadProperties(ref Utf8JsonReader reader)
-    {
-        while (reader.Read())
-        {
-            if (reader.TokenType == JsonTokenType.EndObject)
-                break;
-
-            var propName = reader.GetString();
-            switch (propName)
-            {
-                case nameof(Service):
-                    reader.Read();
-                    Service = reader.GetString()!;
-                    break;
-                case nameof(Arguments):
-                    var args = new List<string?>();
-                    reader.Read(); //[
-                    while (reader.Read())
-                    {
-                        if (reader.TokenType == JsonTokenType.EndArray)
-                            break;
-                        args.Add(reader.GetString());
-                    }
-
-                    Arguments = args.ToArray();
-                    break;
-                default:
-                    throw new Exception($"Unknown property name: {nameof(DataTableFromServiceBase)}.{propName}");
-            }
         }
     }
 

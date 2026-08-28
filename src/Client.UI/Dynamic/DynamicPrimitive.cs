@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using AppBoxCore;
 
 namespace PixUI.Dynamic;
@@ -17,11 +15,11 @@ public enum DynamicPrimitiveSource
     Expression
 }
 
-public sealed class DynamicPrimitive : IDynamicPrimitive
+public sealed class DynamicPrimitive : IDynamicPrimitive, IBinSerializable
 {
-    [JsonIgnore] private State? _runtimeState;
-    [JsonIgnore] private object? _expressionValue;
-    [JsonIgnore] private IDynamicContext? _cachedContext; //Only for Expression
+    private State? _runtimeState;
+    private object? _expressionValue;
+    private IDynamicContext? _cachedContext; //Only for Expression
     private object? _value;
 
     public DynamicPrimitiveSource Source { get; set; }
@@ -45,7 +43,6 @@ public sealed class DynamicPrimitive : IDynamicPrimitive
         }
     }
 
-    [JsonIgnore]
     private object? ProxyValue
     {
         get => Source == DynamicPrimitiveSource.Expression ? _expressionValue : _value;
@@ -138,57 +135,19 @@ public sealed class DynamicPrimitive : IDynamicPrimitive
 
     #region ====Serialization====
 
-    public void WriteTo(Utf8JsonWriter writer)
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
     {
-        writer.WriteStartObject();
-
-        var propName = Source switch
-        {
-            DynamicPrimitiveSource.Primitive => nameof(DynamicPrimitiveSource.Primitive),
-            DynamicPrimitiveSource.Expression => nameof(DynamicPrimitiveSource.Expression),
-            _ => throw new JsonException($"Unknown DynamicStateValueSource")
-        };
-        writer.WritePropertyName(propName);
-
+        ws.WriteByte((byte)Source);
         if (Source == DynamicPrimitiveSource.Expression)
-            ExpressionSerialization.SerializeToJson(writer, _value as Expression);
+            ws.SerializeExpression(_value as Expression);
         else
-            JsonSerializer.Serialize(writer, _value);
-        writer.WriteEndObject();
+            ws.Serialize(_value);
     }
 
-    public void ReadFrom(ref Utf8JsonReader reader, DynamicState state)
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
     {
-        reader.Read(); // {
-        reader.Read(); // Source
-        var sourceName = reader.GetString()!;
-        Source = sourceName switch
-        {
-            nameof(DynamicPrimitiveSource.Primitive) => DynamicPrimitiveSource.Primitive,
-            nameof(DynamicPrimitiveSource.Expression) => DynamicPrimitiveSource.Expression,
-            _ => throw new JsonException($"Unknown ValueSource: [{sourceName}]")
-        };
-
-        if (Source == DynamicPrimitiveSource.Expression)
-        {
-            _value = ExpressionSerialization.DeserializeFromJson(ref reader);
-        }
-        else
-        {
-            var peekReader = reader; // maybe null when not AllowNull, eg: Value: {"Primitive": null}
-            peekReader.Read();
-            if (peekReader.TokenType != JsonTokenType.Null)
-            {
-                var valueType = state.GetTypeOfPrimitiveState();
-                _value = JsonSerializer.Deserialize(ref reader, valueType);
-            }
-            else
-            {
-                reader.Read(); //null
-            }
-        }
-
-        reader.Read(); // }
+        Source = (DynamicPrimitiveSource)rs.ReadByte();
+        _value = rs.Deserialize();
     }
 
     #endregion
