@@ -1,3 +1,4 @@
+using AppBoxDesign;
 using PixUI.LiveCharts;
 using LiveChartsCore;
 using PixUI.Dynamic;
@@ -5,21 +6,14 @@ using Log = PixUI.Log;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class PieSeriesSettings
+public sealed class PieSeriesSettings : PieSeriesBase, IDynamicChartSeries
 {
     /// <summary>
     /// 对应数据集的值字段 eg: 月销售额
     /// </summary>
     public string Field { get; set; } = null!;
 
-    /// <summary>
-    /// 对应数据集的名称字段 eg: 月份
-    /// </summary>
-    public string? Name { get; set; }
-
-    public double? InnerRadius { get; set; }
-
-    public PieSeriesSettings Clone() => new() { Field = Field, Name = Name };
+    public IDynamicChartSeries Clone() => new PieSeriesSettings() { Field = Field, Name = Name };
 
     public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, AppBoxCore.DataTable list)
     {
@@ -33,8 +27,8 @@ public sealed class PieSeriesSettings
                 };
                 if (!string.IsNullOrEmpty(Name))
                     s.Name = e[Name!].ToStringValue();
-                if (InnerRadius.HasValue)
-                    s.InnerRadius = InnerRadius.Value;
+                s.InnerRadius = InnerRadius;
+                s.MaxRadialColumnWidth = MaxRadialColumnWidth;
                 // s.DataLabelsPaint = new SolidColorPaint { Color = Colors.Black };
                 // s.DataLabelsPosition = PolarLabelsPosition.Outer;
                 // s.DataLabelsFormatter = point => $"{point.StackedValue?.Share:P0}";

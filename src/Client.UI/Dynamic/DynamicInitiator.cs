@@ -19,7 +19,7 @@ public static class DynamicInitiator
         var res = false;
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) == 0)
         {
-            Init();
+            InitMeta();
             _initTask = forTest ? Task.CompletedTask : LoadDynamicWidgets();
             res = true;
         }
@@ -28,7 +28,7 @@ public static class DynamicInitiator
         return res;
     }
 
-    private static void Init()
+    private static void InitMeta()
     {
         const string dataCatalog = "Data";
 
@@ -54,7 +54,7 @@ public static class DynamicInitiator
             properties:
             [
                 new(nameof(DynamicCartesianChart.DataSource), typeof(string), true, editorName: DataSourceEditorName),
-                new(nameof(DynamicCartesianChart.Series), typeof(CartesianSeriesSettings[]), true),
+                new(nameof(DynamicCartesianChart.Series), typeof(IDynamicCartesianSeries[]), true),
                 new(nameof(DynamicCartesianChart.XAxes), typeof(ChartAxisSettings[]), true),
                 new(nameof(DynamicCartesianChart.YAxes), typeof(ChartAxisSettings[]), true)
             ]);

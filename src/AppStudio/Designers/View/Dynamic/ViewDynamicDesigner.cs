@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using AppBoxClient.Dynamic;
 using AppBoxClient.Dynamic.Events;
 using AppBoxCore;
@@ -30,7 +28,7 @@ internal sealed class ViewDynamicDesigner : View, IModelDesigner
         // 初始化其他属性编辑器
         PropertyEditor.RegisterClassValueEditor<string, DataSourcePropEditor>(false,
             DynamicInitiator.DataSourceEditorName);
-        PropertyEditor.RegisterClassValueEditor<CartesianSeriesSettings[], CartesianSeriesPropEditor>(true);
+        PropertyEditor.RegisterClassValueEditor<IDynamicCartesianSeries[], CartesianSeriesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<ChartAxisSettings[], AxesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<PieSeriesSettings, PieSeriesPropEditor>(true);
         PropertyEditor.RegisterClassValueEditor<TableColumnSettings[], TableColumnsPropEditor>(true);

@@ -1,4 +1,3 @@
-using System.Linq;
 using AppBoxClient.Dynamic;
 using AppBoxCore;
 using PixUI;
@@ -28,7 +27,7 @@ internal sealed class PieSeriesDialog : Dialog
     {
         var field = new RxProxy<string?>(() => _state.Field, v => _state.Field = v ?? string.Empty);
         var name = new RxProxy<string?>(() => _state.Name, v => _state.Name = v);
-        var innerRadius = new RxProxy<double?>(() => _state.InnerRadius, v => _state.InnerRadius = v);
+        var innerRadius = new RxProxy<double?>(() => _state.InnerRadius, v => _state.InnerRadius = v ?? 0);
 
         var body = new Container
         {

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
@@ -8,7 +6,7 @@ namespace AppBoxDesign.PropertyEditors;
 
 internal sealed class CartesianSeriesDialog : Dialog
 {
-    public CartesianSeriesDialog(List<CartesianSeriesSettings> list, DesignElement element)
+    public CartesianSeriesDialog(List<IDynamicCartesianSeries> list, DesignElement element)
     {
         Title.Value = "Cartesian Series";
         Width = 580;
@@ -22,12 +20,12 @@ internal sealed class CartesianSeriesDialog : Dialog
         _current.Value = list.Count > 0 ? list[0] : null; //select the first row
     }
 
-    private readonly List<CartesianSeriesSettings> _list;
+    private readonly List<IDynamicCartesianSeries> _list;
     private readonly DesignElement _element;
     private readonly State<string?> _typeName = "Line";
-    private readonly DataGridController<CartesianSeriesSettings> _dataGridController = new();
+    private readonly DataGridController<IDynamicCartesianSeries> _dataGridController = new();
 
-    private readonly State<CartesianSeriesSettings?> _current;
+    private readonly State<IDynamicCartesianSeries?> _current;
     private readonly State<LineSeriesSettings> _currentLine = new LineSeriesSettings();
     private readonly State<ColumnSeriesSettings> _currentColumn = new ColumnSeriesSettings();
 
@@ -70,8 +68,8 @@ internal sealed class CartesianSeriesDialog : Dialog
         {
             new Card
             {
-                Child = new DataGrid<CartesianSeriesSettings>(_dataGridController) { Width = 250 }
-                    .AddTextColumn("Type", c => c.Type)
+                Child = new DataGrid<IDynamicCartesianSeries>(_dataGridController) { Width = 250 }
+                    .AddTextColumn("Type", c => c.SeriesType.ToString())
                     .AddTextColumn("YField", c => c.Field)
             },
 
@@ -79,10 +77,10 @@ internal sealed class CartesianSeriesDialog : Dialog
                 {
                     Child = new Container
                     {
-                        Child = new Conditional<CartesianSeriesSettings?>(_current)
-                            .When(r => r?.Type == "Line",
+                        Child = new Conditional<IDynamicCartesianSeries?>(_current)
+                            .When(r => r?.SeriesType == ChartSeriesType.Line,
                                 () => new LineSeriesEditor(_currentLine, _dataGridController, _element))
-                            .When(r => r?.Type == "Column",
+                            .When(r => r?.SeriesType == ChartSeriesType.Column,
                                 () => new ColumnSeriesEditor(_currentColumn, _dataGridController, _element))
                     }
                 }
@@ -96,17 +94,17 @@ internal sealed class CartesianSeriesDialog : Dialog
     {
         if (_current.Value == null) return;
 
-        if (_current.Value.Type == "Line")
-            _currentLine.Value = (LineSeriesSettings)_current.Value;
-        else if (_current.Value.Type == "Column")
-            _currentColumn.Value = (ColumnSeriesSettings)_current.Value;
+        if (_current.Value is LineSeriesSettings lineSeriesSettings)
+            _currentLine.Value = lineSeriesSettings;
+        else if (_current.Value is ColumnSeriesSettings columnSeriesSettings)
+            _currentColumn.Value = columnSeriesSettings;
     }
 
     private void OnAddSeries()
     {
         if (string.IsNullOrEmpty(_typeName.Value)) return;
 
-        CartesianSeriesSettings? newSeries = _typeName.Value switch
+        IDynamicCartesianSeries? newSeries = _typeName.Value switch
         {
             "Line" => new LineSeriesSettings(),
             "Column" => new ColumnSeriesSettings(),

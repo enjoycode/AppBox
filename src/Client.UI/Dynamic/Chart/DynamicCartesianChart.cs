@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using PixUI.LiveCharts;
 using LiveChartsCore;
 using PixUI;
@@ -16,12 +15,12 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
     }
 
     private readonly CartesianChart _chart;
-    private CartesianSeriesSettings[]? _series;
+    private IDynamicCartesianSeries[]? _series;
     private ChartAxisSettings[]? _xAxes;
     private ChartAxisSettings[]? _yAxes;
 
     private string? _dataSource;
-    [JsonIgnore] private IDynamicContext? _dynamicContext;
+    private IDynamicContext? _dynamicContext;
 
     public string? DataSource
     {
@@ -41,7 +40,7 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
         }
     }
 
-    public CartesianSeriesSettings[]? Series
+    public IDynamicCartesianSeries[]? Series
     {
         get => _series;
         set
@@ -127,10 +126,10 @@ public sealed class DynamicCartesianChart : SingleChildWidget, IDataSourceBinder
             if (string.IsNullOrEmpty(DataSource) || _dynamicContext == null) return;
             if (await _dynamicContext.GetDataSource(DataSource) is not AppBoxCore.DataTable entityList) return;
 
-            var runtimeSeries = new ISeries[_series.Length];
+            var runtimeSeries = new List<ISeries>();
             for (var i = 0; i < _series.Length; i++)
             {
-                runtimeSeries[i] = _series[i].Build(_dynamicContext, entityList);
+                runtimeSeries.AddRange(_series[i].Build(_dynamicContext, entityList));
             }
 
             _chart.Series = runtimeSeries;

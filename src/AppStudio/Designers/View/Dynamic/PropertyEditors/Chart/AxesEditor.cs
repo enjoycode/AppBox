@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using AppBoxClient.Dynamic;
 using AppBoxCore;
 using PixUI;
@@ -19,27 +17,27 @@ internal sealed class AxesEditor : SingleChildWidget
 
         var name = new RxProxy<string>(() => state.Value?.Name ?? string.Empty, v =>
         {
-            if (state.Value != null) state.Value.Name = v;
+            state.Value?.Name = v;
         });
         var labels = new RxProxy<string?>(() => state.Value?.Labels, v =>
         {
-            if (state.Value != null) state.Value.Labels = v;
+            state.Value?.Labels = v;
         });
         var labelsColor = new RxProxy<Color?>(() => state.Value?.LabelsColor, v =>
         {
-            if (state.Value != null) state.Value.LabelsColor = v;
+            state.Value?.LabelsColor = v;
         });
         var textSize = new RxProxy<double?>(() => state.Value?.TextSize, v =>
         {
-            if (state.Value != null) state.Value.TextSize = v;
+            state.Value?.TextSize = v ?? 16;
         });
         var minStep = new RxProxy<double?>(() => state.Value?.MinStep, v =>
         {
-            if (state.Value != null) state.Value.MinStep = v;
+            state.Value?.MinStep = v ?? 0;
         });
         var forceMinStep = new RxProxy<bool>(() => state.Value?.ForceStepToMin ?? false, v =>
         {
-            if (state.Value != null) state.Value.ForceStepToMin = v;
+            state.Value?.ForceStepToMin = v;
         });
 
         name.AddListener(_ => RefreshCurrentRow());

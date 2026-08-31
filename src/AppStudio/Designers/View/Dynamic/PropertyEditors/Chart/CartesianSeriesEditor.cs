@@ -9,10 +9,10 @@ using PixUI.Dynamic.Design;
 
 namespace AppBoxDesign.PropertyEditors;
 
-internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : CartesianSeriesSettings
+internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : IDynamicCartesianSeries
 {
     protected CartesianSeriesEditor(State<T> state,
-        DataGridController<CartesianSeriesSettings> dataGridController,
+        DataGridController<IDynamicCartesianSeries> dataGridController,
         DesignElement element)
     {
         _dataGridController = dataGridController;
@@ -50,7 +50,7 @@ internal abstract class CartesianSeriesEditor<T> : SingleChildWidget where T : C
     }
 
     private readonly DesignElement _element;
-    private readonly DataGridController<CartesianSeriesSettings> _dataGridController;
+    private readonly DataGridController<IDynamicCartesianSeries> _dataGridController;
     private readonly Select<string> _fieldRef = null!;
 
     protected virtual IEnumerable<ValueTuple<string, State, Widget>> GetExtProps(State<T> state)

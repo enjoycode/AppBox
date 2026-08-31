@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxDesign;
 using PixUI.LiveCharts;
 using LiveChartsCore;
 using LiveChartsCore.Kernel;
@@ -6,11 +7,14 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class ColumnSeriesSettings : CartesianSeriesSettings
+public sealed class ColumnSeriesSettings : ColumnSeriesBase, IDynamicCartesianSeries
 {
-    public override string Type => "Column";
+    /// <summary>
+    /// 对应数据集的字段名
+    /// </summary>
+    public string Field { get; set; } = null!;
 
-    public override CartesianSeriesSettings Clone()
+    public IDynamicCartesianSeries Clone()
     {
         return new ColumnSeriesSettings()
         {
@@ -18,7 +22,7 @@ public sealed class ColumnSeriesSettings : CartesianSeriesSettings
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, DataTable list)
+    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DataTable list)
     {
         var res = new ColumnSeries<DataRow>()
         {
@@ -30,6 +34,6 @@ public sealed class ColumnSeriesSettings : CartesianSeriesSettings
                 return v == null ? Coordinate.Empty : new Coordinate(index, v.Value);
             }
         };
-        return res;
+        return [res];
     }
 }

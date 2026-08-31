@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using AppBoxClient.Dynamic;
 using PixUI;
 using PixUI.Dynamic.Design;
@@ -8,13 +6,13 @@ namespace AppBoxDesign.PropertyEditors;
 
 internal sealed class CartesianSeriesPropEditor : ValueEditorBase
 {
-    public CartesianSeriesPropEditor(State<CartesianSeriesSettings[]> state, DesignElement element) : base(element)
+    public CartesianSeriesPropEditor(State<IDynamicCartesianSeries[]> state, DesignElement element) : base(element)
     {
         _state = state;
         Child = new Button("...") { Width = float.MaxValue, OnTap = OnTap };
     }
 
-    private readonly State<CartesianSeriesSettings[]> _state;
+    private readonly State<IDynamicCartesianSeries[]> _state;
 
     private async void OnTap(PointerEvent e)
     {
@@ -27,7 +25,7 @@ internal sealed class CartesianSeriesPropEditor : ValueEditorBase
         }
         
         //编辑副本
-        var list = new List<CartesianSeriesSettings>();
+        var list = new List<IDynamicCartesianSeries>();
         if (_state.Value is { Length: > 0 })
             list.AddRange(_state.Value.Select(t => t.Clone()));
 

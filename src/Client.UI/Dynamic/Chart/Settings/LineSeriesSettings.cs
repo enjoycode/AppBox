@@ -1,4 +1,5 @@
 using AppBoxCore;
+using AppBoxDesign;
 using PixUI.LiveCharts;
 using LiveChartsCore;
 using LiveChartsCore.Kernel;
@@ -6,29 +7,30 @@ using PixUI.Dynamic;
 
 namespace AppBoxClient.Dynamic;
 
-public sealed class LineSeriesSettings : CartesianSeriesSettings
+public sealed class LineSeriesSettings : LineSeriesBase, IDynamicCartesianSeries
 {
-    public override string Type => "Line";
-
-    public double? Smoothness { get; set; }
+    /// <summary>
+    /// 对应数据集的字段名
+    /// </summary>
+    public string Field { get; set; } = null!;
 
     public bool Fill { get; set; } = true;
 
-    public override CartesianSeriesSettings Clone()
+    public IDynamicCartesianSeries Clone()
     {
         return new LineSeriesSettings()
         {
-            Field = Field, Name = Name, Smoothness = Smoothness, Fill = Fill
+            Field = Field, Name = Name, LineSmoothness = LineSmoothness, Fill = Fill
         };
     }
 
-    public override ISeries Build(IDynamicContext dynamicContext, DataTable list)
+    public IEnumerable<ISeries> Build(IDynamicContext dynamicContext, DataTable list)
     {
         var res = new LineSeries<DataRow>
         {
             Name = Name ?? Field,
             Values = list,
-            LineSmoothness = Smoothness ?? 0.65f,
+            LineSmoothness = LineSmoothness,
             Mapping = (obj, index) =>
             {
                 var v = obj[Field].ToDouble();
@@ -36,9 +38,8 @@ public sealed class LineSeriesSettings : CartesianSeriesSettings
             }
         };
 
-        if (Smoothness.HasValue) res.LineSmoothness = Smoothness.Value;
         if (!Fill) res.Fill = null;
 
-        return res;
+        return [res];
     }
 }
