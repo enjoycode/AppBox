@@ -1,4 +1,5 @@
 using AppBoxClient.Dynamic;
+using AppBoxClient.Dynamic.Events;
 using AppBoxCore;
 using AppBoxDesign;
 using AppBoxStore.Entities;
@@ -33,6 +34,38 @@ public class DynamicViewSerializationTest
         var reader = new SystemReadStream(ms);
         var state2 = reader.ReadState(DynamicInitiator.CreateStateValue);
         Assert.IsTrue(state2 != null!);
+        Assert.IsTrue(ms.Position == ms.Length);
+    }
+
+    [Test]
+    public void DynamicEventTest()
+    {
+        var showDlg = new ShowDialog()
+        {
+            Title = "客户详情",
+            DialogWidth = 500,
+            DialogHeight = 400,
+            TargetViewId = 12345678,
+            Parameters =
+            {
+                new ViewParameter()
+                {
+                    StateName = "customer.Id",
+                    Source = new FetchRowParameter().AddPrimaryKey("customer.Id", "Id")
+                }
+            }
+        };
+
+        var dynamicEvent1 = new EventValue() { Name = "edit", Action = showDlg };
+
+        using var ms = new MemoryStream();
+        var writer = new SystemWriteStream(ms);
+        writer.WriteEventValue(dynamicEvent1);
+
+        ms.Position = 0;
+        var reader = new SystemReadStream(ms);
+        var dynamicEvent2 = reader.ReadEventValue();
+        Assert.IsTrue(dynamicEvent2 != null!);
         Assert.IsTrue(ms.Position == ms.Length);
     }
 }

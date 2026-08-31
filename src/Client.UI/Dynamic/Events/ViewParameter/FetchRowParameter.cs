@@ -14,6 +14,12 @@ public sealed class FetchRowParameter : IViewParameterSource
 
     public List<PrimaryKeyValue> PkValues { get; } = [];
 
+    public FetchRowParameter AddPrimaryKey(string fromStateName, string targetFieldName)
+    {
+        PkValues.Add(new PrimaryKeyValue() { FromStateName = fromStateName, TargetFieldName = targetFieldName });
+        return this;
+    }
+
     #region ====Serialization====
 
     public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
