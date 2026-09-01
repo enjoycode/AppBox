@@ -12,7 +12,7 @@ public sealed class SolidColorPaint : ChartPaint
 
     internal override void WriteTo<TWriter>(ref TWriter writer)
     {
-        writer.WriteInt(unchecked((int)Color));
+        writer.WriteUInt(Color);
 
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         if (StrokeWidth != 1.0f)
@@ -26,7 +26,7 @@ public sealed class SolidColorPaint : ChartPaint
 
     internal override void ReadFrom<TReader>(ref TReader reader)
     {
-        Color = unchecked((uint)reader.ReadInt());
+        Color = reader.ReadUInt();
 
         while (true)
         {

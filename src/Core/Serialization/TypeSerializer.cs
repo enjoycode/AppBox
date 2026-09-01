@@ -6,6 +6,57 @@ namespace AppBoxCore;
 public abstract class TypeSerializer
 {
     /// <summary>
+    /// 系统已知类型序列化实现构造
+    /// </summary>
+    protected TypeSerializer(PayloadType payloadType, Type sysType, Func<object>? creator = null,
+        bool notWriteAttachInfo = false)
+    {
+        if (payloadType == PayloadType.ExtKnownType)
+            throw new ArgumentException("payloadType can not be ExtKnownType", nameof(payloadType));
+
+        _notWriteAttachInfo = notWriteAttachInfo;
+        PayloadType = payloadType;
+        TargetType = sysType;
+        Creator = creator;
+        ExtKnownTypeId = ExtKnownTypeId.Empty;
+
+        if (sysType.IsGenericType && !notWriteAttachInfo)
+        {
+            if (!sysType.IsGenericTypeDefinition)
+                throw new ArgumentException("targetType must be a GenericTypeDefinition", nameof(sysType));
+            GenericTypeCount = sysType.GetGenericArguments().Length;
+        }
+        else
+        {
+            GenericTypeCount = 0;
+        }
+    }
+
+    /// <summary>
+    /// 扩展已知类型序列化实现构造
+    /// </summary>
+    protected TypeSerializer(ExtKnownTypeId extKnownTypeId, Type extType, Func<Object> creator)
+    {
+        if (extKnownTypeId.IsEmpty) throw new ArgumentException(nameof(extKnownTypeId));
+
+        PayloadType = PayloadType.ExtKnownType;
+        ExtKnownTypeId = extKnownTypeId;
+        TargetType = extType;
+        Creator = creator;
+
+        if (extType.IsGenericType)
+        {
+            if (!extType.IsGenericTypeDefinition)
+                throw new ArgumentException("targetType must be a GenericTypeDefinition", nameof(extType));
+            GenericTypeCount = extType.GetGenericArguments().Length;
+        }
+        else
+        {
+            GenericTypeCount = 0;
+        }
+    }
+
+    /// <summary>
     /// 用于实体EntityField成员不写入附加范型信息
     /// </summary>
     private readonly bool _notWriteAttachInfo;
@@ -22,72 +73,16 @@ public abstract class TypeSerializer
     /// </summary>
     public readonly int GenericTypeCount;
 
-    // private ExtKnownTypeID extKnownTypeID;
-
-    // /// <summary>
-    // /// 扩展类型的标识
-    // /// </summary>
-    // /// <value>The ext known type identifier.</value>
-    // public ExtKnownTypeID ExtKnownTypeID
-    // {
-    //     get { return extKnownTypeID; }
-    // }
+    /// <summary>
+    /// 扩展类型的标识
+    /// </summary>
+    /// <value>The ext known type identifier.</value>
+    public ExtKnownTypeId ExtKnownTypeId { get; }
 
     /// <summary>
     /// 引用类型的实例构造器，数组及范型类型除外
     /// </summary>
     public Func<object>? Creator { get; private set; }
-
-    /// <summary>
-    /// 系统已知类型序列化实现构造
-    /// </summary>
-    public TypeSerializer(PayloadType payloadType, Type sysType, Func<object>? creator = null,
-        bool notWriteAttachInfo = false)
-    {
-        if (payloadType == PayloadType.ExtKnownType)
-            throw new ArgumentException("payloadType can not be ExtKnownType", nameof(payloadType));
-
-        this._notWriteAttachInfo = notWriteAttachInfo;
-        PayloadType = payloadType;
-        TargetType = sysType;
-        Creator = creator;
-
-        if (sysType.IsGenericType && !notWriteAttachInfo)
-        {
-            if (!sysType.IsGenericTypeDefinition)
-                throw new ArgumentException("targetType must be a GenericTypeDefinition",
-                    nameof(sysType));
-            GenericTypeCount = sysType.GetGenericArguments().Length;
-        }
-        else
-        {
-            GenericTypeCount = 0;
-        }
-    }
-
-    // /// <summary>
-    // /// 扩展已知类型序列化实现构造
-    // /// </summary>
-    // public TypeSerializer(Type extType, uint assemblyID, uint typeID, Func<Object> creator = null)
-    // {
-    //     this.PayloadType = PayloadType.ExtKnownType;
-    //     this.TargetType = extType;
-    //     this.Creator = creator;
-    //     this.extKnownTypeID.AssemblyID = assemblyID;
-    //     this.extKnownTypeID.TypeID = typeID;
-    //
-    //     if (extType.IsGenericType)
-    //     {
-    //         if (!extType.IsGenericTypeDefinition)
-    //             throw new ArgumentException("targetType must be a GenericTypeDefinition",
-    //                 nameof(extType));
-    //         this.GenericTypeCount = extType.GetGenericArguments().Length;
-    //     }
-    //     else
-    //     {
-    //         this.GenericTypeCount = 0;
-    //     }
-    // }
 
     /// <summary>
     /// Write data to output stream
@@ -121,9 +116,7 @@ public abstract class TypeSerializer
         {
             if (PayloadType == PayloadType.ExtKnownType) //扩展类型先写入扩展类型标识
             {
-                throw new NotImplementedException();
-                // VariantHelper.WriteUInt32(this.extKnownTypeID.AssemblyID, bs.Stream);
-                // VariantHelper.WriteUInt32(this.extKnownTypeID.TypeID, bs.Stream);
+                bs.WriteUShort(ExtKnownTypeId);
             }
 
             //再判断是否范型，是则写入范型各参数的类型信息
@@ -167,6 +160,7 @@ public abstract class TypeSerializer
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);
 
     private static readonly Dictionary<PayloadType, TypeSerializer> SysKnownTypesIndexer = new(256);
+    private static readonly Dictionary<ExtKnownTypeId, TypeSerializer> ExtKnownTypesIndexer = new();
 
     /// <summary>
     /// 注册已知类型的序列化器
@@ -177,8 +171,9 @@ public abstract class TypeSerializer
             throw new ArgumentException("Already exists type: " + serializer.TargetType.FullName);
 
         if (serializer.PayloadType == PayloadType.ExtKnownType)
-            throw new NotImplementedException(); //extKnownTypesIndexer.Add(serializer.ExtKnownTypeID, serializer);
-        SysKnownTypesIndexer.Add(serializer.PayloadType, serializer);
+            ExtKnownTypesIndexer.Add(serializer.ExtKnownTypeId, serializer);
+        else
+            SysKnownTypesIndexer.Add(serializer.PayloadType, serializer);
     }
 
     /// <summary>
@@ -206,12 +201,20 @@ public abstract class TypeSerializer
     /// <summary>
     /// 反序列化时根据PayloadType获取相应的系统已知类型的序列化实现
     /// </summary>
-    public static TypeSerializer? GetSerializer(PayloadType payloadType)
+    public static TypeSerializer GetSerializer(PayloadType payloadType)
     {
         if (payloadType == PayloadType.ExtKnownType)
             throw new InvalidOperationException();
 
         return SysKnownTypesIndexer[payloadType];
+    }
+
+    /// <summary>
+    /// 反序列化时根据ExtKnownTypeID获取相应的扩展已知类型的序列化实现
+    /// </summary>
+    public static TypeSerializer GetSerializer(ExtKnownTypeId extKnownTypeId)
+    {
+        return ExtKnownTypesIndexer[extKnownTypeId];
     }
 
     #endregion

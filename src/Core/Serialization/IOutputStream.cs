@@ -32,7 +32,19 @@ public static class OutputStreamExtensions
         s.WriteBytes(span);
     }
 
+    public static unsafe void WriteUShort<T>(this ref T s, ushort value) where T : struct, IOutputStream
+    {
+        var span = new Span<byte>(&value, 2);
+        s.WriteBytes(span);
+    }
+
     public static unsafe void WriteInt<T>(this ref T s, int value) where T : struct, IOutputStream
+    {
+        var span = new Span<byte>(&value, 4);
+        s.WriteBytes(span);
+    }
+
+    public static unsafe void WriteUInt<T>(this ref T s, uint value) where T : struct, IOutputStream
     {
         var span = new Span<byte>(&value, 4);
         s.WriteBytes(span);

@@ -38,9 +38,27 @@ public static class InputStreamExtensions
         return res;
     }
 
+    public static unsafe ushort ReadUShort<T>(this ref T s) where T : struct, IInputStream
+    {
+        ushort res = 0;
+        var span = new Span<byte>(&res, 2);
+        s.ReadBytes(span);
+
+        return res;
+    }
+
     public static unsafe int ReadInt<T>(this ref T s) where T : struct, IInputStream
     {
         var res = 0;
+        var span = new Span<byte>(&res, 4);
+        s.ReadBytes(span);
+
+        return res;
+    }
+
+    public static unsafe uint ReadUInt<T>(this ref T s) where T : struct, IInputStream
+    {
+        uint res = 0;
         var span = new Span<byte>(&res, 4);
         s.ReadBytes(span);
 
@@ -162,8 +180,7 @@ public static class InputStreamExtensions
                 var payloadType = (PayloadType)s.ReadByte();
                 var serializer = TypeSerializer.GetSerializer(payloadType);
                 if (serializer == null)
-                    throw new SerializationException(SerializationError.CanNotFindSerializer,
-                        payloadType.ToString());
+                    throw new SerializationException(SerializationError.CanNotFindSerializer, payloadType.ToString());
                 if (serializer.PayloadType == PayloadType.Array)
                 {
                     var elementType = s.ReadType();
@@ -185,24 +202,23 @@ public static class InputStreamExtensions
             }
             case 1:
             {
-                throw new NotImplementedException();
-                // var extID = ReadExtKnownTypeID();
-                // var serializer = GetSerializer(extID);
-                // if (serializer == null)
-                //     throw new SerializationException(SerializationError.CanNotFindSerializer,
-                //         extID.ToString());
-                // if (serializer.GenericTypeCount > 0)
-                // {
-                //     var genericTypes = new Type[serializer.GenericTypeCount];
-                //     for (int i = 0; i < serializer.GenericTypeCount; i++)
-                //     {
-                //         genericTypes[i] = ReadType();
-                //     }
-                //
-                //     return serializer.TargetType.MakeGenericType(genericTypes);
-                // }
-                //
-                // return serializer.TargetType;
+                ExtKnownTypeId extKnownTypeId = s.ReadUShort();
+                var serializer = TypeSerializer.GetSerializer(extKnownTypeId);
+                if (serializer == null)
+                    throw new SerializationException(SerializationError.CanNotFindSerializer,
+                        extKnownTypeId.ToString());
+                if (serializer.GenericTypeCount > 0)
+                {
+                    var genericTypes = new Type[serializer.GenericTypeCount];
+                    for (var i = 0; i < serializer.GenericTypeCount; i++)
+                    {
+                        genericTypes[i] = s.ReadType();
+                    }
+
+                    return serializer.TargetType.MakeGenericType(genericTypes);
+                }
+
+                return serializer.TargetType;
             }
             case 2:
                 return typeof(object);
@@ -415,11 +431,9 @@ public static class InputStreamExtensions
             case PayloadType.Expression: return s.ReadExpression();
         }
 
-        TypeSerializer? serializer;
-        if (payloadType == PayloadType.ExtKnownType)
-            throw new NotImplementedException();
-        else
-            serializer = TypeSerializer.GetSerializer(payloadType);
+        var serializer = payloadType == PayloadType.ExtKnownType
+            ? TypeSerializer.GetSerializer(s.ReadUShort())
+            : TypeSerializer.GetSerializer(payloadType);
         if (serializer == null)
             throw new SerializationException(SerializationError.CanNotFindSerializer, payloadType.ToString());
 

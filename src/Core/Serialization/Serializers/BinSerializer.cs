@@ -9,6 +9,9 @@ public sealed class BinSerializer : TypeSerializer
         Func<object>? creator = null, bool notWriteAttachInfo = true)
         : base(payloadType, sysType, creator, notWriteAttachInfo) { }
 
+    public BinSerializer(ExtKnownTypeId extKnownTypeId, Type extType, Func<object> creator)
+        : base(extKnownTypeId, extType, creator) { }
+
     public override void Write<T>(ref T bs, object instance)
     {
         ((IBinSerializable)instance).WriteTo(ref bs);
