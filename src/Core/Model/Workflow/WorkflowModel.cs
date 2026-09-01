@@ -2,7 +2,7 @@
 
 public sealed class WorkflowModel : ModelBase
 {
-    internal WorkflowModel()
+    public WorkflowModel()
     {
         StartNode = new StartNode();
     }

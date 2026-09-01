@@ -4,7 +4,7 @@ namespace AppBoxCore;
 
 public sealed class ServiceModel : ModelBase
 {
-    internal ServiceModel() { }
+    public ServiceModel() { }
 
     public ServiceModel(ModelId id, string name) : base(id, name)
     {

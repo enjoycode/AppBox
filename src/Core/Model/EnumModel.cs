@@ -4,7 +4,7 @@ namespace AppBoxCore;
 
 public sealed class EnumModel : ModelBase
 {
-    internal EnumModel() { }
+    public EnumModel() { }
 
     public EnumModel(ModelId id, string name) : base(id, name)
     {

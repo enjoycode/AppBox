@@ -15,7 +15,7 @@ public enum ViewModelType
 /// </summary>
 public sealed class ViewModel : ModelBase
 {
-    internal ViewModel() { }
+    public ViewModel() { }
 
     public ViewModel(ModelId id, string name, ViewModelType type = ViewModelType.PixUI) : base(id, name)
     {

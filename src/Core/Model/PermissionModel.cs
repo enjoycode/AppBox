@@ -2,7 +2,7 @@ namespace AppBoxCore;
 
 public sealed class PermissionModel : ModelBase
 {
-    internal PermissionModel() { }
+    public PermissionModel() { }
 
     public PermissionModel(ModelId id, string name) : base(id, name) { }
 

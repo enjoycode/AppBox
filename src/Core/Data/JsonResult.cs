@@ -7,7 +7,7 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class JsonResult : IBinSerializable
 {
-    internal JsonResult() { }
+    public JsonResult() { }
 
     public JsonResult(object? value)
     {

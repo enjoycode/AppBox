@@ -4,7 +4,7 @@ namespace AppBoxDesign;
 
 public sealed class CheckoutResult : IBinSerializable
 {
-    internal CheckoutResult() { }
+    public CheckoutResult() { }
 
     public CheckoutResult(bool success)
     {

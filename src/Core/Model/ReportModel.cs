@@ -4,7 +4,7 @@ namespace AppBoxCore;
 
 public sealed class ReportModel : ModelBase
 {
-    internal ReportModel() { }
+    public ReportModel() { }
 
     public ReportModel(ModelId id, string name) : base(id, name)
     {

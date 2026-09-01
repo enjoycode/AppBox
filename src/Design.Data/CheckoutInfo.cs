@@ -7,7 +7,7 @@ namespace AppBoxDesign;
 /// </summary>
 public sealed class CheckoutInfo : IBinSerializable
 {
-    internal CheckoutInfo() { }
+    public CheckoutInfo() { }
 
     public CheckoutInfo(DesignNodeType nodeType, string targetId,
         int version, string developerName, Guid developerOuId)

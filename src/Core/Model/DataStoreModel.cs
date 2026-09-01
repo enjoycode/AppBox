@@ -20,7 +20,7 @@ public enum DataStoreKind : byte
     Blob
 }
 
-public sealed class DataStoreModel
+public sealed class DataStoreModel : IBinSerializable
 {
     private long _id;
     private string _name = null!;
@@ -29,7 +29,7 @@ public sealed class DataStoreModel
     private string? _settings;
     private bool _isDbFirst;
 
-    internal DataStoreModel() { }
+    public DataStoreModel() { }
 
     public DataStoreModel(DataStoreKind kind, string storeName, string? provider, bool dbFirst = false)
     {

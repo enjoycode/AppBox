@@ -63,7 +63,7 @@ public sealed class ModelFolder : IBinSerializable
     /// <summary>
     /// Ctor for Serialization
     /// </summary>
-    internal ModelFolder() { }
+    public ModelFolder() { }
 
     /// <summary>
     /// Create root folder

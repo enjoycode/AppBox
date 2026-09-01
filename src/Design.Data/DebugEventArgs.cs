@@ -23,7 +23,7 @@ public interface IDebugEventArgs : IBinSerializable
 /// </summary>
 public sealed class DebugEventArgs : IBinSerializable
 {
-    internal DebugEventArgs() { }
+    public DebugEventArgs() { }
 
     public DebugEventArgs(ModelId targetModelId, IDebugEventArgs args)
     {

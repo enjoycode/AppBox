@@ -2,7 +2,7 @@ using AppBoxCore;
 
 namespace AppBoxDesign;
 
-public abstract class ChartAxisBase
+public abstract class ChartAxisBase : IBinSerializable
 {
     public string? Name { get; set; }
 

@@ -10,7 +10,7 @@ namespace AppBoxCore;
 [JsonConverter(typeof(DataTableJsonConverter))]
 public sealed class DataTable : Collection<DataRow>, IBinSerializable
 {
-    internal DataTable() { }
+    public DataTable() { }
 
     public DataTable(DataColumn[] columns)
     {

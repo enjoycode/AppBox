@@ -143,18 +143,16 @@ public abstract class TypeSerializer
         RegisterKnownType(new DateTimeSerializer());
         RegisterKnownType(new GuidSerializer());
         RegisterKnownType(new StringSerializer());
-        RegisterKnownType(new BinSerializer(PayloadType.JsonResult, typeof(JsonResult), () => new JsonResult()));
+        RegisterKnownType<JsonResult>(PayloadType.JsonResult);
         //Collection
         RegisterKnownType(new ArraySerializer());
         RegisterKnownType(new ListSerializer());
         //运行时类型
-        //@formatter:off
-        RegisterKnownType(new BinSerializer(PayloadType.PermissionNode, typeof(PermissionNode), () => new PermissionNode()));
-        RegisterKnownType(new BinSerializer(PayloadType.DataTable, typeof(DataTable), () => new DataTable()));
-        RegisterKnownType(new BinSerializer(PayloadType.DynamicQuery, typeof(DynamicQuery), () => new DynamicQuery()));
-        RegisterKnownType(new BinSerializer(PayloadType.PrimaryKeyField, typeof(PrimaryKeyField), () => new PrimaryKeyField()));
-        RegisterKnownType(new BinSerializer(PayloadType.WorkflowTaskInfo, typeof(WorkflowTaskInfo), () => new WorkflowTaskInfo()));
-        //@formatter:on
+        RegisterKnownType<PermissionNode>(PayloadType.PermissionNode);
+        RegisterKnownType<DataTable>(PayloadType.DataTable);
+        RegisterKnownType<DynamicQuery>(PayloadType.DynamicQuery);
+        RegisterKnownType<PrimaryKeyField>(PayloadType.PrimaryKeyField);
+        RegisterKnownType<WorkflowTaskInfo>(PayloadType.WorkflowTaskInfo);
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);
@@ -175,6 +173,12 @@ public abstract class TypeSerializer
         else
             SysKnownTypesIndexer.Add(serializer.PayloadType, serializer);
     }
+
+    public static void RegisterKnownType<T>(PayloadType payloadType) where T : IBinSerializable, new() =>
+        RegisterKnownType(new BinSerializer(payloadType, typeof(T), () => new T()));
+
+    public static void RegisterKnownType<T>(ExtKnownTypeId extKnownTypeId) where T : IBinSerializable, new() =>
+        RegisterKnownType(new BinSerializer(extKnownTypeId, typeof(T), () => new T()));
 
     /// <summary>
     /// 序列化时根据目标类型获取相应的序列化实现

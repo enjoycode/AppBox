@@ -7,7 +7,7 @@ namespace AppBoxCore;
 /// </summary>
 public sealed class EntityModel : ModelBase, IComparable<EntityModel>
 {
-    internal EntityModel() { }
+    public EntityModel() { }
 
     public EntityModel(ModelId id, string name) : base(id, name)
     {

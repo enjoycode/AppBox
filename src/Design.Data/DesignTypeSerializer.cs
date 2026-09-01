@@ -12,23 +12,21 @@ public static class DesignTypeSerializer
 {
     public static void Register()
     {
-        //@formatter:off
-        RegisterKnownType(new BinSerializer(PayloadType.DataStoreModel, typeof(DataStoreModel), () => new DataStoreModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.ApplicationModel, typeof(ApplicationModel), () => new ApplicationModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.ModelFolder, typeof(ModelFolder), () => new ModelFolder()));
+        RegisterKnownType<DataStoreModel>(PayloadType.DataStoreModel);
+        RegisterKnownType<ApplicationModel>(PayloadType.ApplicationModel);
+        RegisterKnownType<ModelFolder>(PayloadType.ModelFolder);
         RegisterKnownType(new BinSerializer(PayloadType.ModelBase, typeof(ModelBase)));
-        RegisterKnownType(new BinSerializer(PayloadType.EntityModel, typeof(EntityModel), () => new EntityModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.ServiceModel, typeof(ServiceModel), () => new ServiceModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.ViewModel, typeof(ViewModel), () => new ViewModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.PermissionModel, typeof(PermissionModel), () => new PermissionModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.ReportModel, typeof(ReportModel), () => new ReportModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.EnumModel, typeof(EnumModel), () => new EnumModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.WorkflowModel, typeof(WorkflowModel), () => new WorkflowModel()));
-        RegisterKnownType(new BinSerializer(PayloadType.CheckoutInfo, typeof(CheckoutInfo), () => new CheckoutInfo()));
-        RegisterKnownType(new BinSerializer(PayloadType.CheckoutResult, typeof(CheckoutResult), () => new CheckoutResult()));
-        RegisterKnownType(new BinSerializer(PayloadType.PublishPackage, typeof(PublishPackage), () => new PublishPackage()));
-        RegisterKnownType(new BinSerializer(PayloadType.DebugEventArgs, typeof(DebugEventArgs), () => new DebugEventArgs()));
-        RegisterKnownType(new BinSerializer(PayloadType.DebugStartRequest, typeof(DebugStartRequest), () => new DebugStartRequest()));
-        //@formatter:on
+        RegisterKnownType<EntityModel>(PayloadType.EntityModel);
+        RegisterKnownType<ServiceModel>(PayloadType.ServiceModel);
+        RegisterKnownType<ViewModel>(PayloadType.ViewModel);
+        RegisterKnownType<PermissionModel>(PayloadType.PermissionModel);
+        RegisterKnownType<ReportModel>(PayloadType.ReportModel);
+        RegisterKnownType<EnumModel>(PayloadType.EnumModel);
+        RegisterKnownType<WorkflowModel>(PayloadType.WorkflowModel);
+        RegisterKnownType<CheckoutInfo>(PayloadType.CheckoutInfo);
+        RegisterKnownType<CheckoutResult>(PayloadType.CheckoutResult);
+        RegisterKnownType<PublishPackage>(PayloadType.PublishPackage);
+        RegisterKnownType<DebugEventArgs>(PayloadType.DebugEventArgs);
+        RegisterKnownType<DebugStartRequest>(PayloadType.DebugStartRequest);
     }
 }
