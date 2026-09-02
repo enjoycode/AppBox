@@ -23,7 +23,7 @@ public enum PayloadType : byte
     Guid = 17,
 
     //====Collection====
-    Map = 18,
+    Dictionary = 18,
     Array = 19,
     List = 20,
 

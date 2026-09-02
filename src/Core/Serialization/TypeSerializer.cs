@@ -140,6 +140,8 @@ public abstract class TypeSerializer
         RegisterKnownType(new ShortSerializer());
         RegisterKnownType(new IntSerializer());
         RegisterKnownType(new LongSerializer());
+        RegisterKnownType(new FloatSerializer());
+        RegisterKnownType(new DoubleSerializer());
         RegisterKnownType(new DateTimeSerializer());
         RegisterKnownType(new GuidSerializer());
         RegisterKnownType(new StringSerializer());
@@ -147,6 +149,7 @@ public abstract class TypeSerializer
         //Collection
         RegisterKnownType(new ArraySerializer());
         RegisterKnownType(new ListSerializer());
+        RegisterKnownType(new DictionarySerializer());
         //运行时类型
         RegisterKnownType<PermissionNode>(PayloadType.PermissionNode);
         RegisterKnownType<DataTable>(PayloadType.DataTable);
@@ -179,6 +182,22 @@ public abstract class TypeSerializer
 
     public static void RegisterKnownType<T>(ExtKnownTypeId extKnownTypeId) where T : IBinSerializable, new() =>
         RegisterKnownType(new BinSerializer(extKnownTypeId, typeof(T), () => new T()));
+
+    public static void RegisterPolymorphicType<T>(PayloadType payloadType)
+    {
+        if (KnownTypes.ContainsKey(typeof(T)))
+            throw new Exception("Already exists type: " + typeof(T).Name);
+        if (!SysKnownTypesIndexer.TryAdd(payloadType, new PolymorphicTypeSerializer(payloadType, typeof(T))))
+            throw new ArgumentException("Already exists type: " + typeof(T).Name);
+    }
+
+    public static void RegisterPolymorphicType<T>(ExtKnownTypeId extKnownTypeId)
+    {
+        if (KnownTypes.ContainsKey(typeof(T)))
+            throw new Exception("Already exists type: " + typeof(T).Name);
+        if (!ExtKnownTypesIndexer.TryAdd(extKnownTypeId, new PolymorphicTypeSerializer(extKnownTypeId, typeof(T))))
+            throw new ArgumentException("Already exists type: " + typeof(T).Name);
+    }
 
     /// <summary>
     /// 序列化时根据目标类型获取相应的序列化实现
