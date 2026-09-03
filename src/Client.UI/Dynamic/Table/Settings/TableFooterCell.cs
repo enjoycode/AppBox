@@ -6,49 +6,43 @@ using PixUI;
 
 namespace AppBoxClient.Dynamic;
 
-public enum TableFooterCellType
+public enum TableFooterCellType : byte
 {
     Text,
     Sum,
     Avg
 }
 
-public sealed class TableFooterCell : INotifyPropertyChanged
+public sealed class TableFooterCell : INotifyPropertyChanged, IBinSerializable
 {
-    private int _beginColumn;
-    private int _endColumn;
-    private string _text = string.Empty;
-    private TableFooterCellType _type;
-    private int _decimals;
-
     public int BeginColumn
     {
-        get => _beginColumn;
-        set => SetField(ref _beginColumn, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public int EndColumn
     {
-        get => _endColumn;
-        set => SetField(ref _endColumn, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public string Text
     {
-        get => _text;
-        set => SetField(ref _text, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = string.Empty;
 
     public TableFooterCellType Type
     {
-        get => _type;
-        set => SetField(ref _type, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public int Decimals
     {
-        get => _decimals;
-        set => SetField(ref _decimals, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public TableFooterCell Clone() => new()
@@ -101,7 +95,7 @@ public sealed class TableFooterCell : INotifyPropertyChanged
             _ => 0.0
         };
 
-        return _decimals >= 0 ? agg.ToString($"F{_decimals}") : agg.ToString(CultureInfo.InvariantCulture);
+        return Decimals >= 0 ? agg.ToString($"F{Decimals}") : agg.ToString(CultureInfo.InvariantCulture);
     }
 
     private static void GetLeafColumns(TableColumnSettings column, List<TableColumnSettings> leafColumns)
@@ -126,12 +120,35 @@ public sealed class TableFooterCell : INotifyPropertyChanged
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-    private bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    private void SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        if (EqualityComparer<T>.Default.Equals(field, value)) return;
         field = value;
         OnPropertyChanged(propertyName);
-        return true;
+    }
+
+    #endregion
+
+    #region ====Serialization====
+
+    public void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+    {
+        ws.WriteVariant(BeginColumn);
+        ws.WriteVariant(EndColumn);
+        ws.WriteByte((byte)Type);
+        ws.WriteVariant(Decimals);
+        ws.WriteString(Text);
+        ws.WriteFieldEnd();
+    }
+
+    public void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+    {
+        BeginColumn = rs.ReadVariant();
+        EndColumn = rs.ReadVariant();
+        Type = (TableFooterCellType)rs.ReadByte();
+        Decimals = rs.ReadVariant();
+        Text = rs.ReadString() ?? string.Empty;
+        rs.ReadFieldId();
     }
 
     #endregion

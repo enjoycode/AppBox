@@ -68,4 +68,12 @@ public class DynamicViewSerializationTest
         Assert.IsTrue(dynamicEvent2 != null!);
         Assert.IsTrue(ms.Position == ms.Length);
     }
+
+    // [Test]
+    // public void DynamicWidgetTest()
+    // {
+    //     var designController = new DesignController();
+    //     var rootElement = new DesignElement(designController, string.Empty);
+    //     
+    // }
 }

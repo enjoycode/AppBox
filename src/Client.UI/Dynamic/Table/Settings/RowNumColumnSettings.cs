@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using AppBoxCore;
 using PixUI;
 
@@ -6,8 +5,6 @@ namespace AppBoxClient.Dynamic;
 
 public sealed class RowNumColumnSettings : TableColumnSettings
 {
-    [JsonIgnore] public override string Type => RowNum;
-
     protected internal override DataGridColumn<DataRow> BuildColumn(DataGridController<DataRow> controller)
     {
         var cellStyle = new CellStyle

@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using AppBoxCore;
 using PixUI;
 using PixUI.Dynamic;
@@ -15,10 +14,9 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
     private string? _dataSource;
     private TableColumnSettings[]? _columns;
     private TableFooterCell[]? _footer;
-    private TableStyles? _styles;
-    [JsonIgnore] private IDynamicContext? _dynamicContext;
+    private IDynamicContext? _dynamicContext;
 
-    [JsonIgnore] internal DataGridController<DataRow> Controller { get; } = new();
+    internal DataGridController<DataRow> Controller { get; } = new();
 
     /// <summary>
     /// 绑定的数据源名称
@@ -43,14 +41,13 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
         }
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TableStyles? Styles
     {
-        get => _styles;
+        get;
         set
         {
-            _styles = value;
-            Controller.Theme = _styles == null ? DataGridTheme.Default : _styles.ToRuntimeStyles();
+            field = value;
+            Controller.Theme = field == null ? DataGridTheme.Default : field.ToRuntimeStyles();
 
             if (_columns is { Length: > 0 })
                 Controller.Refresh();
@@ -67,7 +64,6 @@ public sealed class DynamicTableView : SingleChildWidget, IDataSourceBinder
         }
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public TableFooterCell[]? Footer
     {
         get => _footer;

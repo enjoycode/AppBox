@@ -1,51 +1,35 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 using AppBoxCore;
 using PixUI;
 
 namespace AppBoxClient.Dynamic;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "Type")]
-[JsonDerivedType(typeof(TextColumnSettings), typeDiscriminator: Text)]
-[JsonDerivedType(typeof(GroupColumnSettings), typeDiscriminator: Group)]
-[JsonDerivedType(typeof(RowNumColumnSettings), typeDiscriminator: RowNum)]
-public abstract class TableColumnSettings : INotifyPropertyChanged
+public abstract class TableColumnSettings : INotifyPropertyChanged, IBinSerializable
 {
-    public const string Text = "Text";
-    public const string Group = "Group";
-    public const string RowNum = "RowNum";
-
-    [JsonIgnore] public abstract string Type { get; }
-
-    private string _label = string.Empty;
-    private string _width = string.Empty;
-    private HorizontalAlignment _horizontalAlignment;
-    private VerticalAlignment _verticalAlignment = VerticalAlignment.Middle;
-
     public string Label
     {
-        get => _label;
-        set => SetField(ref _label, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = string.Empty;
 
     public string Width
     {
-        get => _width;
-        set => SetField(ref _width, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = string.Empty;
 
     public HorizontalAlignment HorizontalAlignment
     {
-        get => _horizontalAlignment;
-        set => SetField(ref _horizontalAlignment, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     public VerticalAlignment VerticalAlignment
     {
-        get => _verticalAlignment;
-        set => SetField(ref _verticalAlignment, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = VerticalAlignment.Middle;
 
     protected internal abstract DataGridColumn<DataRow> BuildColumn(DataGridController<DataRow> controller);
 
@@ -64,6 +48,56 @@ public abstract class TableColumnSettings : INotifyPropertyChanged
         field = value;
         OnPropertyChanged(propertyName);
         return true;
+    }
+
+    #endregion
+
+    #region ====Serialization====
+
+    public virtual void WriteTo<TWriter>(ref TWriter ws) where TWriter : struct, IOutputStream
+    {
+        if (!string.IsNullOrEmpty(Label))
+        {
+            ws.WriteFieldId(1);
+            ws.WriteString(Label);
+        }
+
+        if (!string.IsNullOrEmpty(Width))
+        {
+            ws.WriteFieldId(2);
+            ws.WriteString(Width);
+        }
+
+        if (HorizontalAlignment != HorizontalAlignment.Left)
+        {
+            ws.WriteFieldId(3);
+            ws.WriteByte((byte)HorizontalAlignment);
+        }
+
+        if (VerticalAlignment != VerticalAlignment.Middle)
+        {
+            ws.WriteFieldId(4);
+            ws.WriteByte((byte)VerticalAlignment);
+        }
+
+        ws.WriteFieldEnd();
+    }
+
+    public virtual void ReadFrom<TReader>(ref TReader rs) where TReader : struct, IInputStream
+    {
+        while (true)
+        {
+            var fieldId = rs.ReadFieldId();
+            switch (fieldId)
+            {
+                case 1: Label = rs.ReadString()!; break;
+                case 2: Width = rs.ReadString()!; break;
+                case 3: HorizontalAlignment = (HorizontalAlignment)rs.ReadByte(); break;
+                case 4: VerticalAlignment = (VerticalAlignment)rs.ReadByte(); break;
+                case 0: return;
+                default: throw SerializationException.ReadUnknownField(nameof(TableColumnSettings), fieldId);
+            }
+        }
     }
 
     #endregion

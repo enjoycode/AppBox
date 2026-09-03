@@ -15,7 +15,7 @@ internal sealed class DynamicBinSerializer : IDynamicSerializer
     {
         _controller = controller;
     }
-    
+
     private readonly DesignController _controller;
 
     public void Write<TWriter>(ref TWriter writer) where TWriter : struct, IOutputStream
@@ -70,7 +70,7 @@ internal sealed class DynamicBinSerializer : IDynamicSerializer
     {
         var meta = element.Meta;
         var data = element.Data;
-        writer.WriteString(DynamicReader.TYPE_PROPERTY);
+        writer.WriteString(DynamicTypeSerializer.TYPE_PROPERTY);
         if (meta == null) //element is a placeholder.
         {
             writer.WriteString(string.Empty); //Type Value
@@ -90,15 +90,16 @@ internal sealed class DynamicBinSerializer : IDynamicSerializer
         {
             foreach (var property in data.Properties)
             {
+                var propMeta = meta.GetPropertyMeta(property.Name);
                 writer.WriteString(property.Name); //Property Name
-                writer.WriteDynamicValue(property.Value); //Property Value
+                writer.WriteDynamicValue(property.Value, propMeta); //Property Value
             }
         }
 
         //Events
         if (data.Events is { Count: > 0 })
         {
-            writer.WriteString(DynamicReader.EVENT_PROPERTY); //Property Name
+            writer.WriteString(DynamicTypeSerializer.EVENT_PROPERTY); //Property Name
             writer.WriteVariant(data.Events.Count);
             foreach (var eventValue in data.Events)
             {
@@ -144,7 +145,7 @@ internal sealed class DynamicBinSerializer : IDynamicSerializer
             var propName = reader.ReadString();
             if (string.IsNullOrEmpty(propName)) break;
 
-            if (propName == DynamicReader.TYPE_PROPERTY)
+            if (propName == DynamicTypeSerializer.TYPE_PROPERTY)
             {
                 var type = reader.ReadString();
                 if (string.IsNullOrEmpty(type)) //element is a placeholder
@@ -169,7 +170,7 @@ internal sealed class DynamicBinSerializer : IDynamicSerializer
                     element.Child = meta.CreateInstance();
                 }
             }
-            else if (propName == DynamicReader.EVENT_PROPERTY)
+            else if (propName == DynamicTypeSerializer.EVENT_PROPERTY)
             {
                 var count = reader.ReadVariant();
                 for (var i = 0; i < count; i++)
@@ -204,7 +205,8 @@ internal sealed class DynamicBinSerializer : IDynamicSerializer
             else
             {
                 var prop = new PropertyValue { Name = propName };
-                prop.Value = reader.ReadDynamicValue();
+                var propMeta = meta.GetPropertyMeta(prop.Name);
+                prop.Value = reader.ReadDynamicValue(propMeta);
 
                 element.Data.AddPropertyValue(prop);
                 element.SetPropertyValue(prop);
@@ -260,9 +262,30 @@ internal static class WriteExtensions
             writer.WriteFieldEnd(); //保留
         }
 
-        public void WriteDynamicValue(in DynamicValue value)
+        public void WriteDynamicValue(in DynamicValue value, DynamicPropertyMeta propertyMeta)
         {
             writer.WriteByte((byte)value.From);
+
+            //Null
+            writer.WriteBool(value.Value == null);
+            if (value.Value == null) return;
+
+            //Enum
+            if (propertyMeta.ValueType.IsEnum)
+            {
+                var enumValue = Convert.ChangeType(value.Value, Enum.GetUnderlyingType(propertyMeta.ValueType));
+                writer.Serialize(enumValue);
+                return;
+            }
+
+            //Custom Serializer
+            if (DynamicTypeSerializer.TryGetSerializer(propertyMeta.ValueType, out var serializer))
+            {
+                serializer.Serialize(ref writer, value.Value);
+                return;
+            }
+
+            //Others
             writer.Serialize(value.Value);
         }
 

@@ -15,7 +15,7 @@ public static class DesignTypeSerializer
         RegisterKnownType<DataStoreModel>(PayloadType.DataStoreModel);
         RegisterKnownType<ApplicationModel>(PayloadType.ApplicationModel);
         RegisterKnownType<ModelFolder>(PayloadType.ModelFolder);
-        RegisterKnownType(new BinSerializer(PayloadType.ModelBase, typeof(ModelBase)));
+        RegisterPolymorphicType<ModelBase>(PayloadType.ModelBase);
         RegisterKnownType<EntityModel>(PayloadType.EntityModel);
         RegisterKnownType<ServiceModel>(PayloadType.ServiceModel);
         RegisterKnownType<ViewModel>(PayloadType.ViewModel);

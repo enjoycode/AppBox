@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using AppBoxCore;
 using PixUI;
 
@@ -6,30 +5,22 @@ namespace AppBoxClient.Dynamic;
 
 public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
 {
-    [JsonIgnore] public override string Type => Text;
-
-    private string _field = string.Empty;
-    private bool _autoMergeCells;
-    private ConditionalCellStyle[]? _cellStyles;
-
     public string Field
     {
-        get => _field;
-        set => SetField(ref _field, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = string.Empty;
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool AutoMergeCells
     {
-        get => _autoMergeCells;
-        set => SetField(ref _autoMergeCells, value);
+        get;
+        set => SetField(ref field, value);
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ConditionalCellStyle[]? CellStyles
     {
-        get => _cellStyles;
-        set => SetField(ref _cellStyles, value);
+        get;
+        set => SetField(ref field, value);
     }
 
     protected internal override DataGridColumn<DataRow> BuildColumn(DataGridController<DataRow> controller)
@@ -131,4 +122,51 @@ public sealed class TextColumnSettings : TableColumnSettings, ITableFieldColumn
             ? null
             : CellStyles.Select(c => c.Clone()).ToArray()
     };
+
+    #region ====Serialization====
+
+    public override void WriteTo<TWriter>(ref TWriter ws)
+    {
+        base.WriteTo(ref ws);
+
+        if (!string.IsNullOrEmpty(Field))
+        {
+            ws.WriteFieldId(1);
+            ws.WriteString(Field);
+        }
+
+        if (AutoMergeCells)
+        {
+            ws.WriteFieldId(2);
+            ws.WriteBool(AutoMergeCells);
+        }
+
+        if (CellStyles != null && CellStyles.Length > 0)
+        {
+            ws.WriteFieldId(3);
+            ws.WriteArray(CellStyles);
+        }
+
+        ws.WriteFieldEnd();
+    }
+
+    public override void ReadFrom<TReader>(ref TReader rs)
+    {
+        base.ReadFrom(ref rs);
+
+        while (true)
+        {
+            var fieldId = rs.ReadFieldId();
+            switch (fieldId)
+            {
+                case 1: Field = rs.ReadString()!; break;
+                case 2: AutoMergeCells = rs.ReadBool(); break;
+                case 3: CellStyles = rs.ReadArray<TReader, ConditionalCellStyle>(); break;
+                case 0: return;
+                default: throw SerializationException.ReadUnknownField(nameof(TextColumnSettings), fieldId);
+            }
+        }
+    }
+
+    #endregion
 }

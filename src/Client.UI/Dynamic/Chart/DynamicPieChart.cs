@@ -19,7 +19,7 @@ public sealed class DynamicPieChart : SingleChildWidget, IDataSourceBinder
     private readonly PieChart _chart;
     private PieSeriesSettings? _series;
     private string? _dataSource;
-    [JsonIgnore] private IDynamicContext? _dynamicContext;
+    private IDynamicContext? _dynamicContext;
 
     public string? DataSource
     {

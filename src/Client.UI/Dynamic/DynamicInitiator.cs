@@ -1,3 +1,4 @@
+using AppBoxCore;
 using LiveChartsCore.Measure;
 using PixUI;
 using PixUI.Dynamic;
@@ -12,6 +13,7 @@ public static class DynamicInitiator
     private static int _initFlag;
     private static Task _initTask = null!;
 
+
     public const string DataSourceEditorName = "DataSourceSelect";
 
     public static async Task<bool> TryInitAsync(bool forTest = false)
@@ -20,6 +22,7 @@ public static class DynamicInitiator
         if (Interlocked.CompareExchange(ref _initFlag, 1, 0) == 0)
         {
             InitMeta();
+            DynamicTypeSerializer.InitSerializer();
             _initTask = forTest ? Task.CompletedTask : LoadDynamicWidgets();
             res = true;
         }

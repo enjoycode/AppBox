@@ -11,7 +11,11 @@ public sealed class PieSeriesSettings : PieSeriesBase, IDynamicChartSeries
     /// <summary>
     /// 对应数据集的值字段 eg: 月销售额
     /// </summary>
-    public string Field { get; set; } = null!;
+    public string Field
+    {
+        get => Values;
+        set => Values = value;
+    }
 
     public IDynamicChartSeries Clone() => new PieSeriesSettings() { Field = Field, Name = Name };
 

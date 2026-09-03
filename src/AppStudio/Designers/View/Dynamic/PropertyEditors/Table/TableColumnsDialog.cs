@@ -67,7 +67,7 @@ internal sealed class TableColumnsDialog : Dialog
             new Select<string>(_typeName)
             {
                 Width = 180,
-                Options = new[] { TableColumnSettings.Text, TableColumnSettings.Group, TableColumnSettings.RowNum }
+                Options = ["Text", "Group", "RowNum"]
             },
             new ButtonGroup
             {
@@ -103,11 +103,11 @@ internal sealed class TableColumnsDialog : Dialog
                     Child = new Container
                     {
                         Child = new Conditional<TreeNodeType?>(_currentNode)
-                            .When(r => r?.Data.Type == TableColumnSettings.Text,
+                            .When(r => r?.Data is TextColumnSettings,
                                 () => new TextColumnEditor(_currentText, _element))
-                            .When(r => r?.Data.Type == TableColumnSettings.Group,
+                            .When(r => r?.Data is GroupColumnSettings,
                                 () => new TableColumnEditor<GroupColumnSettings>(_currentGroup, _element))
-                            .When(r => r?.Data.Type == TableColumnSettings.RowNum,
+                            .When(r => r?.Data is RowNumColumnSettings,
                                 () => new TableColumnEditor<RowNumColumnSettings>(_currentRowNum, _element))
                     }
                 }
@@ -128,17 +128,16 @@ internal sealed class TableColumnsDialog : Dialog
     private void OnSelectedTreeNode()
     {
         var node = _treeController.FirstSelectedNode;
-        var type = node?.Data.Type;
-        switch (type)
+        switch (node?.Data)
         {
-            case TableColumnSettings.Text:
-                _currentText.Target = (TextColumnSettings)node!.Data;
+            case TextColumnSettings textColumnSettings:
+                _currentText.Target = textColumnSettings;
                 break;
-            case TableColumnSettings.Group:
-                _currentGroup.Target = (GroupColumnSettings)node!.Data;
+            case GroupColumnSettings groupColumnSettings:
+                _currentGroup.Target = groupColumnSettings;
                 break;
-            case TableColumnSettings.RowNum:
-                _currentRowNum.Target = (RowNumColumnSettings)node!.Data;
+            case RowNumColumnSettings rowNumColumnSettings:
+                _currentRowNum.Target = rowNumColumnSettings;
                 break;
         }
 
@@ -151,10 +150,9 @@ internal sealed class TableColumnsDialog : Dialog
 
         TableColumnSettings? newColumn = _typeName.Value switch
         {
-            TableColumnSettings.Text => new TextColumnSettings { Label = "标题" },
-            TableColumnSettings.Group => new GroupColumnSettings { Label = "标题" },
-            TableColumnSettings.RowNum => new RowNumColumnSettings
-                { Label = "行号", HorizontalAlignment = HorizontalAlignment.Center },
+            "Text" => new TextColumnSettings { Label = "标题" },
+            "Group" => new GroupColumnSettings { Label = "标题" },
+            "RowNum" => new RowNumColumnSettings { Label = "行号", HorizontalAlignment = HorizontalAlignment.Center },
             _ => null
         };
 
@@ -191,7 +189,7 @@ internal sealed class TableColumnsDialog : Dialog
 
     private static bool OnAllowDrop(TreeNodeType target, DragEvent e)
     {
-        if (e.DropPosition == DropPosition.In && target.Data.Type != TableColumnSettings.Group)
+        if (e.DropPosition == DropPosition.In && target.Data is not GroupColumnSettings)
             return false;
         return true;
     }

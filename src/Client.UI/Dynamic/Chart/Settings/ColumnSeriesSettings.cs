@@ -12,7 +12,11 @@ public sealed class ColumnSeriesSettings : ColumnSeriesBase, IDynamicCartesianSe
     /// <summary>
     /// 对应数据集的字段名
     /// </summary>
-    public string Field { get; set; } = null!;
+    public string Field
+    {
+        get => Values;
+        set => Values = value;
+    }
 
     public IDynamicCartesianSeries Clone()
     {

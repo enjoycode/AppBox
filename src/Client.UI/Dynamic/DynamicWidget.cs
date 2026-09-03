@@ -129,7 +129,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             var propName = reader.ReadString();
             if (string.IsNullOrEmpty(propName)) break;
 
-            if (propName == DynamicReader.TYPE_PROPERTY)
+            if (propName == DynamicTypeSerializer.TYPE_PROPERTY)
             {
                 var type = reader.ReadString();
                 if (string.IsNullOrEmpty(type)) //element is a placeholder
@@ -143,7 +143,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
                 meta = DynamicWidgetManager.GetByName(type);
                 result = meta.CreateInstance();
             }
-            else if (propName == DynamicReader.EVENT_PROPERTY)
+            else if (propName == DynamicTypeSerializer.EVENT_PROPERTY)
             {
                 ReadEvents(ref reader, result);
             }
@@ -167,7 +167,7 @@ public sealed class DynamicWidget : DynamicView, IDynamicContext
             else
             {
                 var propMeta = meta.GetPropertyMeta(propName);
-                var propValue = reader.ReadDynamicValue();
+                var propValue = reader.ReadDynamicValue(propMeta);
                 propMeta.SetRuntimeValue(meta, result, propValue, this);
             }
         }
