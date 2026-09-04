@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AppBoxCore;
 using static AppBoxServer.ServerLogger;
 
@@ -21,18 +22,14 @@ internal static class ServiceContainer
 
         try
         {
-            //TODO:埋点监测性能指标
+            var ts = Stopwatch.GetTimestamp();
             //尝试系统内置服务调用
-            IService? instance;
+            IService? instance = null;
             if (app.Span.SequenceEqual(Consts.SYS))
-            {
                 instance = SysServiceContainer.TryGet(service);
-                if (instance != null)
-                    return await instance.InvokeAsync(method, args);
-            }
 
             //应用服务调用
-            instance = await AppServiceContainer.TryGetAsync($"{app}.{service}"); //TODO:优化
+            instance ??= await AppServiceContainer.TryGetAsync($"{app}.{service}");
             if (instance == null)
             {
                 var error = $"Can't find service: {servicePath}";
@@ -40,7 +37,14 @@ internal static class ServiceContainer
                 throw new Exception(error);
             }
 
-            return await instance.InvokeAsync(method, args);
+            var result = await instance.InvokeAsync(method, args);
+            //埋点监测性能指标
+            Metrics.InvokeDuration.Record((float)Stopwatch.GetElapsedTime(ts).TotalMilliseconds, new()
+            {
+                Server = HostRuntimeContext.ServerIdTag,
+                Method = servicePath
+            });
+            return result;
         }
         finally
         {

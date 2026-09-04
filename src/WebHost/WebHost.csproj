@@ -15,6 +15,7 @@
 
     <PropertyGroup Condition=" '$(RunConfiguration)' == 'WebHost' "/>
     <ItemGroup>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.18.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
     </ItemGroup>
 

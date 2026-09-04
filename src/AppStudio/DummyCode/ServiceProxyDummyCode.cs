@@ -34,6 +34,9 @@ namespace sys.Services
 
         [AppBoxCore.InvocationInterceptor("CallService")]
         public static Task<bool> SavePermission(string modelId, IList<Guid>? ouids) => throw new Exception();
+        
+        [AppBoxCore.InvocationInterceptor("CallService")]
+        public static Task<string> GetPrometheusUrl() => throw new Exception();
     }
     
     public static class WorkflowService

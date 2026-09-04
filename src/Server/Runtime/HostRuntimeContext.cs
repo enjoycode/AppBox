@@ -14,6 +14,21 @@ public sealed class HostRuntimeContext : IHostRuntimeContext
 
     public IUserSession? CurrentSession => SessionStore.Value;
 
+    /// <summary>
+    /// 用于集群的服务端标识
+    /// </summary>
+    public static int ServerId
+    {
+        get;
+        internal set
+        {
+            field = value;
+            ServerIdTag = value.ToString();
+        }
+    }
+
+    public static string ServerIdTag { get; private set; } = "unknown";
+
     internal static void SetCurrentSession(IUserSession? session) => SessionStore.Value = session;
 
     public async ValueTask<ApplicationModel> GetApplicationAsync(int appId)

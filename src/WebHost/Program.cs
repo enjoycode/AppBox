@@ -4,6 +4,10 @@ using AppBoxStore;
 using AppBoxServer;
 using AppBoxWebHost;
 using NanoLog.Extensions;
+using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 
 NanoLog.NanoLogger.Start();
 
@@ -43,7 +47,8 @@ app.UseWebSockets();
 app.MapDefaultControllerRoute();
 app.MapControllers();
 
-// 初始化
+// 初始化运行时上下文
+HostRuntimeContext.ServerId = app.Configuration.GetSection("ServerId").Get<int>();
 RuntimeContext.Init(new HostRuntimeContext(), new PasswordHasher());
 #if !FUTURE
 // 加载默认SqlStore
@@ -64,6 +69,32 @@ MetaStore.Init(new SqlMetaStore());
 await SqlStoreInitiator.TryInitStoreAsync();
 #endif
 
+// 初始化指标监测
+MeterProvider? meterProvider = null;
+var prometheusEndpoint = app.Configuration["MetricsSettings:Endpoint"];
+if (!string.IsNullOrEmpty(prometheusEndpoint))
+{
+    var endpoint = new Uri(prometheusEndpoint);
+    SystemService.PrometheusUrl = endpoint.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+    meterProvider = Sdk.CreateMeterProviderBuilder()
+        .ConfigureResource(resourceBuilder =>
+            resourceBuilder.AddService("AppBox", autoGenerateServiceInstanceId: false))
+        .AddMeter(Metrics.MeterName)
+        .AddView(nameof(Metrics.InvokeDuration), new ExplicitBucketHistogramConfiguration
+        {
+            Boundaries = [10, 50, 100, 500, 1000]
+        })
+        .AddOtlpExporter((exporterOptions, metricReaderOptions) =>
+        {
+            exporterOptions.Endpoint = endpoint;
+            exporterOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+            metricReaderOptions.PeriodicExportingMetricReaderOptions.ExportIntervalMilliseconds =
+                int.Parse(app.Configuration["MetricsSettings:IntervalMilliseconds"]!);
+        })
+        .Build();
+}
+
 app.Run();
 
 NanoLog.NanoLogger.Stop();
+meterProvider?.Dispose();
