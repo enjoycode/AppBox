@@ -12,6 +12,7 @@ internal static class SysServiceContainer
     internal static readonly DesignService DesignService = new();
     private static readonly EntityService EntityService = new();
     private static readonly WorkflowService WorkflowService = new(new WorkflowDefaultStore());
+    private static readonly PrometheusService PrometheusService = new();
 
     internal static IService? TryGet(ReadOnlyMemory<char> serviceName)
     {
@@ -21,6 +22,7 @@ internal static class SysServiceContainer
             nameof(DesignService) => DesignService,
             nameof(EntityService) => EntityService,
             nameof(WorkflowService) => WorkflowService,
+            nameof(PrometheusService) => PrometheusService,
             _ => null
         };
     }

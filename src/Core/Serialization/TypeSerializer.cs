@@ -1,3 +1,5 @@
+using AppBoxCore.Metrics;
+
 namespace AppBoxCore;
 
 /// <summary>
@@ -156,6 +158,8 @@ public abstract class TypeSerializer
         RegisterKnownType<DynamicQuery>(PayloadType.DynamicQuery);
         RegisterKnownType<PrimaryKeyField>(PayloadType.PrimaryKeyField);
         RegisterKnownType<WorkflowTaskInfo>(PayloadType.WorkflowTaskInfo);
+        RegisterKnownType<MatrixResult>(PayloadType.PrometheusMatrixResult);
+        RegisterKnownType<VectorResult>(PayloadType.PrometheusVectorResult);
     }
 
     private static readonly Dictionary<Type, TypeSerializer> KnownTypes = new(256);

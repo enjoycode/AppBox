@@ -75,7 +75,7 @@ var prometheusEndpoint = app.Configuration["MetricsSettings:Endpoint"];
 if (!string.IsNullOrEmpty(prometheusEndpoint))
 {
     var endpoint = new Uri(prometheusEndpoint);
-    SystemService.PrometheusUrl = endpoint.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+    PrometheusService.ServerUrl = endpoint.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
     meterProvider = Sdk.CreateMeterProviderBuilder()
         .ConfigureResource(resourceBuilder =>
             resourceBuilder.AddService("AppBox", autoGenerateServiceInstanceId: false))

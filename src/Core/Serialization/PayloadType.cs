@@ -79,4 +79,7 @@ public enum PayloadType : byte
 
     //WorkflowParameters = 96,
     WorkflowTaskInfo = 97,
+
+    PrometheusMatrixResult = 200,
+    PrometheusVectorResult = 201,
 }

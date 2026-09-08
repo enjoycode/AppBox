@@ -3,6 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AppBoxCore.Channel;
 
+/// <summary>
+/// 写入端发生异常
+/// </summary>
+public sealed class PipeWriteException : Exception
+{
+    public PipeWriteException(): base("Pipe write error") {}
+}
+
 public sealed class PipeBytesReader : IDisposable
 {
     private readonly PooledTaskSource<int> _waitingTaskSource = new(false); //值为offset
@@ -10,7 +18,6 @@ public sealed class PipeBytesReader : IDisposable
     private int _waitingFlag; //默认没有等待
     private readonly Lock _pendingsLock = new();
     private readonly SortedList<int, BytesSegment> _pendings = new();
-    private static readonly Exception PipeWriteError = new("Pipe write error"); //表示写入端发生异常
 
     /// <summary>
     /// 所有数据读完后或发生异常中止后的操作,目前用于客户端下载通知挂起的请求
@@ -37,8 +44,9 @@ public sealed class PipeBytesReader : IDisposable
                 nextOffset = next.GetOffset() + (next.Length - PipeSegmentHeader.HeaderSize);
                 if (next.IsError())
                 {
-                    OnCompleted?.Invoke(PipeWriteError);
-                    throw PipeWriteError; //判断是否发送端表示写入异常的包
+                    var remoteWriteError = new PipeWriteException();
+                    OnCompleted?.Invoke(remoteWriteError);
+                    throw remoteWriteError; //判断是否发送端表示写入异常的包
                 }
 
                 var isLast = next.IsLast();

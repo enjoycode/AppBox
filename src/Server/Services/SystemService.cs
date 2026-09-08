@@ -12,11 +12,6 @@ internal sealed class SystemService : IService
     private static readonly ModelId AdminPermissionId =
         ModelId.Make(Consts.SYS_APP_ID, ModelType.Permission, 1, ModelLayer.SYS);
 
-    /// <summary>
-    /// Prometheus服务器地址
-    /// </summary>
-    internal static string PrometheusUrl { get; set; } = string.Empty;
-
     private static void EnsureIsAdmin()
     {
         if (!RuntimeContext.HasPermission(AdminPermissionId))
@@ -171,7 +166,6 @@ internal sealed class SystemService : IService
         "HasPermission" => AnyValue.From(RuntimeContext.HasPermission(args.GetLong()!.Value)),
         nameof(LoadPermissionTree) => AnyValue.From(await LoadPermissionTree()),
         nameof(SavePermission) => AnyValue.From(await SavePermission(args.GetString()!, args.GetArray<Guid>())),
-        "GetPrometheusUrl" => AnyValue.From(PrometheusUrl),
         _ => throw new Exception($"Can't find method: {method}")
         //@formatter:on
     };
