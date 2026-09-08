@@ -115,12 +115,12 @@ public abstract class PrometheusData { }
 
 public sealed class MatrixData : PrometheusData
 {
-    [JsonPropertyName("result")] public List<MatrixResult> Result { get; set; }
+    [JsonPropertyName("result")] public List<MatrixResult> Result { get; set; } = [];
 }
 
 public sealed class VectorData : PrometheusData
 {
-    [JsonPropertyName("result")] public List<VectorResult> Result { get; set; }
+    [JsonPropertyName("result")] public List<VectorResult> Result { get; set; } = [];
 }
 
 public sealed class DataPointListConverter : JsonConverter<List<DataPoint>>

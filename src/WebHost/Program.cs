@@ -80,6 +80,7 @@ if (!string.IsNullOrEmpty(prometheusEndpoint))
         .ConfigureResource(resourceBuilder =>
             resourceBuilder.AddService("AppBox", autoGenerateServiceInstanceId: false))
         .AddMeter(Metrics.MeterName)
+        .AddRuntimeInstrumentation()
         .AddView(nameof(Metrics.InvokeDuration), new ExplicitBucketHistogramConfiguration
         {
             Boundaries = [10, 50, 100, 500, 1000]
