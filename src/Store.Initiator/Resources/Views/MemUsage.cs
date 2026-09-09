@@ -18,7 +18,7 @@ public sealed class MemUsage : View
             Title = new LabelVisual() { Text = "Memory Usage", Paint = WhitePaint, TextSize = 15 },
             //DrawMarginFrame = new DrawMarginFrame() { Stroke = GrayPaint },
             XAxes = [
-                new DateTimeAxis(TimeSpan.FromSeconds(Step), time => time.ToString("hh:mm:ss"))
+                new DateTimeAxis(TimeSpan.FromSeconds(Step), time => time.ToString("HH:mm:ss"))
                 {
                     TextSize = 9,
                     SeparatorsPaint = GrayPaint,
@@ -46,6 +46,14 @@ public sealed class MemUsage : View
     private readonly SolidColorPaint WhitePaint = new SolidColorPaint(Colors.White);
 
     protected override void OnMounted() => BuildChart();
+    
+    public void Refresh(DateTime start, DateTime end, int resolution)
+    {
+        StartTime = start;
+        EndTime = end;
+        Interval = Step = resolution;
+        BuildChart();
+    }
 
     private async void BuildChart()
     {

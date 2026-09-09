@@ -49,6 +49,14 @@ public sealed class GcCollections : View
     private readonly SolidColorPaint WhitePaint = new SolidColorPaint(Colors.White);
 
     protected override void OnMounted() => BuildChart();
+    
+    public void Refresh(DateTime start, DateTime end, int resolution)
+    {
+        StartTime = start;
+        EndTime = end;
+        Interval = Step = resolution;
+        BuildChart();
+    }
 
     private async void BuildChart()
     {
