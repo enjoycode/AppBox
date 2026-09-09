@@ -40,6 +40,10 @@
       <EmbeddedResource Include="Resources\Views\WorkflowTaskList.cs" />
       <Compile Remove="Resources\Views\WorkflowTaskView.cs" />
       <EmbeddedResource Include="Resources\Views\WorkflowTaskView.cs" />
+      <Compile Remove="Resources\Views\CpuUsage.cs" />
+      <EmbeddedResource Include="Resources\Views\CpuUsage.cs" />
+      <Compile Remove="Resources\Views\MemUsage.cs" />
+      <EmbeddedResource Include="Resources\Views\MemUsage.cs" />
     </ItemGroup>
 
     <ItemGroup>

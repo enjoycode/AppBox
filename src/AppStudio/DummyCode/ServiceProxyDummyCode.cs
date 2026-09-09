@@ -53,5 +53,14 @@ namespace sys.Services
         [AppBoxCore.InvocationInterceptor("CallService")]
         public static Task Resume(Guid instanceId, Guid bookmarkId, string result, string? memo) => throw new Exception();
     }
+
+    public static class PrometheusService
+    {
+        [AppBoxCore.InvocationInterceptor("CallService")]
+        public static Task<List<AppBoxCore.Metrics.VectorResult>> Query(string promql, DateTime time) => throw new Exception();
+        
+        [AppBoxCore.InvocationInterceptor("CallService")]
+        public static Task<List<AppBoxCore.Metrics.MatrixResult>> QueryRange(string promql, DateTime start, DateTime end, int step) => throw new Exception();
+    }
 }
 
