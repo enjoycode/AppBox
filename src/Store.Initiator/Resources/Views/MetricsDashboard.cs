@@ -2,26 +2,28 @@ namespace sys.Views;
 
 public sealed class MetricsDashboard : View
 {
+    //TODO: share x Axis
+
     public MetricsDashboard()
     {
         FillColor = Colors.Black;
         Child = new Column().WithChildren([
                 BuildCmdBar(),
                 new Row().WithChildren([
-                    BuildCard(new CpuUsage().RefBy(ref _cpuUsage)).WrapByExpanded(),
-                    BuildCard(new MemUsage().RefBy(ref _memUsage)).WrapByExpanded()
+                    BuildCard(BuildCpuUsage()).WrapByExpanded(),
+                    BuildCard(BuildMemUsage()).WrapByExpanded()
                 ]).WrapByExpanded(),
                 new Row().WithChildren([
-                    BuildCard(new ThreadPoolCount().RefBy(ref _threadPoolCount)).WrapByExpanded(),
-                    BuildCard(new GcCollections().RefBy(ref _gcCollections)).WrapByExpanded()
+                    BuildCard(BuildThreadPoolCount()).WrapByExpanded(),
+                    BuildCard(BuildGcCollections()).WrapByExpanded()
                 ]).WrapByExpanded()
         ]);
     }
 
-    private CpuUsage _cpuUsage = null!;
-    private MemUsage _memUsage = null!;
-    private ThreadPoolCount _threadPoolCount = null!;
-    private GcCollections _gcCollections = null!;
+    private MetricLineChart _cpuUsage = null!;
+    private MetricLineChart _memUsage = null!;
+    private MetricLineChart _threadPoolCount = null!;
+    private MetricLineChart _gcCollections = null!;
 
     private readonly State<string?> _start = "1Hour";
     private readonly State<string> _end = string.Empty;
@@ -47,6 +49,22 @@ public sealed class MetricsDashboard : View
         return BuildCard(container);
     }
 
+    private MetricLineChart BuildCpuUsage() => new MetricLineChart("CPU Usage", "cpu_mode",
+            res => $"sum by (cpu_mode) (rate(dotnet_process_cpu_time_seconds_total[{res}s]))",
+            v => v.ToString("P2")).RefBy(ref _cpuUsage);
+
+    private MetricLineChart BuildMemUsage() => new MetricLineChart("Memory Usage", "WorkingSet",
+            res => $"max(max_over_time(dotnet_process_memory_working_set_bytes[{res}s]))",
+            FormatBytes).RefBy(ref _memUsage);
+
+    private MetricLineChart BuildThreadPoolCount() => new MetricLineChart("ThreadPool Count", "Count",
+            res => $"max(max_over_time(dotnet_thread_pool_thread_count_total[{res}s]))",
+            v => v.ToString("F0")).RefBy(ref _threadPoolCount);
+
+    private MetricLineChart BuildGcCollections() => new MetricLineChart("GC Collections", "gc_heap_generation",
+            res => $"sum by (gc_heap_generation) (rate(dotnet_gc_collections_total[{res}s]))",
+            v => $"{v:F2} ops").RefBy(ref _gcCollections);
+
     private Card BuildCard(Widget child) => new Card
     {
         Child = child,
@@ -54,6 +72,25 @@ public sealed class MetricsDashboard : View
         ShadowColor = Colors.White,
         Elevation = 5,
     };
+
+    private static string FormatBytes(double bytes)
+    {
+        if (bytes < 0 || bytes == double.NaN)
+            return bytes.ToString();
+
+        string[] sizes = { "B", "K", "M", "G", "T" };
+        double len = bytes;
+        int order = 0;
+
+        // 每次除以 1024，直到找到合适的单位
+        while (len >= 1024 && order < sizes.Length - 1)
+        {
+            order++;
+            len /= 1024;
+        }
+
+        return $"{len:F1} {sizes[order]}";
+    }
 
     private void Refresh()
     {
