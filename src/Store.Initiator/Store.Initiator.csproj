@@ -44,6 +44,14 @@
       <EmbeddedResource Include="Resources\Views\CpuUsage.cs" />
       <Compile Remove="Resources\Views\MemUsage.cs" />
       <EmbeddedResource Include="Resources\Views\MemUsage.cs" />
+      <Compile Remove="Resources\Views\GcCollections.cs" />
+      <EmbeddedResource Include="Resources\Views\GcCollections.cs" />
+      <Compile Remove="Resources\Views\ThreadPoolCount.cs" />
+      <EmbeddedResource Include="Resources\Views\ThreadPoolCount.cs" />
+      <Compile Remove="Resources\Views\MetricsDashboard.cs" />
+      <EmbeddedResource Include="Resources\Views\MetricsDashboard.cs" />
+      <Compile Remove="Resources\Views\TopServiceCall.cs" />
+      <EmbeddedResource Include="Resources\Views\TopServiceCall.cs" />
     </ItemGroup>
 
     <ItemGroup>

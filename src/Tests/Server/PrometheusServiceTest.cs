@@ -21,7 +21,7 @@ public class PrometheusServiceTest
         "topk(5, histogram_quantile(0.95, sum by (Method, le) (rate(InvokeDuration_bucket[2h]))))";
     
     //Garbage Collections
-    //"sum by (generation) (rate(process_runtime_dotnet_gc_collections_count_total[1h]))"
+    //"sum by (gc_heap_generation) (rate(dotnet_gc_collections_total[1h]))"
     
     //GC Commited Memory Size
     //"max(max_over_time(process_runtime_dotnet_gc_committed_memory_size_bytes[1h]))"
@@ -33,7 +33,7 @@ public class PrometheusServiceTest
     //"sum(rate(process_runtime_dotnet_gc_allocations_size[1h]))"
     
     //Thead Pool Threads
-    //"max(max_over_time(process_runtime_dotnet_thread_pool_threads_count[1h]))",
+    //"max(max_over_time(dotnet_thread_pool_thread_count_total[1h]))",
     
     //Thread Pool Queue Length
     //"max(max_over_time(process_runtime_dotnet_thread_pool_queue_length[1h]))",
