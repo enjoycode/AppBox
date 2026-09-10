@@ -10,6 +10,10 @@ public sealed class MetricsDashboard : View
         Child = new Column().WithChildren([
                 BuildCmdBar(),
                 new Row().WithChildren([
+                    BuildCard(BuildTopServiceSum()).WrapByExpanded(),
+                    BuildCard(BuildTopServiceAvg()).WrapByExpanded(),
+                ]).WrapByExpanded(),
+                new Row().WithChildren([
                     BuildCard(BuildCpuUsage()).WrapByExpanded(),
                     BuildCard(BuildMemUsage()).WrapByExpanded()
                 ]).WrapByExpanded(),
@@ -20,27 +24,44 @@ public sealed class MetricsDashboard : View
         ]);
     }
 
+    private MetricPieChart _topServiceAvg = null!;
+    private MetricPieChart _topServiceSum = null!;
     private MetricLineChart _cpuUsage = null!;
     private MetricLineChart _memUsage = null!;
     private MetricLineChart _threadPoolCount = null!;
     private MetricLineChart _gcCollections = null!;
 
-    private readonly State<string?> _start = "1Hour";
+    private readonly State<TimeSpan> _start = TimeSpan.FromHours(1);
     private readonly State<string> _end = string.Empty;
-    private readonly State<string?> _resolution = "30s";
+    private readonly State<TimeSpan> _resolution = TimeSpan.FromSeconds(30);
     private readonly State<Color> _whiteColor = Colors.White;
-    private readonly string[] _startOffsets = ["1Hour", "4Hour", "8Hour", "1Day", "2Day"];
-    private readonly string[] _res = ["15s", "30s", "1m", "5m", "10m", "30m"];
+    private readonly TimeSpan[] _startOffsets =
+    [
+        TimeSpan.FromHours(1),
+        TimeSpan.FromHours(4),
+        TimeSpan.FromHours(8),
+        TimeSpan.FromDays(1),
+        TimeSpan.FromDays(2),
+    ];
+    private readonly TimeSpan[] _resolutions =
+    [
+        TimeSpan.FromSeconds(15),
+        TimeSpan.FromSeconds(30),
+        TimeSpan.FromMinutes(1),
+        TimeSpan.FromMinutes(5),
+        TimeSpan.FromMinutes(10),
+        TimeSpan.FromMinutes(30),
+    ];
 
     private Widget BuildCmdBar()
     {
         var row = new Row() { Spacing = 5 }.WithChildren([
             new Text("Start:") { TextColor = _whiteColor},
-            new Select<string>(_start) { Options = _startOffsets }.WithWidth(100),
+            new Select<TimeSpan>(_start) { Options = _startOffsets, LabelGetter = FormatTimeSpan }.WithWidth(100),
             new Text("End:") { TextColor = _whiteColor },
             new TextInput(_end) { HintText = "Now" }.WithWidth(150),
             new Text("Resolution:") { TextColor = _whiteColor},
-            new Select<string>(_resolution) { Options = _res }.WithWidth(60),
+            new Select<TimeSpan>(_resolution) { Options = _resolutions, LabelGetter = FormatTimeSpan }.WithWidth(60),
             new Expanded(),
             new Button(icon: MaterialIcons.Refresh) { OnTap = _ => Refresh() }
         ]);
@@ -63,7 +84,16 @@ public sealed class MetricsDashboard : View
 
     private MetricLineChart BuildGcCollections() => new MetricLineChart("GC Collections", "gc_heap_generation",
             res => $"sum by (gc_heap_generation) (rate(dotnet_gc_collections_total[{res}s]))",
-            v => $"{v:F2} ops").RefBy(ref _gcCollections);
+            v => $"{v:F2} ops", 0).RefBy(ref _gcCollections);
+
+    private MetricPieChart BuildTopServiceAvg() => new MetricPieChart("TopService(P95)", "Method",
+            range => $"topk(5, histogram_quantile(0.95, sum by (Method, le) (rate(InvokeDuration_bucket[{range}s]))))",
+            //平均$"topk(5,sum(rate(InvokeDuration_sum[2h])) by (Method) / sum(rate(InvokeDuration_count[{range}s])) by (Method))"
+            p => $"{p.Coordinate.PrimaryValue:F1}ms").RefBy(ref _topServiceAvg);
+
+    private MetricPieChart BuildTopServiceSum() => new MetricPieChart("TopService(Sum)", "Method",
+            range => $"topk(5,sum by (Method) (increase(InvokeDuration_sum[{range}s])))",
+            p => $"{p.Coordinate.PrimaryValue / 100 :F1}s").RefBy(ref _topServiceSum);
 
     private Card BuildCard(Widget child) => new Card
     {
@@ -92,37 +122,32 @@ public sealed class MetricsDashboard : View
         return $"{len:F1} {sizes[order]}";
     }
 
+    private static string FormatTimeSpan(TimeSpan ts) => ts switch
+    {
+        { Days: > 0 } => $"{ts.Days}天",
+        { Hours: > 0 } => $"{ts.Hours}时",
+        { Minutes: > 0 } => $"{ts.Minutes}分",
+        { Seconds: > 0 } => $"{ts.Seconds}秒",
+        _ => ts.ToString()
+    };
+
     private void Refresh()
     {
         var endTime = DateTime.Now;
         if (!string.IsNullOrEmpty(_end.Value) && DateTime.TryParse(_end.Value, out var time))
             endTime = time;
 
-        TimeSpan startOffset = _start.Value switch
-        {
-            "4Hour" => TimeSpan.FromHours(4),
-            "8Hour" => TimeSpan.FromHours(8),
-            "1Day" => TimeSpan.FromDays(1),
-            "2Day" => TimeSpan.FromDays(2),
-            _ => TimeSpan.FromHours(1)
-        };
+        TimeSpan startOffset = _start.Value;
         var startTime = endTime.Add(-startOffset);
 
-        var res = _resolution.Value switch
-        {
-            "30s" => TimeSpan.FromSeconds(30),
-            "1m" => TimeSpan.FromMinutes(1),
-            "5m" => TimeSpan.FromMinutes(5),
-            "10m" => TimeSpan.FromMinutes(10),
-            "30m" => TimeSpan.FromMinutes(30),
-            _ => TimeSpan.FromSeconds(15)
-        };
-        var resValue = (int)res.TotalSeconds;
+        var resolution = (int)_resolution.Value.TotalSeconds;
 
-        _cpuUsage.Refresh(startTime, endTime, resValue);
-        _memUsage.Refresh(startTime, endTime, resValue);
-        _threadPoolCount.Refresh(startTime, endTime, resValue);
-        _gcCollections.Refresh(startTime, endTime, resValue);
+        _topServiceAvg.Refresh(startTime, endTime);
+        _topServiceSum.Refresh(startTime, endTime);
+        _cpuUsage.Refresh(startTime, endTime, resolution);
+        _memUsage.Refresh(startTime, endTime, resolution);
+        _threadPoolCount.Refresh(startTime, endTime, resolution);
+        _gcCollections.Refresh(startTime, endTime, resolution);
     }
 
 }

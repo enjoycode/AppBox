@@ -83,7 +83,7 @@ if (!string.IsNullOrEmpty(prometheusEndpoint))
         .AddRuntimeInstrumentation()
         .AddView(nameof(Metrics.InvokeDuration), new ExplicitBucketHistogramConfiguration
         {
-            Boundaries = [10, 50, 100, 500, 1000]
+            Boundaries = [5, 10, 25, 50, 100, 200, 500, 1000]
         })
         .AddOtlpExporter((exporterOptions, metricReaderOptions) =>
         {

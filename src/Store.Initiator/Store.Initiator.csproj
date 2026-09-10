@@ -47,9 +47,10 @@
       <Compile Remove="Resources\Views\MetricsDashboard.cs" />
       <EmbeddedResource Include="Resources\Views\MetricsDashboard.cs" />
       <Compile Remove="Resources\Views\TopServiceCall.cs" />
-      <EmbeddedResource Include="Resources\Views\TopServiceCall.cs" />
       <Compile Remove="Resources\Views\MetricLineChart.cs" />
       <EmbeddedResource Include="Resources\Views\MetricLineChart.cs" />
+      <Compile Remove="Resources\Views\MetricPieChart.cs" />
+      <EmbeddedResource Include="Resources\Views\MetricPieChart.cs" />
     </ItemGroup>
 
     <ItemGroup>

@@ -9,7 +9,8 @@ namespace sys.Views;
 
 public sealed class MetricLineChart : View
 {
-    public MetricLineChart(string title, string metricName, Func<int, string> qmlBuilder, Func<double, string>? yAxisLabeler = null)
+    public MetricLineChart(string title, string metricName, Func<int, string> qmlBuilder, 
+        Func<double, string>? yAxisLabeler = null, double? minLimit = null)
     {
         _qmlBuilder = qmlBuilder;
         _metricName = metricName;
@@ -35,6 +36,7 @@ public sealed class MetricLineChart : View
                     SeparatorsPaint = GrayPaint,
                     Labeler = yAxisLabeler ?? _defaultLabeler,
                     LabelsPaint = WhitePaint,
+                    MinLimit = minLimit,
                 }
             ],
         }.RefBy(ref _chart!);
