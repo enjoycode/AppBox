@@ -43,13 +43,13 @@ internal sealed class PreviewController
     }
 
     public readonly ModelNode ModelNode;
-    private Action? _invalidateAction;
+    private Action<bool>? _invalidateAction;
     internal Widget? CurrentWidget; //当前加载的预览的Widget实例
 
     /// <summary>
     /// 用于重新加载预览
     /// </summary>
-    internal Action InvalidateAction
+    internal Action<bool> InvalidateAction
     {
         set => _invalidateAction = value;
     }
@@ -59,7 +59,7 @@ internal sealed class PreviewController
     /// </summary>
     internal Action? RefreshOutlineAction { get; set; }
 
-    public void Invalidate() => _invalidateAction?.Invoke();
+    public void Invalidate(bool show) => _invalidateAction?.Invoke(show);
 
     public WidgetTreeNode? GetWidgetTree() => CurrentWidget == null ? null : new WidgetTreeNode(CurrentWidget);
 }

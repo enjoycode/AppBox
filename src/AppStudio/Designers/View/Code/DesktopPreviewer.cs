@@ -21,12 +21,14 @@ internal sealed class DesktopPreviewer : View //TODO: rename to EmbedPreviewer
     private ViewAssemblyLoader? _assemblyLoader;
     private static Widget MakeLoading() => new Center { Child = new Text("Loading....") };
 
-    private async void Run()
+    private async void Run(bool show)
     {
         _containerRef.Child?.Dispose();
         _containerRef.Child = null;
         _assemblyLoader?.Unload();
         _assemblyLoader = null;
+
+        if (!show) return;
 
         try
         {

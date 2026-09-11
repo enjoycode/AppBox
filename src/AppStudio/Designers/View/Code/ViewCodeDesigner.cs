@@ -14,7 +14,8 @@ internal sealed class ViewCodeDesigner : View, IDesignerWithProblems, IAIGenerat
         _textBuffer = new RoslynSourceText(designContext.Workspace, modelNode.RoslynDocumentId!);
         _previewController = new PreviewController(modelNode);
         _codeEditorController = new CodeEditorController($"{modelNode.Label}.cs", _textBuffer,
-            new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext), modelNode.RoslynDocumentId);
+            new RoslynSyntaxParser(_textBuffer), new RoslynCompletionProvider(designContext),
+            modelNode.RoslynDocumentId);
         _codeEditorController.ContextMenuBuilder = e => ContextMenuService.BuildContextMenu(designContext, e);
         //订阅代码变更事件
         _codeEditorController.Document.DocumentChanged += OnDocumentChanged;
@@ -67,8 +68,7 @@ internal sealed class ViewCodeDesigner : View, IDesignerWithProblems, IAIGenerat
     private void SwitchPreviewer(PointerEvent e)
     {
         _hidePreviewer.Value = !_hidePreviewer.Value;
-        if (!_hidePreviewer.Value)
-            _previewController.Invalidate();
+        _previewController.Invalidate(!_hidePreviewer.Value);
     }
 
     protected override void OnMounted()
@@ -123,7 +123,7 @@ internal sealed class ViewCodeDesigner : View, IDesignerWithProblems, IAIGenerat
             DesignStore.UpdateProblems(ModelNode, problems);
 
             if (!problems.Any(p => p.IsError) && !_hidePreviewer.Value)
-                _previewController.Invalidate();
+                _previewController.Invalidate(!_hidePreviewer.Value);
         }
         catch (Exception e)
         {

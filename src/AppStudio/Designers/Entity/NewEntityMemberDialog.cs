@@ -13,7 +13,7 @@ internal sealed class NewEntityMemberDialog : Dialog
         _designContext = designContext;
         _modelNode = modelNode;
         Width = 380;
-        Height = 300;
+        Height = 330;
         Title.Value = "New Entity Member";
         
         _fieldType.AddListener(OnFieldTypeChanged);
