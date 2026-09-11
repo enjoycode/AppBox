@@ -33,7 +33,7 @@ internal sealed class OutlinePad : View
             if (outlinePad != null)
             {
                 Child = outlinePad;
-                Invalidate(InvalidAction.Relayout);
+                Relayout();
                 return;
             }
         }
@@ -42,7 +42,7 @@ internal sealed class OutlinePad : View
         if (!ReferenceEquals(Child, NotSupported))
         {
             Child = NotSupported;
-            Invalidate(InvalidAction.Relayout);
+            Relayout();
         }
     }
 }

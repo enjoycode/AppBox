@@ -66,6 +66,8 @@ internal sealed class DesktopPreviewer : View //TODO: rename to EmbedPreviewer
             };
         }
 
+        //TODO:Task.Delay临时解决关闭再打开预览时，加入InvalidQueue被合并后的Splitter的面板不重新布局的问题
+        await Task.Delay(1);
         _containerRef.Relayout();
         //Sync outline view
         _controller.CurrentWidget = _containerRef.Child;
