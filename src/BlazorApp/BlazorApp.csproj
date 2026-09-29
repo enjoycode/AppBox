@@ -5,73 +5,62 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-<!--        <InvariantGlobalization>false</InvariantGlobalization>-->
+        <!--        <InvariantGlobalization>false</InvariantGlobalization>-->
         <InvariantGlobalization>true</InvariantGlobalization>
-<!--        <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>-->
-<!--        <WasmIcuDataFileName>icudt.dat</WasmIcuDataFileName>-->
-<!--        <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>-->
+        <!--        <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>-->
+        <!--        <WasmIcuDataFileName>icudt.dat</WasmIcuDataFileName>-->
+        <!--        <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>-->
         <WasmEnableSIMD>true</WasmEnableSIMD>
         <WasmAllowUndefinedSymbols>true</WasmAllowUndefinedSymbols>
         <EmccInitialHeapSize>128MB</EmccInitialHeapSize>
-        <EmccExtraCFlags>-s USE_WEBGL2=1 -s MAX_WEBGL_VERSION=2</EmccExtraCFlags>
-        <EmccExtraLDFlags>-lGL</EmccExtraLDFlags>
+        <SkiaUseGraphite>False</SkiaUseGraphite>
         <RootNamespace>AppBox.BlazorApp</RootNamespace>
         <AssemblyName>AppBox.BlazorApp</AssemblyName>
     </PropertyGroup>
 
+    <Import Project="../../ext/PixUI/src/PixUI.Drawing.Skia/Native/Wasm.targets"/>
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.0" PrivateAssets="all"/>
     </ItemGroup>
 
     <ItemGroup>
-        <EmccExportedRuntimeMethod Include="GL" />
-        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\skia.a" />
-<!--        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter.o" />-->
-<!--        <NativeFileReference Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\tree-sitter-csharp.a" />-->
+        <ProjectReference Include="..\..\ext\PixUI\ext\LiveCharts2\src\LiveChartsCore\LiveChartsCore.csproj"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Drawing.Skia\PixUI.Drawing.Skia.csproj"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj"/>
+        <ProjectReference Include="..\Client.UI\Client.UI.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\ext\PixUI\ext\LiveCharts2\src\LiveChartsCore\LiveChartsCore.csproj" />
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Drawing.Skia\PixUI.Drawing.Skia.csproj" />
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI.LiveCharts\PixUI.LiveCharts.csproj" />
-      <ProjectReference Include="..\..\ext\PixUI\src\PixUI\PixUI.csproj" />
-      <ProjectReference Include="..\Client.UI\Client.UI.csproj" />
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebApplication.cs">
+            <Link>WebApplication.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebClipboard.cs">
+            <Link>WebClipboard.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebCursors.cs">
+            <Link>WebCursors.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebFileDialog.cs">
+            <Link>WebFileDialog.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebWindow.cs">
+            <Link>WebWindow.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebGLWindow.cs">
+            <Link>WebGLWindow.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebGPUWindow.cs">
+            <Link>WebGPUWindow.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\InputUtils.cs">
+            <Link>InputUtils.cs</Link>
+        </Compile>
+        <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\WebBrowser.cs">
+            <Link>WebBrowser.cs</Link>
+        </Compile>
     </ItemGroup>
-
-    <ItemGroup>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorApplication.cs">
-        <Link>BlazorApplication.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorClipboard.cs">
-        <Link>BlazorClipboard.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorCursors.cs">
-        <Link>BlazorCursors.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorFileDialog.cs">
-        <Link>BlazorFileDialog.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\BlazorWindow.cs">
-        <Link>BlazorWindow.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\InputUtils.cs">
-        <Link>InputUtils.cs</Link>
-      </Compile>
-      <Compile Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\JSApi.cs">
-        <Link>JSApi.cs</Link>
-      </Compile>
-    </ItemGroup>
-
-<!--    <Target Name="UseCustomICU" AfterTargets="ResolveRuntimePackAssets">-->
-<!--        <ItemGroup>-->
-<!--            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.Extension)' == '.dat' AND $([System.String]::Copy('%(ReferenceCopyLocalPaths.FileName)').StartsWith('icudt'))" />-->
-
-<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt.dat" DestinationSubPath="icudt.dat" />-->
-<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_CJK.dat" DestinationSubPath="icudt_CJK.dat" />-->
-<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_EFIGS.dat" DestinationSubPath="icudt_EFIGS.dat" />-->
-<!--            <ReferenceCopyLocalPaths Include="..\..\ext\PixUI\src\PixUI.Platform.Blazor\libs\icudt_no_CJK.dat" DestinationSubPath="icudt_no_CJK.dat" />-->
-<!--        </ItemGroup>-->
-<!--    </Target>-->
 
 </Project>

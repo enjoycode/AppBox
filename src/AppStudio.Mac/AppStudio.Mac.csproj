@@ -13,25 +13,13 @@
     <PropertyGroup Condition="'$(IsArm64)'=='true'">
         <DefineConstants>$(DefineConstants);ARM64</DefineConstants>
     </PropertyGroup>
-  
+
+    <Import Project="../../ext/PixUI/src/PixUI.Drawing.Skia/Native/Macos.targets"/>
+
     <ItemGroup>
-        <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
-        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Drawing.Skia\PixUI.Drawing.Skia.csproj" />
+        <PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10"/>
+        <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Drawing.Skia\PixUI.Drawing.Skia.csproj"/>
         <ProjectReference Include="..\..\ext\PixUI\src\PixUI.Platform.Mac\PixUI.Platform.Mac.csproj"/>
         <ProjectReference Include="..\AppStudio\AppStudio.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(IsArm64)'=='true'">
-        <NativeReference Include="..\..\ext\PixUI\src\PixUI.Platform.Mac\libs\osx-arm64\libskia.dylib">
-            <Kind>Dynamic</Kind>
-            <SmartLink>False</SmartLink>
-        </NativeReference>
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(IsArm64)'!='true'">
-        <NativeReference Include="..\..\ext\PixUI\src\PixUI.Platform.Mac\libs\osx-x64\libskia.dylib">
-            <Kind>Dynamic</Kind>
-            <SmartLink>False</SmartLink>
-        </NativeReference>
     </ItemGroup>
 </Project>

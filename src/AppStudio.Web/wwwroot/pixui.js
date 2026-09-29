@@ -2,9 +2,16 @@ export let PixUI = {
     _htmlCanvas: null,
     _htmlInput: null,
     _asmName: "PixUI",
+    _useGraphite: false,
     _baseHref: (document.getElementsByTagName('base')[0] || {href: document.location.origin + '/'}).href,
+    _api: null,
 
-    CreateCanvas: function () {
+    Init() {
+        this.CreateCanvas()
+        this.CreateInput()
+    },
+
+    CreateCanvas() {
         this._htmlCanvas = document.createElement("canvas")
         this._htmlCanvas.style.position = "absolute"
         this._htmlCanvas.style.zIndex = "1"
@@ -12,7 +19,7 @@ export let PixUI = {
         document.body.append(this._htmlCanvas)
     },
 
-    CreateInput: function () {
+    CreateInput() {
         let input = document.createElement('input')
         input.id = '_i'
         input.style.position = 'absolute'
@@ -38,7 +45,7 @@ export let PixUI = {
         this._htmlInput = input;
     },
 
-    UpdateCanvasSize: function () {
+    UpdateCanvasSize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
         const ratio = window.devicePixelRatio;
@@ -50,60 +57,37 @@ export let PixUI = {
         this._htmlCanvas.style.height = height + "px";
     },
 
-    GetGLContext: function () {
-        let contextAttributes = {
-            'alpha': 1,
-            'depth': 1,
-            'stencil': 8,
-            'antialias': 0,
-            'premultipliedAlpha': 1,
-            'preserveDrawingBuffer': 0,
-            'preferLowPowerToHighPerformance': 0,
-            'failIfMajorPerformanceCaveat': 0,
-            'enableExtensionsByDefault': 1,
-            'explicitSwapControl': 0,
-            'renderViaOffscreenBackBuffer': 0,
-        }
-        contextAttributes['majorVersion'] = (typeof WebGL2RenderingContext !== 'undefined') ? 2 : 1
-        let gl = globalThis.Blazor.runtime.Module.GL;
-        let handle = gl.createContext(this._htmlCanvas, contextAttributes)
-        if (handle) {
-            gl.makeContextCurrent(handle)
-            gl.currentContext.GLctx.getExtension('WEBGL_debug_renderer_info')
-            //https://github.com/dotnet/runtime/issues/76077
-            globalThis.GL = gl
-            globalThis.GLctx = gl.currentContext.GLctx
-        } else {
-            //TODO: fallback to software surface
-            alert("Can't use gpu")
-        }
-
-        return handle;
-    },
-
-    BindEvents: function () {
+    BindEvents() {
         window.onresize = ev => {
             this.UpdateCanvasSize()
-            DotNet.invokeMethod(this._asmName, "OnResize", window.innerWidth, window.innerHeight, window.devicePixelRatio)
+            if (!this._useGraphite) {
+                this._api.OnResize(window.innerWidth, window.innerHeight, window.devicePixelRatio)
+            } else {
+                //TODO: reuse offScreenTexture if possible
+                let onScreenTextureId = this.WebGPU.getOnScreenTextureId()
+                this.WebGPU.createOffScreenTexture(this.WebGPU.onScreenTexture.width, this.WebGPU.onScreenTexture.height)
+                this._api.OnResize(window.innerWidth, window.innerHeight, window.devicePixelRatio,
+                    onScreenTextureId, this.WebGPU.offScreenTextureId);
+            }
         }
 
         window.onmousemove = ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            DotNet.invokeMethod(this._asmName, "OnMouseMove", ev.buttons, ev.x, ev.y, ev.movementX, ev.movementY)
+            this._api.OnMouseMove(ev.buttons, ev.x, ev.y, ev.movementX, ev.movementY)
         }
         window.onmouseout = ev => {
-            DotNet.invokeMethod(this._asmName, "OnMouseMoveOutWindow")
+            this._api.OnMouseMoveOutWindow()
         }
         window.onmousedown = ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            DotNet.invokeMethod(this._asmName, "OnMouseDown", ev.button, ev.x, ev.y, ev.movementX, ev.movementY)
+            this._api.OnMouseDown(ev.button, ev.x, ev.y, ev.movementX, ev.movementY)
         }
         window.onmouseup = ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            DotNet.invokeMethod(this._asmName, "OnMouseUp", ev.button, ev.x, ev.y, ev.movementX, ev.movementY)
+            this._api.OnMouseUp(ev.button, ev.x, ev.y, ev.movementX, ev.movementY)
         }
         window.oncontextmenu = ev => {
             ev.preventDefault();
@@ -115,17 +99,18 @@ export let PixUI = {
         window.ondrop = async (ev) => {
             ev.preventDefault();
             for (const file of ev.dataTransfer.files) {
-                await DotNet.invokeMethodAsync(this._asmName, "OnDropFile", ev.x, ev.y, file.name, file.size, file.type, DotNet.createJSStreamReference(file))
+                await DotNet.invokeMethodAsync(this._asmName, "OnDropFile", ev.x, ev.y,
+                    file.name, file.size, file.type, DotNet.createJSStreamReference(file))
             }
         }
         window.onkeydown = ev => {
-            DotNet.invokeMethod(this._asmName, "OnKeyDown", ev.key, ev.code, ev.altKey, ev.ctrlKey, ev.shiftKey, ev.metaKey)
+            this._api.OnKeyDown(ev.key, ev.code, ev.altKey, ev.ctrlKey, ev.shiftKey, ev.metaKey)
             if (ev.code === 'Tab') {
                 ev.preventDefault();
             }
         }
         window.onkeyup = ev => {
-            DotNet.invokeMethod(this._asmName, "OnKeyUp", ev.key, ev.code, ev.altKey, ev.ctrlKey, ev.shiftKey, ev.metaKey)
+            this._api.OnKeyUp(ev.key, ev.code, ev.altKey, ev.ctrlKey, ev.shiftKey, ev.metaKey)
             if (ev.code === 'Tab') {
                 ev.preventDefault();
             }
@@ -155,62 +140,56 @@ export let PixUI = {
         this._htmlCanvas.onwheel = ev => {
             ev.preventDefault();
             ev.stopPropagation();
-            DotNet.invokeMethod(this._asmName, "OnScroll", ev.x, ev.y, ev.deltaX, ev.deltaY)
+            this._api.OnScroll(ev.x, ev.y, ev.deltaX, ev.deltaY)
         }
     },
 
-    OnTextInput: function (s) {
-        DotNet.invokeMethod(this._asmName, "OnTextInput", s)
+    OnTextInput(s) {
+        this._api.OnTextInput(s)
     },
 
-    SetCursor: function (name) {
+    SetCursor(name) {
         window.document.body.style.cursor = name
     },
 
-    StartTextInput: function () {
+    StartTextInput() {
         setTimeout(() => {
             this._htmlInput.focus({preventScroll: true});
         }, 0);
     },
 
-    SetInputRect: function (x, y, w, h) {
+    SetInputRect(x, y, w, h) {
         this._htmlInput.style.left = x.toString() + 'px'
         this._htmlInput.style.top = (y + h).toString() + 'px'
         this._htmlInput.style.width = w.toString() + 'px'
     },
 
-    StopTextInput: function () {
+    StopTextInput() {
         this._htmlInput.blur();
         this._htmlInput.value = '';
     },
 
-    PushWebHistory: function (path, index) {
+    PushWebHistory(path, index) {
         let url = this._baseHref + '#' + path;
         history.pushState(index, '', url);
     },
 
-    ReplaceWebHistory: function (path, index) {
+    ReplaceWebHistory(path, index) {
         let url = this._baseHref;
         if (path !== '/')
             url += '#' + path;
         history.replaceState(index, '', url);
     },
 
-    PostInvalidateEvent: function () {
-        requestAnimationFrame(() => {
-            DotNet.invokeMethod(this._asmName, "OnInvalidate")
-        });
-    },
-
-    ClipboardWriteText: async function (text) {
+    async ClipboardWriteText(text) {
         await navigator.clipboard.writeText(text)
     },
 
-    ClipboardReadText: async function () {
+    async ClipboardReadText() {
         return await navigator.clipboard.readText()
     },
 
-    OpenFile: async function (multiple, accept) {
+    async OpenFile(multiple, accept) {
         const input = document.createElement('input')
         input.type = 'file'
         input.multiple = multiple
@@ -244,7 +223,7 @@ export let PixUI = {
         return results
     },
 
-    SaveFile: async function (fileName, streamRef) {
+    async SaveFile(fileName, streamRef) {
         //https://github.com/jimmywarting/native-file-system-adapter/blob/master/src/adapters/downloader.js
         //https://stackoverflow.com/questions/77427123/javascript-open-save-as-dialog-box-and-store-content
         const data = await streamRef.arrayBuffer()
@@ -257,29 +236,186 @@ export let PixUI = {
         setTimeout(() => URL.revokeObjectURL(link.href), 10000)
     },
 
-    Init: function () {
-        this.CreateCanvas()
-        this.CreateInput()
+    PostInvalidateEvent() {
+        requestAnimationFrame(() => {
+            if (!this._useGraphite) {
+                this._api.OnInvalidate()
+            } else {
+                this._api.OnInvalidate(this.WebGPU.getOnScreenTextureId())
+            }
+        });
     },
 
-    BeforeRunApp: function () {
-        this._asmName = Blazor.runtime.getConfig().mainAssemblyName
+    async BeforeRunApp(useGraphite) {
+        this._useGraphite = useGraphite
+        let runtime = globalThis.Blazor.runtime
+        this._asmName = runtime.getConfig().mainAssemblyName
+        let exports = await runtime.getAssemblyExports(this._asmName)
+        this._api = exports.PixUI.Platform.Blazor.WebBrowser
 
-        let glHandle = this.GetGLContext()
-        let routePath = document.location.hash.length > 0 ? document.location.hash.substring(1) : null
-        let isMacOS = navigator.userAgent.includes("Mac")
         // let wsp = document.location.protocol.startsWith("https") ? "wss://" : "ws://"
         // let wsUrl = wsp + document.location.host + "/ws"
         let wsUrl = "ws://localhost:5000/ws"
+
+        if (useGraphite) {
+            await this.WebGPU.init(this._htmlCanvas, useGraphite)
+        } else {
+            this.WebGL.init(this._htmlCanvas)
+        }
+
         return {
-            GLHandle: glHandle,
+            GpuInstanceId: this.WebGPU.instanceId,
+            GpuDeviceId: this.WebGPU.deviceId,
+            GpuQueueId: this.WebGPU.queueId,
+            GpuOnScreenTextureId: this.WebGPU.onScreenTextureId,
+            GpuOffScreenTextureId: this.WebGPU.offScreenTextureId,
             Width: window.innerWidth,
             Height: window.innerHeight,
             PixelRatio: window.devicePixelRatio,
-            RoutePath: routePath,
-            IsMacOS: isMacOS,
-            WSUrl: wsUrl
+            RoutePath: document.location.hash.length > 0 ? document.location.hash.substring(1) : null,
+            IsMacOS: navigator.userAgent.includes("Mac"),
+            WsUrl: wsUrl,
         }
-    }
+    },
 
+    WebGL: {
+        glHandle: null,
+
+        init(htmlCanvas) {
+            let contextAttributes = {
+                'alpha': 1,
+                'depth': 1,
+                'stencil': 8,
+                'antialias': 0,
+                'premultipliedAlpha': 1,
+                'preserveDrawingBuffer': 0,
+                'preferLowPowerToHighPerformance': 0,
+                'failIfMajorPerformanceCaveat': 0,
+                'enableExtensionsByDefault': 1,
+                'explicitSwapControl': 0,
+                'renderViaOffscreenBackBuffer': 0,
+            }
+            contextAttributes['majorVersion'] = (typeof WebGL2RenderingContext !== 'undefined') ? 2 : 1
+            let gl = globalThis.Blazor.runtime.Module.GL;
+            this.glHandle = gl.createContext(htmlCanvas, contextAttributes)
+            if (this.glHandle) {
+                gl.makeContextCurrent(this.glHandle)
+                gl.currentContext.GLctx.getExtension('WEBGL_debug_renderer_info')
+                //https://github.com/dotnet/runtime/issues/76077
+                globalThis.GL = gl
+                globalThis.GLctx = gl.currentContext.GLctx
+            } else {
+                alert("Can't use webgl")
+            }
+        }
+    },
+
+    WebGPU: {
+        canvasCtx: null,
+        instanceId: 0,
+        device: null,
+        deviceId: 0,
+        queueId: 0,
+        onScreenTexture: null,
+        onScreenTextureId: 0,
+        offScreenTexture: null,
+        offScreenTextureId: 0,
+
+        async init(htmlCanvas, useGraphite) {
+            let adapter = await this.requestAdapter()
+            this.device = await adapter.requestDevice()
+            this.canvasCtx = htmlCanvas.getContext("webgpu")
+            this.canvasCtx.configure({
+                device: this.device,
+                format: navigator.gpu.getPreferredCanvasFormat(),
+                alphaMode: "premultiplied",
+                usage: 0x04 | 0x10
+            });
+
+            if (useGraphite) {
+                this.instanceId = this.createInstance()
+                if (this.instanceId === 0) throw 'Cannot obtain a real WGPUInstance'
+
+                this.queueId = this.registerQueue(this.device.queue, this.instanceId)
+                this.deviceId = this.registerDevice(this.device, this.instanceId)
+            }
+
+            this.createOffScreenTexture(window.innerWidth * window.devicePixelRatio,
+                window.innerHeight * window.devicePixelRatio)
+        },
+
+        getOnScreenTextureId() {
+            if (this.onScreenTextureId !== 0) {
+                this.releaseTexture(this.onScreenTextureId) //TODO:check
+            }
+
+            this.onScreenTexture = this.canvasCtx.getCurrentTexture()
+            this.onScreenTextureId = this.registerTexture(this.onScreenTexture)
+            return this.onScreenTextureId
+        },
+
+        createOffScreenTexture(w, h) {
+            if (this.offScreenTextureId !== 0) {
+                this.releaseTexture(this.offScreenTextureId)
+            }
+            this.offScreenTexture = this.createTexture(this.device, w, h)
+            this.offScreenTextureId = this.registerTexture(this.offScreenTexture)
+        },
+
+        requestAdapter: () => navigator.gpu && navigator.gpu.requestAdapter({powerPreference: 'low-power'}),
+        createInstance: () => (typeof Blazor.runtime.Module.wasmExports.wgpuCreateInstance === 'function')
+            ? Blazor.runtime.Module.wasmExports.wgpuCreateInstance(0) : 0,
+        // Port-agnostic handle registration. emdawnwebgpu ships importJs* on Module.WebGPU; the legacy -sUSE_WEBGPU=1
+        // port shipped mgr* HandleAllocator tables with .create. emdawnwebgpu tags each imported object's events with
+        // the parent EventSource's InstanceID; leaving parent=0 makes WaitAny assert(event->mInstanceId == instance)
+        // fire on the first async wait. Pass the current instance handle so device/queue events resolve against it.
+        registerDevice: (d, parent) => Blazor.runtime.Module.WebGPU.importJsDevice
+            ? Blazor.runtime.Module.WebGPU.importJsDevice(d, parent)
+            : Blazor.runtime.Module.WebGPU.mgrDevice.create(d),
+        registerQueue: (q, parent) => Blazor.runtime.Module.WebGPU.importJsQueue
+            ? Blazor.runtime.Module.WebGPU.importJsQueue(q, parent)
+            : Blazor.runtime.Module.WebGPU.mgrQueue.create(q),
+        registerTexture: (t) => Blazor.runtime.Module.WebGPU.importJsTexture
+            ? Blazor.runtime.Module.WebGPU.importJsTexture(t)
+            : Blazor.runtime.Module.WebGPU.mgrTexture.create(t),
+        // Under emdawnwebgpu, released handles hold real refcounted C-side WGPUTexture objects — call the C ABI
+        // via the exported symbol. Under the legacy port they were HandleAllocator table entries with a JS-side
+        // .release. Try the C ABI first (it's the mandatory path under emdawnwebgpu), fall back to the JS table.
+        releaseTexture: (id) => {
+            if (typeof Blazor.runtime.Module.wasmExports.wgpuTextureRelease === 'function') {
+                Blazor.runtime.Module.wasmExports.wgpuTextureRelease(id);
+            } else if (Blazor.runtime.Module.WebGPU.mgrTexture) {
+                Blazor.runtime.Module.WebGPU.mgrTexture.release(id);
+            }
+        },
+        requestDevice: (adapter) => adapter.requestDevice(),
+        createTexture: (d, w, h) => d.createTexture({
+            size: {width: w, height: h, depthOrArrayLayers: 1},
+            format: navigator.gpu.getPreferredCanvasFormat(),
+            alphaMode: "premultiplied",
+            usage: 0x01 | 0x04 | 0x10,
+        }),
+        createBuffer: (d, sz) => d.createBuffer({size: sz, usage: 0x09}),
+        createCommandEncoder: (d) => d.createCommandEncoder(),
+        copyTextureToBuffer: (e, tex, buf, bpr, w, h) => e.copyTextureToBuffer(
+            {texture: tex},
+            {buffer: buf, bytesPerRow: bpr, rowsPerImage: h},
+            {width: w, height: h, depthOrArrayLayers: 1}),
+        submitEncoder: (d, e) => d.queue.submit([e.finish()]),
+        mapBufferRead: (b) => b.mapAsync(0x01),
+        getMappedBase64: (b, bpr, w, h) => {
+            const mapped = new Uint8Array(b.getMappedRange());
+            const widthBytes = w * 4;
+            const packed = new Uint8Array(widthBytes * h);
+            for (let r = 0; r < h; r++)
+                packed.set(mapped.subarray(r * bpr, r * bpr + widthBytes), r * widthBytes);
+            b.unmap();
+            b.destroy();
+            let s = '';
+            const CHUNK = 0x8000;
+            for (let i = 0; i < packed.length; i += CHUNK)
+                s += String.fromCharCode.apply(null, packed.subarray(i, i + CHUNK));
+            return btoa(s);
+        },
+    },
 }

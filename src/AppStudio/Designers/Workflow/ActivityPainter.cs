@@ -27,12 +27,12 @@ internal static class ActivityPainter
 
     private static IPath CreateArrowPath()
     {
-        var path = Path.Create();
-        path.MoveTo(10, 5);
-        path.LineTo(25, 15);
-        path.LineTo(10, 25);
-        path.Close();
-        return path;
+        using var builder = PathBuilder.Create();
+        builder.MoveTo(10, 5);
+        builder.LineTo(25, 15);
+        builder.LineTo(10, 25);
+        builder.Close();
+        return builder.Detach();
     }
 
     private static IPath CreateDecisionPath(Size size)
@@ -42,13 +42,13 @@ internal static class ActivityPainter
         var bottomPoint = new Point(size.Width / 2f, size.Height);
         var rightPoint = new Point(size.Width, size.Height / 2f);
 
-        var path = Path.Create();
-        path.MoveTo(topPoint.X, topPoint.Y);
-        path.LineTo(leftPoint.X, leftPoint.Y);
-        path.LineTo(bottomPoint.X, bottomPoint.Y);
-        path.LineTo(rightPoint.X, rightPoint.Y);
-        path.Close();
-        return path;
+        using var builder = PathBuilder.Create();
+        builder.MoveTo(topPoint.X, topPoint.Y);
+        builder.LineTo(leftPoint.X, leftPoint.Y);
+        builder.LineTo(bottomPoint.X, bottomPoint.Y);
+        builder.LineTo(rightPoint.X, rightPoint.Y);
+        builder.Close();
+        return builder.Detach();
     }
 
     private static IPath CreateAutomationIconPath()
@@ -174,10 +174,11 @@ internal static class ActivityPainter
     public static void PaintForkActivity(ICanvas canvas, Size size, string title)
     {
         var rect = Rect.FromLS(Point.Empty, new Size(size.Width * 2, size.Height));
-        using var harfCircle = Path.Create();
-        harfCircle.AddArc(rect, 90, 180);
-        harfCircle.LineTo(rect.MidX, rect.MidY);
-        harfCircle.Close();
+        using var builder = PathBuilder.Create();
+        builder.AddArc(rect, 90, 180);
+        builder.LineTo(rect.MidX, rect.MidY);
+        builder.Close();
+        using var harfCircle = builder.Detach();
 
         canvas.FillPath(BorderColor, harfCircle);
         // canvas.DrawPath(BorderColor, BorderWidth, harfCircle);
@@ -188,10 +189,11 @@ internal static class ActivityPainter
     public static void PaintJoinActivity(ICanvas canvas, Size size, string title)
     {
         var rect = Rect.FromLS(new Point(-size.Width, 0), new Size(size.Width * 2, size.Height));
-        using var harfCircle = Path.Create();
-        harfCircle.AddArc(rect, 270, 180);
-        harfCircle.LineTo(rect.MidX, rect.MidY);
-        harfCircle.Close();
+        using var builder = PathBuilder.Create();
+        builder.AddArc(rect, 270, 180);
+        builder.LineTo(rect.MidX, rect.MidY);
+        builder.Close();
+        using var harfCircle = builder.Detach();
 
         canvas.FillPath(BorderColor, harfCircle);
         // canvas.DrawPath(BorderColor, BorderWidth, harfCircle);
